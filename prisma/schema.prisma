@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Societário edita tudo; os demais setores só visualizam/copiam/baixam.
+enum Sector {
+  SOCIETARIO
+  FISCAL
+  CONTABIL
+  DP
+  CONTROLADORIA
+  COMERCIAL
+  ADMINISTRATIVO
+}
+
+enum CertMedia {
+  FILE
+  CARD
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  sector       Sector   @default(ADMINISTRATIVO)
+  createdAt    DateTime @default(now())
+}
+
+model Certificate {
+  id        String    @id @default(uuid())
+  holder    String
+  document  String
+  type      String
+  media     CertMedia @default(FILE)
+  issuer    String
+  issuedAt  DateTime
+  expiresAt DateTime
+  password  String
+  fileName  String?
+  fileData  String? // .pfx em base64
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  accesses  Access[]
+}
+
+// Acessos a sites (prefeituras, portais, sistemas) com tutorial em Markdown.
+// Quando o login é por certificado digital, aponta pro certificado do cofre
+// e a senha do acesso passa a ser a do certificado.
+model Access {
+  id            String       @id @default(uuid())
+  name          String // ex.: Prefeitura de Blumenau
+  url           String
+  loginType     String // CNPJ, CPF, E-mail, Usuário, Certificado digital, Outro
+  loginValue    String
+  password      String
+  certificateId String?
+  certificate   Certificate? @relation(fields: [certificateId], references: [id], onDelete: SetNull)
+  notes         String?
+  tutorial      String? // markdown; imagens via /api/images/{id}
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model TutorialImage {
+  id        String   @id @default(uuid())
+  mime      String
+  data      String // base64
+  createdAt DateTime @default(now())
+}
+
+// Configuração global do cofre (linha única) — definida pelo Societário.
+// O bloqueio é geral: bloqueou, travou para todos os setores.
+model VaultConfig {
+  id          Int     @id @default(1)
+  alertDays   Int     @default(45) // janela de "vencendo" para o cofre inteiro
+  locked      Boolean @default(false)
+  lockPinHash String? // bcrypt do PIN de bloqueio (só Societário conhece)
+  autoLock    Boolean @default(true) // sair por inatividade (política p/ todos)
+  lockMinutes Int     @default(15)
+}

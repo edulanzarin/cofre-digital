@@ -1,0 +1,51 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vault
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vault_secret}
+      POSTGRES_DB: vault
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vault -d vault"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  migrate:
+    build:
+      context: .
+      target: builder
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://vault:${POSTGRES_PASSWORD:-vault_secret}@db:5432/vault
+      # Opcionais (defina num .env na raiz antes do primeiro up):
+      SEED_ADMIN_NAME: ${SEED_ADMIN_NAME:-}
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
+    command: sh -c "npx prisma migrate deploy && node prisma/seed.mjs"
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgresql://vault:${POSTGRES_PASSWORD:-vault_secret}@db:5432/vault
+      AUTH_SECRET: ${AUTH_SECRET:-troque-este-segredo-em-producao}
+      # acesso na rede é por http:// (sem TLS); cookie Secure quebraria o login
+      COOKIE_SECURE: "false"
+    ports:
+      # 0.0.0.0 → acessível na rede pelo IP do host: http://<ip-do-pc>:4004
+      - "4004:3000"
+
+volumes:
+  pgdata:
