@@ -29,7 +29,8 @@ import AccessForm from "@/components/accesses/AccessForm";
 export default function AccessDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { editor } = useMe();
+  const { can } = useMe();
+  const editor = can("acessos", "edit");
   const { confirmReveal } = useSettings();
 
   const [access, setAccess] = useState<Access | null>(null);
@@ -341,7 +342,7 @@ export default function AccessDetailPage() {
               </div>
               {!editor && (
                 <p className="mt-1.5 text-[0.68rem] text-ink-3">
-                  Seu setor pode copiar a senha, mas não visualizá-la.
+                  Seu perfil pode copiar a senha, mas não visualizá-la.
                 </p>
               )}
             </div>

@@ -6,25 +6,18 @@ import {
   parseAccessBody,
   toAccessDTO,
 } from "@/lib/access-api";
-import {
-  forbidden,
-  requireEditor,
-  requireUnlockedUser,
-  unauthorized,
-  vaultLocked,
-} from "@/lib/api-auth";
-import { isEditor } from "@/lib/auth";
+import { guard } from "@/lib/api-auth";
+import { allows } from "@/lib/permissions";
 
 type Params = { params: Promise<{ id: string }> };
 
 const notFound = () =>
   NextResponse.json({ error: "Acesso não encontrado." }, { status: 404 });
 
-// Detalhe com tutorial para todos; senha só para o Societário.
+// Detalhe com tutorial para quem vê; senha só para quem edita.
 export async function GET(_req: Request, { params }: Params) {
-  const session = await requireUnlockedUser();
-  if (!session) return unauthorized();
-  if (session === "locked") return vaultLocked();
+  const auth = await guard("acessos", "view");
+  if (auth instanceof NextResponse) return auth;
   const { id } = await params;
   const row = await prisma.access.findUnique({
     where: { id },
@@ -32,12 +25,13 @@ export async function GET(_req: Request, { params }: Params) {
   });
   if (!row) return notFound();
   return NextResponse.json(
-    toAccessDTO(row, { tutorial: true, secrets: isEditor(session) }),
+    toAccessDTO(row, { tutorial: true, secrets: allows(auth, "acessos", "edit") }),
   );
 }
 
 export async function PUT(req: Request, { params }: Params) {
-  if (!(await requireEditor())) return forbidden();
+  const auth = await guard("acessos", "edit");
+  if (auth instanceof NextResponse) return auth;
   const { id } = await params;
   const data = parseAccessBody(await req.json().catch(() => null));
   if (!data) {
@@ -54,6 +48,13 @@ export async function PUT(req: Request, { params }: Params) {
         { status: 400 },
       );
     }
+  }
+  if (data.companyId) {
+    const company = await prisma.company.findUnique({
+      where: { id: data.companyId },
+      select: { id: true },
+    });
+    if (!company) data.companyId = null;
   }
   const duplicate = await findDuplicateUrl(data.url, id);
   if (duplicate) {
@@ -75,7 +76,8 @@ export async function PUT(req: Request, { params }: Params) {
 }
 
 export async function DELETE(_req: Request, { params }: Params) {
-  if (!(await requireEditor())) return forbidden();
+  const auth = await guard("acessos", "edit");
+  if (auth instanceof NextResponse) return auth;
   const { id } = await params;
   try {
     await prisma.access.delete({ where: { id } });

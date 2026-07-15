@@ -28,7 +28,8 @@ export async function findDuplicateUrl(url: string, excludeId?: string) {
   return rows.find((r) => r.id !== excludeId && normalizeUrl(r.url) === target);
 }
 
-// Sempre buscar acessos com este include: o front mostra o certificado vinculado.
+// Sempre buscar acessos com este include: o front mostra o certificado
+// vinculado e a empresa dona.
 export const ACCESS_INCLUDE = {
   certificate: {
     select: {
@@ -39,6 +40,7 @@ export const ACCESS_INCLUDE = {
       expiresAt: true,
     },
   },
+  company: { select: { id: true, razaoSocial: true, cnpj: true } },
 } as const;
 
 type AccessRowFull = AccessRow & {
@@ -49,10 +51,11 @@ type AccessRowFull = AccessRow & {
     issuedAt: Date;
     expiresAt: Date;
   } | null;
+  company: { id: string; razaoSocial: string; cnpj: string } | null;
 };
 
-// `tutorial`: todo mundo logado pode ler (é o manual); a listagem omite por peso.
-// `secrets`: senha, só para o Societário.
+// `tutorial`: quem vê acessos pode ler (é o manual); a listagem omite por peso.
+// `secrets`: senha, só para quem edita.
 export function toAccessDTO(
   row: AccessRowFull,
   opts: { tutorial?: boolean; secrets?: boolean } = {},
@@ -75,6 +78,14 @@ export function toAccessDTO(
     loginValue: row.loginValue,
     certificateId: row.certificateId,
     certificate,
+    companyId: row.companyId,
+    company: row.company
+      ? {
+          id: row.company.id,
+          razaoSocial: row.company.razaoSocial,
+          cnpj: row.company.cnpj,
+        }
+      : null,
     notes: row.notes ?? undefined,
     ...(opts.tutorial ? { tutorial: row.tutorial ?? undefined } : {}),
     hasTutorial: Boolean(row.tutorial?.trim()),
@@ -90,6 +101,7 @@ export type AccessInput = {
   loginValue: string;
   password: string;
   certificateId: string | null;
+  companyId: string | null;
   notes: string | null;
   tutorial: string | null;
 };
@@ -119,6 +131,8 @@ export function parseAccessBody(body: unknown): AccessInput | null {
     loginValue: byCertificate ? "" : (b.loginValue as string).trim(),
     password: byCertificate ? "" : (b.password as string),
     certificateId: byCertificate ? (b.certificateId as string) : null,
+    companyId:
+      typeof b.companyId === "string" && b.companyId ? b.companyId : null,
     notes: b.notes?.trim() ? b.notes.trim() : null,
     tutorial: b.tutorial?.trim() ? b.tutorial : null,
   };

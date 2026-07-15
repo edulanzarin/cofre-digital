@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Search, FileKey2, CreditCard, Inbox } from "lucide-react";
+import { Plus, Search, Inbox } from "lucide-react";
 import {
   certStatus,
   daysLeft,
-  formatDate,
   type Certificate,
   type CertStatus,
 } from "@/lib/certificates";
@@ -13,10 +12,9 @@ import { useCertificates } from "@/lib/useCertificates";
 import { useVaultConfig } from "@/lib/vaultConfig";
 import { useMe } from "@/lib/useMe";
 import Modal from "@/components/ui/Modal";
-import ExpiryRing from "@/components/ui/ExpiryRing";
-import StatusBadge from "@/components/ui/StatusBadge";
 import CertForm from "@/components/certificates/CertForm";
-import CertDrawer from "@/components/certificates/CertDrawer";
+import CertModal from "@/components/certificates/CertModal";
+import CertList from "@/components/certificates/CertList";
 
 type Filter = "all" | CertStatus;
 
@@ -30,7 +28,8 @@ const FILTERS: { key: Filter; label: string }[] = [
 export default function CertificatesPage() {
   const { certs, ready, add, update, remove } = useCertificates();
   const { alertDays } = useVaultConfig();
-  const { editor } = useMe();
+  const { can } = useMe();
+  const canEdit = can("certificados", "edit");
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -60,7 +59,8 @@ export default function CertificatesPage() {
           c.holder.toLowerCase().includes(q) ||
           c.document.toLowerCase().includes(q) ||
           c.issuer.toLowerCase().includes(q) ||
-          c.type.toLowerCase().includes(q),
+          c.type.toLowerCase().includes(q) ||
+          (c.company?.razaoSocial.toLowerCase().includes(q) ?? false),
       )
       .sort((a, b) => daysLeft(a) - daysLeft(b));
   }, [certs, query, filter, alertDays]);
@@ -89,7 +89,7 @@ export default function CertificatesPage() {
     }
   }
 
-  // Edição precisa da senha e do arquivo — busca a versão completa (só Societário).
+  // Edição precisa da senha e do arquivo — busca a versão completa (quem edita).
   async function openEdit() {
     if (!selected) return;
     try {
@@ -114,7 +114,7 @@ export default function CertificatesPage() {
               : "Abrindo o cofre…"}
           </p>
         </div>
-        {editor && (
+        {canEdit && (
           <button onClick={() => setModal("new")} className="vlt-btn vlt-btn-primary">
             <Plus className="size-4" />
             Novo certificado
@@ -131,7 +131,7 @@ export default function CertificatesPage() {
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" />
           <input
             className="vlt-input pl-9"
-            placeholder="Buscar por titular, documento, emissor…"
+            placeholder="Buscar por titular, documento, empresa, emissor…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -151,11 +151,7 @@ export default function CertificatesPage() {
 
       {/* Lista */}
       {!ready ? (
-        <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {[0, 1, 2].map((i) => (
-            <li key={i} className="vlt-card h-36 animate-pulse bg-panel-2/40" />
-          ))}
-        </ul>
+        <div className="vlt-card h-64 animate-pulse bg-panel-2/40" />
       ) : filtered.length === 0 ? (
         <div
           className="vlt-card anim-fade-up flex flex-col items-center gap-3 px-6 py-16 text-center"
@@ -169,64 +165,28 @@ export default function CertificatesPage() {
           </p>
         </div>
       ) : (
-        <ul
-          className="anim-fade-up grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
-          style={{ animationDelay: "120ms" }}
-        >
-          {filtered.map((cert) => (
-            <li key={cert.id}>
-              <button
-                onClick={() => setSelectedId(cert.id)}
-                className="vlt-card vlt-card-hover w-full cursor-pointer p-5 text-left"
-              >
-                <div className="flex items-start gap-3.5">
-                  <div className="relative shrink-0">
-                    <ExpiryRing cert={cert} size={44} />
-                    {cert.media === "card" ? (
-                      <CreditCard
-                        className="absolute inset-0 m-auto size-4 text-ink-2"
-                        strokeWidth={1.6}
-                      />
-                    ) : (
-                      <FileKey2
-                        className="absolute inset-0 m-auto size-4 text-ink-2"
-                        strokeWidth={1.6}
-                      />
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{cert.holder}</p>
-                    <p className="mt-0.5 font-mono text-[0.7rem] text-ink-3">
-                      {cert.document}
-                    </p>
-                  </div>
-                  <StatusBadge cert={cert} />
-                </div>
-                <div className="mt-4 flex items-center justify-between border-t border-line pt-3 text-[0.72rem] text-ink-3">
-                  <span>
-                    {cert.type} · {cert.issuer}
-                  </span>
-                  <span>vence {formatDate(cert.expiresAt)}</span>
-                </div>
-              </button>
-            </li>
-          ))}
-        </ul>
+        <div className="anim-fade-up" style={{ animationDelay: "120ms" }}>
+          <CertList
+            certs={filtered}
+            alertDays={alertDays}
+            onSelect={(id) => setSelectedId(id)}
+          />
+        </div>
       )}
 
-      {/* Drawer de detalhes */}
+      {/* Modal de detalhes */}
       {selected && modal === "closed" && (
-        <CertDrawer
+        <CertModal
           cert={selected}
-          editor={editor}
+          editor={canEdit}
           onClose={() => setSelectedId(null)}
           onEdit={openEdit}
           onDelete={() => handleDelete(selected.id)}
         />
       )}
 
-      {/* Modal de cadastro/edição — só o Societário */}
-      {editor && modal !== "closed" && (
+      {/* Modal de cadastro/edição — quem edita certificados */}
+      {canEdit && modal !== "closed" && (
         <Modal
           title={modal === "edit" ? "Editar certificado" : "Novo certificado"}
           subtitle={

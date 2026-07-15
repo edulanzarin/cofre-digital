@@ -51,8 +51,11 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  PermissionProfile: 'PermissionProfile',
   User: 'User',
+  Company: 'Company',
   Certificate: 'Certificate',
+  CertificateEvent: 'CertificateEvent',
   Access: 'Access',
   TutorialImage: 'TutorialImage',
   VaultConfig: 'VaultConfig'
@@ -74,16 +77,40 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const PermissionProfileScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  admin: 'admin',
+  rules: 'rules',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PermissionProfileScalarFieldEnum = (typeof PermissionProfileScalarFieldEnum)[keyof typeof PermissionProfileScalarFieldEnum]
+
+
 export const UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
   email: 'email',
   passwordHash: 'passwordHash',
   sector: 'sector',
+  profileId: 'profileId',
   createdAt: 'createdAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const CompanyScalarFieldEnum = {
+  id: 'id',
+  cnpj: 'cnpj',
+  razaoSocial: 'razaoSocial',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CompanyScalarFieldEnum = (typeof CompanyScalarFieldEnum)[keyof typeof CompanyScalarFieldEnum]
 
 
 export const CertificateScalarFieldEnum = {
@@ -99,11 +126,24 @@ export const CertificateScalarFieldEnum = {
   fileName: 'fileName',
   fileData: 'fileData',
   notes: 'notes',
+  companyId: 'companyId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type CertificateScalarFieldEnum = (typeof CertificateScalarFieldEnum)[keyof typeof CertificateScalarFieldEnum]
+
+
+export const CertificateEventScalarFieldEnum = {
+  id: 'id',
+  certificateId: 'certificateId',
+  kind: 'kind',
+  message: 'message',
+  userName: 'userName',
+  createdAt: 'createdAt'
+} as const
+
+export type CertificateEventScalarFieldEnum = (typeof CertificateEventScalarFieldEnum)[keyof typeof CertificateEventScalarFieldEnum]
 
 
 export const AccessScalarFieldEnum = {
@@ -114,6 +154,7 @@ export const AccessScalarFieldEnum = {
   loginValue: 'loginValue',
   password: 'password',
   certificateId: 'certificateId',
+  companyId: 'companyId',
   notes: 'notes',
   tutorial: 'tutorial',
   createdAt: 'createdAt',
@@ -153,12 +194,28 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 export const NullsOrder = {

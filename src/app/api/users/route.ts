@@ -1,25 +1,29 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { forbidden, requireEditor } from "@/lib/api-auth";
+import { guardAdmin } from "@/lib/api-auth";
 import { SECTORS, type SectorKey } from "@/lib/sectors";
+import { toUserDTO, USER_SELECT } from "@/lib/user-api";
 
 export async function GET() {
-  if (!(await requireEditor())) return forbidden();
+  const auth = await guardAdmin();
+  if (auth instanceof NextResponse) return auth;
   const rows = await prisma.user.findMany({
     orderBy: { name: "asc" },
-    select: { id: true, name: true, email: true, sector: true },
+    select: USER_SELECT,
   });
-  return NextResponse.json(rows);
+  return NextResponse.json(rows.map(toUserDTO));
 }
 
 export async function POST(req: Request) {
-  if (!(await requireEditor())) return forbidden();
+  const auth = await guardAdmin();
+  if (auth instanceof NextResponse) return auth;
   const b = (await req.json().catch(() => null)) as {
     name?: string;
     email?: string;
     password?: string;
     sector?: SectorKey;
+    profileId?: string;
   } | null;
 
   if (
@@ -35,6 +39,16 @@ export async function POST(req: Request) {
     );
   }
 
+  if (
+    !b.profileId ||
+    !(await prisma.permissionProfile.findUnique({ where: { id: b.profileId } }))
+  ) {
+    return NextResponse.json(
+      { error: "Escolha um perfil de acesso para o usuário." },
+      { status: 400 },
+    );
+  }
+
   const email = b.email.trim().toLowerCase();
   if (await prisma.user.findUnique({ where: { email } })) {
     return NextResponse.json({ error: "Este e-mail já está em uso." }, { status: 409 });
@@ -46,8 +60,9 @@ export async function POST(req: Request) {
       email,
       passwordHash: bcrypt.hashSync(b.password, 10),
       sector: b.sector as SectorKey,
+      profileId: b.profileId,
     },
-    select: { id: true, name: true, email: true, sector: true },
+    select: USER_SELECT,
   });
-  return NextResponse.json(row, { status: 201 });
+  return NextResponse.json(toUserDTO(row), { status: 201 });
 }

@@ -1,14 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireUnlockedUser, unauthorized, vaultLocked } from "@/lib/api-auth";
+import { guard } from "@/lib/api-auth";
 
 type Params = { params: Promise<{ id: string }> };
 
-// Qualquer setor logado pode copiar a senha (a UI só revela pro Societário).
+// Quem enxerga certificados pode copiar a senha (a UI só revela pra quem edita).
 export async function GET(_req: Request, { params }: Params) {
-  const session = await requireUnlockedUser();
-  if (!session) return unauthorized();
-  if (session === "locked") return vaultLocked();
+  const auth = await guard("certificados", "view");
+  if (auth instanceof NextResponse) return auth;
   const { id } = await params;
   const row = await prisma.certificate.findUnique({
     where: { id },

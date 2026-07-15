@@ -8,12 +8,16 @@ async function errorOf(res: Response, fallback: string): Promise<string> {
   return body?.error ?? fallback;
 }
 
-export function useAccesses() {
+// `companyId` restringe ao cofre de uma empresa.
+export function useAccesses(companyId?: string) {
   const [accesses, setAccesses] = useState<Access[] | null>(null);
 
   useEffect(() => {
     let active = true;
-    fetch("/api/accesses")
+    const url = companyId
+      ? `/api/accesses?companyId=${encodeURIComponent(companyId)}`
+      : "/api/accesses";
+    fetch(url)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((data: Access[]) => {
         if (active) setAccesses(data);
@@ -24,7 +28,7 @@ export function useAccesses() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [companyId]);
 
   const add = useCallback(async (access: Omit<Access, "id">) => {
     const res = await fetch("/api/accesses", {

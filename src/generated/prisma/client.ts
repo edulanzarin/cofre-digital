@@ -31,8 +31,8 @@ export * from "./enums"
  * const prisma = new PrismaClient({
  *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
  * })
- * // Fetch zero or more Users
- * const users = await prisma.user.findMany()
+ * // Fetch zero or more PermissionProfiles
+ * const permissionProfiles = await prisma.permissionProfile.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -42,15 +42,30 @@ export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts exten
 export { Prisma }
 
 /**
+ * Model PermissionProfile
+ * 
+ */
+export type PermissionProfile = Prisma.PermissionProfileModel
+/**
  * Model User
  * 
  */
 export type User = Prisma.UserModel
 /**
+ * Model Company
+ * 
+ */
+export type Company = Prisma.CompanyModel
+/**
  * Model Certificate
  * 
  */
 export type Certificate = Prisma.CertificateModel
+/**
+ * Model CertificateEvent
+ * 
+ */
+export type CertificateEvent = Prisma.CertificateEventModel
 /**
  * Model Access
  * 

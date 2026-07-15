@@ -1,14 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireUnlockedUser, unauthorized, vaultLocked } from "@/lib/api-auth";
+import { guard } from "@/lib/api-auth";
 
 type Params = { params: Promise<{ id: string }> };
 
-// Download do .pfx — qualquer setor logado.
+// Download do .pfx — quem enxerga certificados.
 export async function GET(_req: Request, { params }: Params) {
-  const session = await requireUnlockedUser();
-  if (!session) return unauthorized();
-  if (session === "locked") return vaultLocked();
+  const auth = await guard("certificados", "view");
+  if (auth instanceof NextResponse) return auth;
   const { id } = await params;
   const row = await prisma.certificate.findUnique({
     where: { id },

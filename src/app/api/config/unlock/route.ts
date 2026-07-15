@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { forbidden, requireEditor } from "@/lib/api-auth";
+import { guardAdmin } from "@/lib/api-auth";
 
-// Desbloqueia o cofre — só Societário, com o PIN.
+// Desbloqueia o cofre — só admin, com o PIN.
 export async function POST(req: Request) {
-  if (!(await requireEditor())) return forbidden();
+  const auth = await guardAdmin();
+  if (auth instanceof NextResponse) return auth;
   const body = (await req.json().catch(() => null)) as { pin?: string } | null;
   const config = await prisma.vaultConfig.findUnique({ where: { id: 1 } });
   if (!config?.lockPinHash || !body?.pin || !bcrypt.compareSync(body.pin, config.lockPinHash)) {

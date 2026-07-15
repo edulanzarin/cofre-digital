@@ -9,12 +9,16 @@ async function errorOf(res: Response, fallback: string): Promise<string> {
 }
 
 // Camada de dados do cofre: consome a API REST (Postgres via Prisma).
-export function useCertificates() {
+// `companyId` restringe ao cofre de uma empresa.
+export function useCertificates(companyId?: string) {
   const [certs, setCerts] = useState<Certificate[] | null>(null);
 
   useEffect(() => {
     let active = true;
-    fetch("/api/certificates")
+    const url = companyId
+      ? `/api/certificates?companyId=${encodeURIComponent(companyId)}`
+      : "/api/certificates";
+    fetch(url)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((data: Certificate[]) => {
         if (active) setCerts(data);
@@ -25,7 +29,7 @@ export function useCertificates() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [companyId]);
 
   const add = useCallback(async (cert: Omit<Certificate, "id">) => {
     const res = await fetch("/api/certificates", {

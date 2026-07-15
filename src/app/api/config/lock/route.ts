@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { forbidden, requireEditor } from "@/lib/api-auth";
+import { guardAdmin } from "@/lib/api-auth";
 
-// Bloqueia o cofre para TODOS os setores (só Societário).
+// Bloqueia o cofre para TODOS (só admin).
 export async function POST() {
-  if (!(await requireEditor())) return forbidden();
+  const auth = await guardAdmin();
+  if (auth instanceof NextResponse) return auth;
   const config = await prisma.vaultConfig.findUnique({ where: { id: 1 } });
   if (!config?.lockPinHash) {
     return NextResponse.json(

@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireUnlockedUser, unauthorized, vaultLocked } from "@/lib/api-auth";
+import { guard } from "@/lib/api-auth";
 
 type Params = { params: Promise<{ id: string }> };
 
+// Imagem de tutorial — quem enxerga acessos.
 export async function GET(_req: Request, { params }: Params) {
-  const session = await requireUnlockedUser();
-  if (!session) return unauthorized();
-  if (session === "locked") return vaultLocked();
+  const auth = await guard("acessos", "view");
+  if (auth instanceof NextResponse) return auth;
   const { id } = await params;
   const row = await prisma.tutorialImage.findUnique({ where: { id } });
   if (!row) {

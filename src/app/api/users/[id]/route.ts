@@ -1,22 +1,24 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { forbidden, requireEditor } from "@/lib/api-auth";
+import { guardAdmin } from "@/lib/api-auth";
 import { SECTORS, type SectorKey } from "@/lib/sectors";
+import { toUserDTO, USER_SELECT } from "@/lib/user-api";
 
 type Params = { params: Promise<{ id: string }> };
 
 const notFound = () =>
   NextResponse.json({ error: "Usuário não encontrado." }, { status: 404 });
 
-// Atualiza nome/setor e, se enviada, a senha.
+// Atualiza nome/setor/perfil e, se enviada, a senha.
 export async function PUT(req: Request, { params }: Params) {
-  const session = await requireEditor();
-  if (!session) return forbidden();
+  const auth = await guardAdmin();
+  if (auth instanceof NextResponse) return auth;
   const { id } = await params;
   const b = (await req.json().catch(() => null)) as {
     name?: string;
     sector?: SectorKey;
+    profileId?: string;
     password?: string;
   } | null;
 
@@ -29,10 +31,19 @@ export async function PUT(req: Request, { params }: Params) {
       { status: 400 },
     );
   }
-  // Não deixa o Societário rebaixar o próprio setor e trancar o cofre sem admin.
-  if (id === session.sub && b.sector !== "SOCIETARIO") {
+  const profile = b.profileId
+    ? await prisma.permissionProfile.findUnique({ where: { id: b.profileId } })
+    : null;
+  if (!profile) {
     return NextResponse.json(
-      { error: "Você não pode remover seu próprio acesso de Societário." },
+      { error: "Escolha um perfil de acesso para o usuário." },
+      { status: 400 },
+    );
+  }
+  // Não deixa o admin rebaixar a si mesmo e trancar o cofre sem administrador.
+  if (id === auth.sub && !profile.admin) {
+    return NextResponse.json(
+      { error: "Você não pode remover seu próprio acesso de administrador." },
       { status: 400 },
     );
   }
@@ -43,21 +54,22 @@ export async function PUT(req: Request, { params }: Params) {
       data: {
         name: b.name.trim(),
         sector: b.sector as SectorKey,
+        profileId: profile.id,
         ...(b.password ? { passwordHash: bcrypt.hashSync(b.password, 10) } : {}),
       },
-      select: { id: true, name: true, email: true, sector: true },
+      select: USER_SELECT,
     });
-    return NextResponse.json(row);
+    return NextResponse.json(toUserDTO(row));
   } catch {
     return notFound();
   }
 }
 
 export async function DELETE(_req: Request, { params }: Params) {
-  const session = await requireEditor();
-  if (!session) return forbidden();
+  const auth = await guardAdmin();
+  if (auth instanceof NextResponse) return auth;
   const { id } = await params;
-  if (id === session.sub) {
+  if (id === auth.sub) {
     return NextResponse.json(
       { error: "Você não pode excluir a si mesmo." },
       { status: 400 },

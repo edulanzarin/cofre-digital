@@ -19,7 +19,8 @@ function hostOf(url: string): string {
 
 export default function AccessesPage() {
   const { accesses, ready, add } = useAccesses();
-  const { editor } = useMe();
+  const { can } = useMe();
+  const editor = can("acessos", "edit");
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(false);
 
@@ -135,7 +136,7 @@ export default function AccessesPage() {
         </ul>
       )}
 
-      {/* Modal de cadastro — só o Societário */}
+      {/* Modal de cadastro — quem edita acessos */}
       {editor && creating && (
         <Modal
           wide

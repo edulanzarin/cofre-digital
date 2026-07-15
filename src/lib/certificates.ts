@@ -6,6 +6,8 @@ export type CertType = "e-CNPJ A1" | "e-CPF A1" | "e-CNPJ A3" | "e-CPF A3" | "NF
 // A1/NF-e são arquivos .pfx; A3 vive num cartão ou token físico.
 export type CertMedia = "file" | "card";
 
+export type CertCompany = { id: string; razaoSocial: string; cnpj: string };
+
 export type Certificate = {
   id: string;
   holder: string; // titular (empresa ou pessoa)
@@ -15,11 +17,24 @@ export type Certificate = {
   issuer: string; // AC emissora
   issuedAt: string; // ISO
   expiresAt: string; // ISO
-  password?: string; // só vem no GET por id (Societário)
+  password?: string; // só vem no GET por id (quem edita)
   fileName?: string;
-  fileData?: string; // só no GET por id (Societário)
+  fileData?: string; // só no GET por id (quem edita)
   hasFile?: boolean; // na listagem, indica se dá pra baixar
   notes?: string;
+  createdAt?: string; // ISO — quando entrou no cofre
+  updatedAt?: string; // ISO — última alteração
+  companyId?: string | null;
+  company?: CertCompany | null; // empresa dona do cofre
+};
+
+// Linha do tempo do certificado (cadastro, alterações, observações).
+export type CertEvent = {
+  id: string;
+  kind: "created" | "updated" | "note";
+  message?: string;
+  userName: string;
+  createdAt: string; // ISO
 };
 
 export type CertStatus = "valid" | "expiring" | "expired";
@@ -65,6 +80,11 @@ export function formatDate(iso: string): string {
     month: "short",
     year: "numeric",
   });
+}
+
+// Agrupa pro dashboard: 14 dígitos = e-CNPJ (inclui NF-e), senão e-CPF.
+export function docGroup(cert: Pick<Certificate, "document">): "cnpj" | "cpf" {
+  return cert.document.replace(/\D/g, "").length === 14 ? "cnpj" : "cpf";
 }
 
 // Formata uma sequência de dígitos como CNPJ (14) ou CPF (11).

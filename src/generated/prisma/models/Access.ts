@@ -32,6 +32,7 @@ export type AccessMinAggregateOutputType = {
   loginValue: string | null
   password: string | null
   certificateId: string | null
+  companyId: string | null
   notes: string | null
   tutorial: string | null
   createdAt: Date | null
@@ -46,6 +47,7 @@ export type AccessMaxAggregateOutputType = {
   loginValue: string | null
   password: string | null
   certificateId: string | null
+  companyId: string | null
   notes: string | null
   tutorial: string | null
   createdAt: Date | null
@@ -60,6 +62,7 @@ export type AccessCountAggregateOutputType = {
   loginValue: number
   password: number
   certificateId: number
+  companyId: number
   notes: number
   tutorial: number
   createdAt: number
@@ -76,6 +79,7 @@ export type AccessMinAggregateInputType = {
   loginValue?: true
   password?: true
   certificateId?: true
+  companyId?: true
   notes?: true
   tutorial?: true
   createdAt?: true
@@ -90,6 +94,7 @@ export type AccessMaxAggregateInputType = {
   loginValue?: true
   password?: true
   certificateId?: true
+  companyId?: true
   notes?: true
   tutorial?: true
   createdAt?: true
@@ -104,6 +109,7 @@ export type AccessCountAggregateInputType = {
   loginValue?: true
   password?: true
   certificateId?: true
+  companyId?: true
   notes?: true
   tutorial?: true
   createdAt?: true
@@ -191,6 +197,7 @@ export type AccessGroupByOutputType = {
   loginValue: string
   password: string
   certificateId: string | null
+  companyId: string | null
   notes: string | null
   tutorial: string | null
   createdAt: Date
@@ -226,11 +233,13 @@ export type AccessWhereInput = {
   loginValue?: Prisma.StringFilter<"Access"> | string
   password?: Prisma.StringFilter<"Access"> | string
   certificateId?: Prisma.StringNullableFilter<"Access"> | string | null
+  companyId?: Prisma.StringNullableFilter<"Access"> | string | null
   notes?: Prisma.StringNullableFilter<"Access"> | string | null
   tutorial?: Prisma.StringNullableFilter<"Access"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Access"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Access"> | Date | string
   certificate?: Prisma.XOR<Prisma.CertificateNullableScalarRelationFilter, Prisma.CertificateWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type AccessOrderByWithRelationInput = {
@@ -241,11 +250,13 @@ export type AccessOrderByWithRelationInput = {
   loginValue?: Prisma.SortOrder
   password?: Prisma.SortOrder
   certificateId?: Prisma.SortOrderInput | Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   tutorial?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   certificate?: Prisma.CertificateOrderByWithRelationInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type AccessWhereUniqueInput = Prisma.AtLeast<{
@@ -259,11 +270,13 @@ export type AccessWhereUniqueInput = Prisma.AtLeast<{
   loginValue?: Prisma.StringFilter<"Access"> | string
   password?: Prisma.StringFilter<"Access"> | string
   certificateId?: Prisma.StringNullableFilter<"Access"> | string | null
+  companyId?: Prisma.StringNullableFilter<"Access"> | string | null
   notes?: Prisma.StringNullableFilter<"Access"> | string | null
   tutorial?: Prisma.StringNullableFilter<"Access"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Access"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Access"> | Date | string
   certificate?: Prisma.XOR<Prisma.CertificateNullableScalarRelationFilter, Prisma.CertificateWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id">
 
 export type AccessOrderByWithAggregationInput = {
@@ -274,6 +287,7 @@ export type AccessOrderByWithAggregationInput = {
   loginValue?: Prisma.SortOrder
   password?: Prisma.SortOrder
   certificateId?: Prisma.SortOrderInput | Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   tutorial?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -294,6 +308,7 @@ export type AccessScalarWhereWithAggregatesInput = {
   loginValue?: Prisma.StringWithAggregatesFilter<"Access"> | string
   password?: Prisma.StringWithAggregatesFilter<"Access"> | string
   certificateId?: Prisma.StringNullableWithAggregatesFilter<"Access"> | string | null
+  companyId?: Prisma.StringNullableWithAggregatesFilter<"Access"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Access"> | string | null
   tutorial?: Prisma.StringNullableWithAggregatesFilter<"Access"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Access"> | Date | string
@@ -312,6 +327,7 @@ export type AccessCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   certificate?: Prisma.CertificateCreateNestedOneWithoutAccessesInput
+  company?: Prisma.CompanyCreateNestedOneWithoutAccessesInput
 }
 
 export type AccessUncheckedCreateInput = {
@@ -322,6 +338,7 @@ export type AccessUncheckedCreateInput = {
   loginValue: string
   password: string
   certificateId?: string | null
+  companyId?: string | null
   notes?: string | null
   tutorial?: string | null
   createdAt?: Date | string
@@ -340,6 +357,7 @@ export type AccessUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   certificate?: Prisma.CertificateUpdateOneWithoutAccessesNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutAccessesNestedInput
 }
 
 export type AccessUncheckedUpdateInput = {
@@ -350,6 +368,7 @@ export type AccessUncheckedUpdateInput = {
   loginValue?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   certificateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tutorial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -364,6 +383,7 @@ export type AccessCreateManyInput = {
   loginValue: string
   password: string
   certificateId?: string | null
+  companyId?: string | null
   notes?: string | null
   tutorial?: string | null
   createdAt?: Date | string
@@ -391,6 +411,7 @@ export type AccessUncheckedUpdateManyInput = {
   loginValue?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
   certificateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tutorial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -415,6 +436,7 @@ export type AccessCountOrderByAggregateInput = {
   loginValue?: Prisma.SortOrder
   password?: Prisma.SortOrder
   certificateId?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   tutorial?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -429,6 +451,7 @@ export type AccessMaxOrderByAggregateInput = {
   loginValue?: Prisma.SortOrder
   password?: Prisma.SortOrder
   certificateId?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   tutorial?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -443,10 +466,53 @@ export type AccessMinOrderByAggregateInput = {
   loginValue?: Prisma.SortOrder
   password?: Prisma.SortOrder
   certificateId?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   tutorial?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type AccessCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.AccessCreateWithoutCompanyInput, Prisma.AccessUncheckedCreateWithoutCompanyInput> | Prisma.AccessCreateWithoutCompanyInput[] | Prisma.AccessUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.AccessCreateOrConnectWithoutCompanyInput | Prisma.AccessCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.AccessCreateManyCompanyInputEnvelope
+  connect?: Prisma.AccessWhereUniqueInput | Prisma.AccessWhereUniqueInput[]
+}
+
+export type AccessUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.AccessCreateWithoutCompanyInput, Prisma.AccessUncheckedCreateWithoutCompanyInput> | Prisma.AccessCreateWithoutCompanyInput[] | Prisma.AccessUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.AccessCreateOrConnectWithoutCompanyInput | Prisma.AccessCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.AccessCreateManyCompanyInputEnvelope
+  connect?: Prisma.AccessWhereUniqueInput | Prisma.AccessWhereUniqueInput[]
+}
+
+export type AccessUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.AccessCreateWithoutCompanyInput, Prisma.AccessUncheckedCreateWithoutCompanyInput> | Prisma.AccessCreateWithoutCompanyInput[] | Prisma.AccessUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.AccessCreateOrConnectWithoutCompanyInput | Prisma.AccessCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.AccessUpsertWithWhereUniqueWithoutCompanyInput | Prisma.AccessUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.AccessCreateManyCompanyInputEnvelope
+  set?: Prisma.AccessWhereUniqueInput | Prisma.AccessWhereUniqueInput[]
+  disconnect?: Prisma.AccessWhereUniqueInput | Prisma.AccessWhereUniqueInput[]
+  delete?: Prisma.AccessWhereUniqueInput | Prisma.AccessWhereUniqueInput[]
+  connect?: Prisma.AccessWhereUniqueInput | Prisma.AccessWhereUniqueInput[]
+  update?: Prisma.AccessUpdateWithWhereUniqueWithoutCompanyInput | Prisma.AccessUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.AccessUpdateManyWithWhereWithoutCompanyInput | Prisma.AccessUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.AccessScalarWhereInput | Prisma.AccessScalarWhereInput[]
+}
+
+export type AccessUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.AccessCreateWithoutCompanyInput, Prisma.AccessUncheckedCreateWithoutCompanyInput> | Prisma.AccessCreateWithoutCompanyInput[] | Prisma.AccessUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.AccessCreateOrConnectWithoutCompanyInput | Prisma.AccessCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.AccessUpsertWithWhereUniqueWithoutCompanyInput | Prisma.AccessUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.AccessCreateManyCompanyInputEnvelope
+  set?: Prisma.AccessWhereUniqueInput | Prisma.AccessWhereUniqueInput[]
+  disconnect?: Prisma.AccessWhereUniqueInput | Prisma.AccessWhereUniqueInput[]
+  delete?: Prisma.AccessWhereUniqueInput | Prisma.AccessWhereUniqueInput[]
+  connect?: Prisma.AccessWhereUniqueInput | Prisma.AccessWhereUniqueInput[]
+  update?: Prisma.AccessUpdateWithWhereUniqueWithoutCompanyInput | Prisma.AccessUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.AccessUpdateManyWithWhereWithoutCompanyInput | Prisma.AccessUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.AccessScalarWhereInput | Prisma.AccessScalarWhereInput[]
 }
 
 export type AccessCreateNestedManyWithoutCertificateInput = {
@@ -491,6 +557,78 @@ export type AccessUncheckedUpdateManyWithoutCertificateNestedInput = {
   deleteMany?: Prisma.AccessScalarWhereInput | Prisma.AccessScalarWhereInput[]
 }
 
+export type AccessCreateWithoutCompanyInput = {
+  id?: string
+  name: string
+  url: string
+  loginType: string
+  loginValue: string
+  password: string
+  notes?: string | null
+  tutorial?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  certificate?: Prisma.CertificateCreateNestedOneWithoutAccessesInput
+}
+
+export type AccessUncheckedCreateWithoutCompanyInput = {
+  id?: string
+  name: string
+  url: string
+  loginType: string
+  loginValue: string
+  password: string
+  certificateId?: string | null
+  notes?: string | null
+  tutorial?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type AccessCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.AccessWhereUniqueInput
+  create: Prisma.XOR<Prisma.AccessCreateWithoutCompanyInput, Prisma.AccessUncheckedCreateWithoutCompanyInput>
+}
+
+export type AccessCreateManyCompanyInputEnvelope = {
+  data: Prisma.AccessCreateManyCompanyInput | Prisma.AccessCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type AccessUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.AccessWhereUniqueInput
+  update: Prisma.XOR<Prisma.AccessUpdateWithoutCompanyInput, Prisma.AccessUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.AccessCreateWithoutCompanyInput, Prisma.AccessUncheckedCreateWithoutCompanyInput>
+}
+
+export type AccessUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.AccessWhereUniqueInput
+  data: Prisma.XOR<Prisma.AccessUpdateWithoutCompanyInput, Prisma.AccessUncheckedUpdateWithoutCompanyInput>
+}
+
+export type AccessUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.AccessScalarWhereInput
+  data: Prisma.XOR<Prisma.AccessUpdateManyMutationInput, Prisma.AccessUncheckedUpdateManyWithoutCompanyInput>
+}
+
+export type AccessScalarWhereInput = {
+  AND?: Prisma.AccessScalarWhereInput | Prisma.AccessScalarWhereInput[]
+  OR?: Prisma.AccessScalarWhereInput[]
+  NOT?: Prisma.AccessScalarWhereInput | Prisma.AccessScalarWhereInput[]
+  id?: Prisma.StringFilter<"Access"> | string
+  name?: Prisma.StringFilter<"Access"> | string
+  url?: Prisma.StringFilter<"Access"> | string
+  loginType?: Prisma.StringFilter<"Access"> | string
+  loginValue?: Prisma.StringFilter<"Access"> | string
+  password?: Prisma.StringFilter<"Access"> | string
+  certificateId?: Prisma.StringNullableFilter<"Access"> | string | null
+  companyId?: Prisma.StringNullableFilter<"Access"> | string | null
+  notes?: Prisma.StringNullableFilter<"Access"> | string | null
+  tutorial?: Prisma.StringNullableFilter<"Access"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"Access"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Access"> | Date | string
+}
+
 export type AccessCreateWithoutCertificateInput = {
   id?: string
   name: string
@@ -502,6 +640,7 @@ export type AccessCreateWithoutCertificateInput = {
   tutorial?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutAccessesInput
 }
 
 export type AccessUncheckedCreateWithoutCertificateInput = {
@@ -511,6 +650,7 @@ export type AccessUncheckedCreateWithoutCertificateInput = {
   loginType: string
   loginValue: string
   password: string
+  companyId?: string | null
   notes?: string | null
   tutorial?: string | null
   createdAt?: Date | string
@@ -543,21 +683,60 @@ export type AccessUpdateManyWithWhereWithoutCertificateInput = {
   data: Prisma.XOR<Prisma.AccessUpdateManyMutationInput, Prisma.AccessUncheckedUpdateManyWithoutCertificateInput>
 }
 
-export type AccessScalarWhereInput = {
-  AND?: Prisma.AccessScalarWhereInput | Prisma.AccessScalarWhereInput[]
-  OR?: Prisma.AccessScalarWhereInput[]
-  NOT?: Prisma.AccessScalarWhereInput | Prisma.AccessScalarWhereInput[]
-  id?: Prisma.StringFilter<"Access"> | string
-  name?: Prisma.StringFilter<"Access"> | string
-  url?: Prisma.StringFilter<"Access"> | string
-  loginType?: Prisma.StringFilter<"Access"> | string
-  loginValue?: Prisma.StringFilter<"Access"> | string
-  password?: Prisma.StringFilter<"Access"> | string
-  certificateId?: Prisma.StringNullableFilter<"Access"> | string | null
-  notes?: Prisma.StringNullableFilter<"Access"> | string | null
-  tutorial?: Prisma.StringNullableFilter<"Access"> | string | null
-  createdAt?: Prisma.DateTimeFilter<"Access"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"Access"> | Date | string
+export type AccessCreateManyCompanyInput = {
+  id?: string
+  name: string
+  url: string
+  loginType: string
+  loginValue: string
+  password: string
+  certificateId?: string | null
+  notes?: string | null
+  tutorial?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type AccessUpdateWithoutCompanyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  url?: Prisma.StringFieldUpdateOperationsInput | string
+  loginType?: Prisma.StringFieldUpdateOperationsInput | string
+  loginValue?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tutorial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  certificate?: Prisma.CertificateUpdateOneWithoutAccessesNestedInput
+}
+
+export type AccessUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  url?: Prisma.StringFieldUpdateOperationsInput | string
+  loginType?: Prisma.StringFieldUpdateOperationsInput | string
+  loginValue?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tutorial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type AccessUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  url?: Prisma.StringFieldUpdateOperationsInput | string
+  loginType?: Prisma.StringFieldUpdateOperationsInput | string
+  loginValue?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  certificateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tutorial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AccessCreateManyCertificateInput = {
@@ -567,6 +746,7 @@ export type AccessCreateManyCertificateInput = {
   loginType: string
   loginValue: string
   password: string
+  companyId?: string | null
   notes?: string | null
   tutorial?: string | null
   createdAt?: Date | string
@@ -584,6 +764,7 @@ export type AccessUpdateWithoutCertificateInput = {
   tutorial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutAccessesNestedInput
 }
 
 export type AccessUncheckedUpdateWithoutCertificateInput = {
@@ -593,6 +774,7 @@ export type AccessUncheckedUpdateWithoutCertificateInput = {
   loginType?: Prisma.StringFieldUpdateOperationsInput | string
   loginValue?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tutorial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -606,6 +788,7 @@ export type AccessUncheckedUpdateManyWithoutCertificateInput = {
   loginType?: Prisma.StringFieldUpdateOperationsInput | string
   loginValue?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tutorial?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -622,11 +805,13 @@ export type AccessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   loginValue?: boolean
   password?: boolean
   certificateId?: boolean
+  companyId?: boolean
   notes?: boolean
   tutorial?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   certificate?: boolean | Prisma.Access$certificateArgs<ExtArgs>
+  company?: boolean | Prisma.Access$companyArgs<ExtArgs>
 }, ExtArgs["result"]["access"]>
 
 export type AccessSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -637,11 +822,13 @@ export type AccessSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   loginValue?: boolean
   password?: boolean
   certificateId?: boolean
+  companyId?: boolean
   notes?: boolean
   tutorial?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   certificate?: boolean | Prisma.Access$certificateArgs<ExtArgs>
+  company?: boolean | Prisma.Access$companyArgs<ExtArgs>
 }, ExtArgs["result"]["access"]>
 
 export type AccessSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -652,11 +839,13 @@ export type AccessSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   loginValue?: boolean
   password?: boolean
   certificateId?: boolean
+  companyId?: boolean
   notes?: boolean
   tutorial?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   certificate?: boolean | Prisma.Access$certificateArgs<ExtArgs>
+  company?: boolean | Prisma.Access$companyArgs<ExtArgs>
 }, ExtArgs["result"]["access"]>
 
 export type AccessSelectScalar = {
@@ -667,27 +856,32 @@ export type AccessSelectScalar = {
   loginValue?: boolean
   password?: boolean
   certificateId?: boolean
+  companyId?: boolean
   notes?: boolean
   tutorial?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AccessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "url" | "loginType" | "loginValue" | "password" | "certificateId" | "notes" | "tutorial" | "createdAt" | "updatedAt", ExtArgs["result"]["access"]>
+export type AccessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "url" | "loginType" | "loginValue" | "password" | "certificateId" | "companyId" | "notes" | "tutorial" | "createdAt" | "updatedAt", ExtArgs["result"]["access"]>
 export type AccessInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   certificate?: boolean | Prisma.Access$certificateArgs<ExtArgs>
+  company?: boolean | Prisma.Access$companyArgs<ExtArgs>
 }
 export type AccessIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   certificate?: boolean | Prisma.Access$certificateArgs<ExtArgs>
+  company?: boolean | Prisma.Access$companyArgs<ExtArgs>
 }
 export type AccessIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   certificate?: boolean | Prisma.Access$certificateArgs<ExtArgs>
+  company?: boolean | Prisma.Access$companyArgs<ExtArgs>
 }
 
 export type $AccessPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Access"
   objects: {
     certificate: Prisma.$CertificatePayload<ExtArgs> | null
+    company: Prisma.$CompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -697,6 +891,7 @@ export type $AccessPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     loginValue: string
     password: string
     certificateId: string | null
+    companyId: string | null
     notes: string | null
     tutorial: string | null
     createdAt: Date
@@ -1096,6 +1291,7 @@ readonly fields: AccessFieldRefs;
 export interface Prisma__AccessClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   certificate<T extends Prisma.Access$certificateArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Access$certificateArgs<ExtArgs>>): Prisma.Prisma__CertificateClient<runtime.Types.Result.GetResult<Prisma.$CertificatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  company<T extends Prisma.Access$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Access$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1132,6 +1328,7 @@ export interface AccessFieldRefs {
   readonly loginValue: Prisma.FieldRef<"Access", 'String'>
   readonly password: Prisma.FieldRef<"Access", 'String'>
   readonly certificateId: Prisma.FieldRef<"Access", 'String'>
+  readonly companyId: Prisma.FieldRef<"Access", 'String'>
   readonly notes: Prisma.FieldRef<"Access", 'String'>
   readonly tutorial: Prisma.FieldRef<"Access", 'String'>
   readonly createdAt: Prisma.FieldRef<"Access", 'DateTime'>
@@ -1553,6 +1750,25 @@ export type Access$certificateArgs<ExtArgs extends runtime.Types.Extensions.Inte
    */
   include?: Prisma.CertificateInclude<ExtArgs> | null
   where?: Prisma.CertificateWhereInput
+}
+
+/**
+ * Access.company
+ */
+export type Access$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

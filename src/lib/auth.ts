@@ -12,11 +12,6 @@ export type Session = {
   sector: Sector;
 };
 
-// Societário é quem administra o cofre; os demais setores só leem.
-export function isEditor(session: Pick<Session, "sector">): boolean {
-  return session.sector === "SOCIETARIO";
-}
-
 function secretKey() {
   const secret = process.env.AUTH_SECRET;
   if (!secret) throw new Error("AUTH_SECRET não definido");

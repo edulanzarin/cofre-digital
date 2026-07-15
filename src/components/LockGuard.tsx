@@ -7,11 +7,11 @@ import { logout, useMe } from "@/lib/useMe";
 
 const POLL_MS = 12_000;
 
-// Cadeado GLOBAL do cofre: o Societário bloqueia e trava para todos.
+// Cadeado GLOBAL do cofre: um admin bloqueia e trava para todos.
 // Também aplica a política de inatividade (sair da conta após X min).
 export default function LockGuard() {
   const { locked, autoLock, lockMinutes } = useVaultConfig();
-  const { me, editor } = useMe();
+  const { me, admin } = useMe();
   const lastActivity = useRef(0);
 
   // Mantém o estado do cadeado fresco (bloqueio de um vale pra todos).
@@ -51,10 +51,10 @@ export default function LockGuard() {
   }, [autoLock, lockMinutes, me]);
 
   if (!locked) return null;
-  return <LockScreen editor={editor} />;
+  return <LockScreen admin={admin} />;
 }
 
-function LockScreen({ editor }: { editor: boolean }) {
+function LockScreen({ admin }: { admin: boolean }) {
   const [pin, setPin] = useState("");
   const [error, setError] = useState(false);
 
@@ -75,13 +75,13 @@ function LockScreen({ editor }: { editor: boolean }) {
       <div className="max-w-sm text-center">
         <h1 className="text-lg font-semibold tracking-tight">Cofre bloqueado</h1>
         <p className="mt-1 text-sm text-ink-3">
-          {editor
-            ? "O cofre está bloqueado para todos os setores. Digite o PIN para liberar."
-            : "O Societário bloqueou o cofre temporariamente (manutenção ou alteração em massa). Tente novamente em instantes."}
+          {admin
+            ? "O cofre está bloqueado para todos. Digite o PIN para liberar."
+            : "Um administrador bloqueou o cofre temporariamente (manutenção ou alteração em massa). Tente novamente em instantes."}
         </p>
       </div>
 
-      {editor ? (
+      {admin ? (
         <form onSubmit={handleSubmit} className="flex w-64 flex-col gap-3">
           <input
             type="password"
@@ -106,7 +106,7 @@ function LockScreen({ editor }: { editor: boolean }) {
       ) : (
         <div className="flex items-center gap-2 rounded-full border border-line bg-panel px-4 py-2 text-xs text-ink-2">
           <Hourglass className="size-3.5 animate-pulse text-warn" />
-          Aguardando o Societário liberar…
+          Aguardando um administrador liberar…
         </div>
       )}
     </div>

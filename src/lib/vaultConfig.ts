@@ -3,8 +3,8 @@
 import { useSyncExternalStore } from "react";
 import { DEFAULT_ALERT_DAYS } from "./certificates";
 
-// Configuração global do cofre (vem do banco): igual para todos os
-// setores; só o Societário altera. Inclui o estado do cadeado geral.
+// Configuração global do cofre (vem do banco): igual para todos;
+// só admins alteram. Inclui o estado do cadeado geral.
 
 export type VaultConfig = {
   alertDays: number;
@@ -74,7 +74,7 @@ async function put(path: string, body: unknown) {
   await refreshVaultConfig();
 }
 
-// --- ações do Societário ---
+// --- ações de admin ---
 
 export async function updateVaultPolicy(patch: {
   alertDays?: number;

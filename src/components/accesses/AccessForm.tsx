@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FileKey2 } from "lucide-react";
+import { Building2, FileKey2 } from "lucide-react";
 import { LOGIN_TYPES, type Access, type LoginType } from "@/lib/accesses";
+import type { Company } from "@/lib/companies";
 import { useCertificates } from "@/lib/useCertificates";
 import MarkdownEditor from "@/components/ui/MarkdownEditor";
 
@@ -18,10 +19,12 @@ const LOGIN_PLACEHOLDERS: Record<LoginType, string> = {
 
 export default function AccessForm({
   initial,
+  fixedCompanyId,
   onSubmit,
   onCancel,
 }: {
   initial?: Access;
+  fixedCompanyId?: string; // criando de dentro do cofre de uma empresa
   onSubmit: (data: Omit<Access, "id">) => void;
   onCancel: () => void;
 }) {
@@ -36,6 +39,27 @@ export default function AccessForm({
     notes: initial?.notes ?? "",
     tutorial: initial?.tutorial ?? "",
   });
+  const [companyId, setCompanyId] = useState(
+    fixedCompanyId ?? initial?.companyId ?? "",
+  );
+  const [companies, setCompanies] = useState<Company[] | null>(null);
+
+  // Empresas para o vínculo (opcional). Sem permissão de empresas, segue sem.
+  useEffect(() => {
+    if (fixedCompanyId) return;
+    let active = true;
+    fetch("/api/companies")
+      .then((r) => (r.ok ? (r.json() as Promise<Company[]>) : []))
+      .then((data) => {
+        if (active) setCompanies(data);
+      })
+      .catch(() => {
+        if (active) setCompanies([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, [fixedCompanyId]);
 
   const byCertificate = form.loginType === "Certificado digital";
 
@@ -52,6 +76,7 @@ export default function AccessForm({
       loginValue: byCertificate ? "" : form.loginValue.trim(),
       password: byCertificate ? "" : form.password,
       certificateId: byCertificate ? form.certificateId : null,
+      companyId: companyId || undefined,
       notes: form.notes.trim() || undefined,
       tutorial: form.tutorial.trim() ? form.tutorial : undefined,
     });
@@ -152,6 +177,27 @@ export default function AccessForm({
             />
           </Field>
         </div>
+      )}
+
+      {/* Empresa dona do cofre */}
+      {!fixedCompanyId && (
+        <Field label="Empresa (opcional)">
+          <div className="relative">
+            <Building2 className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" />
+            <select
+              className="vlt-input !pl-9"
+              value={companyId}
+              onChange={(e) => setCompanyId(e.target.value)}
+            >
+              <option value="">Sem empresa — acesso geral</option>
+              {(companies ?? []).map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.razaoSocial}
+                </option>
+              ))}
+            </select>
+          </div>
+        </Field>
       )}
 
       <Field label="Observações">

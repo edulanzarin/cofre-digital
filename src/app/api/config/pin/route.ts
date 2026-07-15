@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { forbidden, requireEditor } from "@/lib/api-auth";
+import { guardAdmin } from "@/lib/api-auth";
 
-// Define/altera o PIN de bloqueio do cofre (só Societário).
+// Define/altera o PIN de bloqueio do cofre (só admin).
 export async function PUT(req: Request) {
-  if (!(await requireEditor())) return forbidden();
+  const auth = await guardAdmin();
+  if (auth instanceof NextResponse) return auth;
   const body = (await req.json().catch(() => null)) as { pin?: string } | null;
   if (!body?.pin || body.pin.length < 4) {
     return NextResponse.json({ error: "PIN mínimo de 4 dígitos." }, { status: 400 });
@@ -20,7 +21,8 @@ export async function PUT(req: Request) {
 
 // Remove o PIN (e desbloqueia, para não trancar o cofre sem chave).
 export async function DELETE() {
-  if (!(await requireEditor())) return forbidden();
+  const auth = await guardAdmin();
+  if (auth instanceof NextResponse) return auth;
   await prisma.vaultConfig.upsert({
     where: { id: 1 },
     update: { lockPinHash: null, locked: false },

@@ -8,8 +8,11 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/PermissionProfile'
 export type * from './models/User'
+export type * from './models/Company'
 export type * from './models/Certificate'
+export type * from './models/CertificateEvent'
 export type * from './models/Access'
 export type * from './models/TutorialImage'
 export type * from './models/VaultConfig'

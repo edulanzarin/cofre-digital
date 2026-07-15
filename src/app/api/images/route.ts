@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { forbidden, requireEditor } from "@/lib/api-auth";
+import { guard } from "@/lib/api-auth";
 
 const MAX_BYTES = 4 * 1024 * 1024; // 4 MB por imagem
 const ALLOWED = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 
-// Upload de imagem de tutorial (Societário). Corpo: { mime, data(base64) }.
+// Upload de imagem de tutorial (quem edita acessos). Corpo: { mime, data(base64) }.
 export async function POST(req: Request) {
-  if (!(await requireEditor())) return forbidden();
+  const auth = await guard("acessos", "edit");
+  if (auth instanceof NextResponse) return auth;
   const body = (await req.json().catch(() => null)) as {
     mime?: string;
     data?: string;

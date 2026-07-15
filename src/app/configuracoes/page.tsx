@@ -17,7 +17,7 @@ import {
 export default function SettingsPage() {
   const settings = useSettings();
   const theme = useTheme();
-  const { editor } = useMe();
+  const { admin: editor } = useMe();
   const vault = useVaultConfig();
   const [notifyHint, setNotifyHint] = useState("");
 
@@ -103,12 +103,12 @@ export default function SettingsPage() {
           </div>
         </Section>
 
-        {/* Segurança — política global, só o Societário */}
+        {/* Segurança — política global, só admin */}
         {editor && (
           <Section
             icon={<ShieldCheck className="size-4" />}
             title="Segurança do cofre"
-            subtitle="Bloqueio geral e política de inatividade — vale para todos os setores."
+            subtitle="Bloqueio geral e política de inatividade — vale para todos."
             delay="120ms"
           >
             <PinManager hasPin={vault.hasPin} />

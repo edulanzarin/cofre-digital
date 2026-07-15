@@ -1,13 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { SectorKey } from "./sectors";
+import {
+  allows,
+  type Level,
+  type ModuleKey,
+  type PermissionRules,
+} from "./permissions";
 
 export type Me = {
   name: string;
   email: string;
   sector: SectorKey;
-  editor: boolean;
+  admin: boolean;
+  rules: PermissionRules;
 };
 
 // Cache de módulo: /api/me é buscado uma vez por carregamento de página.
@@ -39,7 +46,12 @@ export function useMe() {
     };
   }, []);
 
-  return { me, editor: me?.editor ?? false };
+  const can = useCallback(
+    (module: ModuleKey, min: Level = "view") => allows(me, module, min),
+    [me],
+  );
+
+  return { me, admin: me?.admin ?? false, can };
 }
 
 export async function logout() {

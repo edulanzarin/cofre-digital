@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { forbidden, requireEditor, requireUser, unauthorized } from "@/lib/api-auth";
+import { guardAdmin, requireUser, unauthorized } from "@/lib/api-auth";
 
 const ALERT_OPTIONS = [15, 30, 45, 60, 90];
 const LOCK_MINUTES_OPTIONS = [5, 15, 30, 60];
@@ -28,9 +28,10 @@ export async function GET() {
   return NextResponse.json(toDTO(await readConfig()));
 }
 
-// Política do cofre — só o Societário, vale para todos os setores.
+// Política do cofre — só admin, vale para todos.
 export async function PUT(req: Request) {
-  if (!(await requireEditor())) return forbidden();
+  const auth = await guardAdmin();
+  if (auth instanceof NextResponse) return auth;
   const body = (await req.json().catch(() => null)) as {
     alertDays?: number;
     autoLock?: boolean;

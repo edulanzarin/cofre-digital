@@ -12,8 +12,17 @@ const CERT_TYPES: CertType[] = [
   "NF-e",
 ];
 
-// `secrets` só para o Societário (GET por id): inclui senha e arquivo.
-export function toDTO(row: CertificateRow, secrets = false): Certificate {
+// Sempre buscar certificados com este include: o front mostra a empresa dona.
+export const CERT_INCLUDE = {
+  company: { select: { id: true, razaoSocial: true, cnpj: true } },
+} as const;
+
+type CertRowFull = CertificateRow & {
+  company: { id: string; razaoSocial: string; cnpj: string } | null;
+};
+
+// `secrets` só para quem edita (GET por id): inclui senha e arquivo.
+export function toDTO(row: CertRowFull, secrets = false): Certificate {
   return {
     id: row.id,
     holder: row.holder,
@@ -26,6 +35,16 @@ export function toDTO(row: CertificateRow, secrets = false): Certificate {
     fileName: row.fileName ?? undefined,
     hasFile: Boolean(row.fileData),
     notes: row.notes ?? undefined,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+    companyId: row.companyId,
+    company: row.company
+      ? {
+          id: row.company.id,
+          razaoSocial: row.company.razaoSocial,
+          cnpj: row.company.cnpj,
+        }
+      : null,
     ...(secrets && {
       password: row.password,
       fileData: row.fileData ?? undefined,
@@ -45,6 +64,7 @@ export type CertCreateInput = {
   fileName: string | null;
   fileData: string | null;
   notes: string | null;
+  companyId: string | null;
 };
 
 export function parseCertBody(body: unknown): CertCreateInput | null {
@@ -74,5 +94,7 @@ export function parseCertBody(body: unknown): CertCreateInput | null {
     fileName: media === "file" && b.fileName ? b.fileName : null,
     fileData: media === "file" && b.fileData ? b.fileData : null,
     notes: b.notes?.trim() ? b.notes.trim() : null,
+    companyId:
+      typeof b.companyId === "string" && b.companyId ? b.companyId : null,
   };
 }

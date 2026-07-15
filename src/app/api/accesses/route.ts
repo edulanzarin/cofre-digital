@@ -6,28 +6,23 @@ import {
   parseAccessBody,
   toAccessDTO,
 } from "@/lib/access-api";
-import {
-  forbidden,
-  requireEditor,
-  requireUnlockedUser,
-  unauthorized,
-  vaultLocked,
-} from "@/lib/api-auth";
+import { guard } from "@/lib/api-auth";
 
-export async function GET() {
-  const session = await requireUnlockedUser();
-  if (!session) return unauthorized();
-  if (session === "locked") return vaultLocked();
+export async function GET(req: Request) {
+  const auth = await guard("acessos", "view");
+  if (auth instanceof NextResponse) return auth;
+  const companyId = new URL(req.url).searchParams.get("companyId");
   const rows = await prisma.access.findMany({
+    where: companyId ? { companyId } : undefined,
     orderBy: { name: "asc" },
     include: ACCESS_INCLUDE,
   });
   return NextResponse.json(rows.map((r) => toAccessDTO(r)));
 }
 
-
 export async function POST(req: Request) {
-  if (!(await requireEditor())) return forbidden();
+  const auth = await guard("acessos", "edit");
+  if (auth instanceof NextResponse) return auth;
   const data = parseAccessBody(await req.json().catch(() => null));
   if (!data) {
     return NextResponse.json({ error: "Dados do acesso inválidos." }, { status: 400 });
@@ -43,6 +38,13 @@ export async function POST(req: Request) {
         { status: 400 },
       );
     }
+  }
+  if (data.companyId) {
+    const company = await prisma.company.findUnique({
+      where: { id: data.companyId },
+      select: { id: true },
+    });
+    if (!company) data.companyId = null;
   }
   const duplicate = await findDuplicateUrl(data.url);
   if (duplicate) {

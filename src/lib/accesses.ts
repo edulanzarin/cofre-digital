@@ -26,9 +26,11 @@ export type Access = {
   url: string;
   loginType: LoginType;
   loginValue: string;
-  password?: string; // só vem no GET por id (Societário)
+  password?: string; // só vem no GET por id (quem edita)
   certificateId?: string | null;
   certificate?: LinkedCertificate | null;
+  companyId?: string | null;
+  company?: { id: string; razaoSocial: string; cnpj: string } | null;
   notes?: string;
   tutorial?: string; // markdown
   hasTutorial?: boolean; // na listagem

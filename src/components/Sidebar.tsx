@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   Vault,
   LayoutGrid,
+  Building2,
   ShieldCheck,
   Globe,
   Users,
@@ -18,16 +19,24 @@ import { setTheme, useTheme } from "@/lib/theme";
 import { lockVault, useVaultConfig } from "@/lib/vaultConfig";
 import { logout, useMe } from "@/lib/useMe";
 import { SECTOR_LABELS } from "@/lib/sectors";
+import type { ModuleKey } from "@/lib/permissions";
 
-const NAV = [
-  { href: "/", label: "Visão geral", icon: LayoutGrid, editorOnly: false },
-  { href: "/certificados", label: "Certificados", icon: ShieldCheck, editorOnly: false },
-  { href: "/acessos", label: "Acessos", icon: Globe, editorOnly: false },
-  { href: "/equipe", label: "Equipe", icon: Users, editorOnly: true },
-  { href: "/configuracoes", label: "Configurações", icon: Settings2, editorOnly: false },
+const NAV: {
+  href: string;
+  label: string;
+  icon: typeof LayoutGrid;
+  module?: ModuleKey; // some do menu sem o nível "view" no módulo
+  adminOnly?: boolean;
+}[] = [
+  { href: "/", label: "Visão geral", icon: LayoutGrid },
+  { href: "/empresas", label: "Empresas", icon: Building2, module: "empresas" },
+  { href: "/certificados", label: "Certificados", icon: ShieldCheck, module: "certificados" },
+  { href: "/acessos", label: "Acessos", icon: Globe, module: "acessos" },
+  { href: "/equipe", label: "Equipe", icon: Users, adminOnly: true },
+  { href: "/configuracoes", label: "Configurações", icon: Settings2 },
 ];
 
-// Bloqueio geral: só o Societário vê e trava o cofre para todos.
+// Bloqueio geral: só admins veem e travam o cofre para todos.
 function LockPill() {
   const { hasPin } = useVaultConfig();
 
@@ -73,8 +82,12 @@ function ThemeToggle() {
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { me, editor } = useMe();
-  const items = NAV.filter((item) => !item.editorOnly || editor);
+  const { me, admin, can } = useMe();
+  const items = NAV.filter((item) => {
+    if (item.adminOnly) return admin;
+    if (item.module) return can(item.module);
+    return true;
+  });
 
   return (
     <aside className="fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-line bg-sidebar max-lg:w-16">
@@ -121,7 +134,7 @@ export default function Sidebar() {
 
       {/* Rodapé */}
       <div className="px-3 pb-3 max-lg:px-2.5">
-        {editor && <LockPill />}
+        {admin && <LockPill />}
         <div className="flex items-center justify-between gap-1 max-lg:flex-col">
           <div className="flex min-w-0 items-center gap-2 px-1 max-lg:px-0">
             <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-strong text-[0.7rem] font-bold text-white">

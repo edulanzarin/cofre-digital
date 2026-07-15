@@ -1,4 +1,4 @@
-// Setores da Navecon. Societário administra o cofre; os demais leem.
+// Setores da Navecon — informativo; quem manda é o perfil de acesso.
 
 export const SECTORS = [
   "SOCIETARIO",
@@ -27,4 +27,7 @@ export type TeamUser = {
   name: string;
   email: string;
   sector: SectorKey;
+  profileId: string | null;
+  profileName: string | null;
+  profileAdmin: boolean;
 };

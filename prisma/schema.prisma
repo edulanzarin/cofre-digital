@@ -7,7 +7,8 @@ datasource db {
   provider = "postgresql"
 }
 
-// Societário edita tudo; os demais setores só visualizam/copiam/baixam.
+// Setor é informativo (de onde a pessoa é); quem manda nas permissões
+// é o perfil de acesso (PermissionProfile) aplicado ao usuário.
 enum Sector {
   SOCIETARIO
   FISCAL
@@ -23,21 +24,49 @@ enum CertMedia {
   CARD
 }
 
+// Perfil de acesso: um "padrão de configuração" reutilizável.
+// rules é um mapa módulo -> nível ("none" | "view" | "edit"),
+// ex.: { "empresas": "view", "certificados": "view", "acessos": "edit" }.
+// admin = gerencia equipe, perfis e políticas do cofre (e edita tudo).
+model PermissionProfile {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  admin     Boolean  @default(false)
+  rules     Json     @default("{}")
+  users     User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model User {
-  id           String   @id @default(uuid())
+  id           String             @id @default(uuid())
   name         String
-  email        String   @unique
+  email        String             @unique
   passwordHash String
-  sector       Sector   @default(ADMINISTRATIVO)
-  createdAt    DateTime @default(now())
+  sector       Sector             @default(ADMINISTRATIVO)
+  profileId    String?
+  profile      PermissionProfile? @relation(fields: [profileId], references: [id], onDelete: SetNull)
+  createdAt    DateTime           @default(now())
+}
+
+// Empresa (cliente) — dona de um cofre próprio: certificados, acessos
+// e, futuramente, alvarás e outros documentos.
+model Company {
+  id           String        @id @default(uuid())
+  cnpj         String        @unique // só dígitos
+  razaoSocial  String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  certificates Certificate[]
+  accesses     Access[]
 }
 
 model Certificate {
-  id        String    @id @default(uuid())
+  id        String             @id @default(uuid())
   holder    String
   document  String
   type      String
-  media     CertMedia @default(FILE)
+  media     CertMedia          @default(FILE)
   issuer    String
   issuedAt  DateTime
   expiresAt DateTime
@@ -45,9 +74,26 @@ model Certificate {
   fileName  String?
   fileData  String? // .pfx em base64
   notes     String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  companyId String?
+  company   Company?           @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  events    CertificateEvent[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
   accesses  Access[]
+}
+
+// Linha do tempo do certificado: cadastro, alterações e observações
+// deixadas pela equipe ("solicitado renovação", "cliente avisado"…).
+model CertificateEvent {
+  id            String      @id @default(uuid())
+  certificateId String
+  certificate   Certificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
+  kind          String // created | updated | note
+  message       String?
+  userName      String
+  createdAt     DateTime    @default(now())
+
+  @@index([certificateId, createdAt])
 }
 
 // Acessos a sites (prefeituras, portais, sistemas) com tutorial em Markdown.
@@ -62,6 +108,8 @@ model Access {
   password      String
   certificateId String?
   certificate   Certificate? @relation(fields: [certificateId], references: [id], onDelete: SetNull)
+  companyId     String?
+  company       Company?     @relation(fields: [companyId], references: [id], onDelete: SetNull)
   notes         String?
   tutorial      String? // markdown; imagens via /api/images/{id}
   createdAt     DateTime     @default(now())
@@ -75,13 +123,13 @@ model TutorialImage {
   createdAt DateTime @default(now())
 }
 
-// Configuração global do cofre (linha única) — definida pelo Societário.
-// O bloqueio é geral: bloqueou, travou para todos os setores.
+// Configuração global do cofre (linha única) — definida por um admin.
+// O bloqueio é geral: bloqueou, travou para todos.
 model VaultConfig {
   id          Int     @id @default(1)
   alertDays   Int     @default(45) // janela de "vencendo" para o cofre inteiro
   locked      Boolean @default(false)
-  lockPinHash String? // bcrypt do PIN de bloqueio (só Societário conhece)
+  lockPinHash String? // bcrypt do PIN de bloqueio (só admins conhecem)
   autoLock    Boolean @default(true) // sair por inatividade (política p/ todos)
   lockMinutes Int     @default(15)
 }
