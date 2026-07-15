@@ -194,7 +194,7 @@ export default function CompanyVaultPage() {
       </div>
 
       {tab === "certificados" && can("certificados") && (
-        <CompanyCerts companyId={company.id} alertDays={alertDays} />
+        <CompanyCerts companyId={company.id} companyName={company.razaoSocial} alertDays={alertDays} />
       )}
       {tab === "acessos" && can("acessos") && (
         <CompanyAccesses companyId={company.id} />
@@ -222,9 +222,11 @@ export default function CompanyVaultPage() {
 
 function CompanyCerts({
   companyId,
+  companyName,
   alertDays,
 }: {
   companyId: string;
+  companyName: string;
   alertDays: number;
 }) {
   const { certs, ready, add, update, remove } = useCertificates(companyId);
@@ -316,6 +318,7 @@ function CompanyCerts({
           <CertForm
             initial={modal === "edit" ? (editCert ?? undefined) : undefined}
             fixedCompanyId={companyId}
+            fixedCompanyName={companyName}
             onSubmit={handleSubmit}
             onCancel={() => setModal("closed")}
           />

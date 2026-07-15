@@ -67,12 +67,17 @@ export default function CertModal({
   const { confirmReveal } = useSettings();
   const { alertDays } = useVaultConfig();
   const { can } = useMe();
+  const [mounted, setMounted] = useState(false);
   const [revealed, setRevealed] = useState<string | null>(null);
   const [askingReveal, setAskingReveal] = useState(false);
   const [copied, setCopied] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   // Acessos que fazem login com este certificado (FK certificateId).
   const [linkedAccesses, setLinkedAccesses] = useState<Access[] | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!can("acessos")) return;
@@ -145,6 +150,8 @@ export default function CertModal({
       // clipboard bloqueado: sem feedback
     }
   }
+
+  if (!mounted) return null;
 
   return createPortal(
     <div

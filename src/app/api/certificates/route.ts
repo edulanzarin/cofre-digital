@@ -17,17 +17,17 @@ export async function GET(req: Request) {
 
 // e-CNPJ sem empresa escolhida entra no cofre da empresa dona do CNPJ
 // (criando a empresa na hora, se for a primeira vez).
-async function resolveCompanyId(data: {
+async function resolveCompany(data: {
   companyId: string | null;
   document: string;
   holder: string;
-}): Promise<string | null> {
+}): Promise<{ id: string; razaoSocial: string } | null> {
   if (data.companyId) {
     const company = await prisma.company.findUnique({
       where: { id: data.companyId },
-      select: { id: true },
+      select: { id: true, razaoSocial: true },
     });
-    return company ? company.id : null;
+    return company ?? null;
   }
   const digits = data.document.replace(/\D/g, "");
   if (digits.length !== 14) return null;
@@ -35,9 +35,29 @@ async function resolveCompanyId(data: {
     where: { cnpj: digits },
     update: {},
     create: { cnpj: digits, razaoSocial: data.holder },
-    select: { id: true },
+    select: { id: true, razaoSocial: true },
   });
-  return company.id;
+  return company;
+}
+
+function companyFileName(razaoSocial: string, document: string): string {
+  const digits = document.replace(/\D/g, "");
+  // Sufixo do CNPJ: posições 8-11 (4 dígitos). 0001 = matriz, demais = filial.
+  const suffix =
+    digits.length === 14
+      ? digits.slice(8, 12) === "0001"
+        ? "_MATRIZ"
+        : `_FILIAL_${digits.slice(8, 12)}`
+      : "";
+
+  const base = razaoSocial
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // remove acentos
+    .replace(/[^\w\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "_");
+
+  return `${base}${suffix}.pfx`;
 }
 
 export async function POST(req: Request) {
@@ -61,11 +81,15 @@ export async function POST(req: Request) {
       { status: 409 },
     );
   }
-  const companyId = await resolveCompanyId(data);
+  const company = await resolveCompany(data);
+  // Renomeia o .pfx para o nome da empresa, independente do nome original.
+  if (company && data.fileName) {
+    data.fileName = companyFileName(company.razaoSocial, data.document);
+  }
   const row = await prisma.certificate.create({
     data: {
       ...data,
-      companyId,
+      companyId: company?.id ?? null,
       events: { create: { kind: "created", userName: auth.name } },
     },
     include: CERT_INCLUDE,

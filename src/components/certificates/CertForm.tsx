@@ -27,17 +27,27 @@ function toDateInput(iso: string) {
   return iso ? iso.slice(0, 10) : "";
 }
 
-// Fluxo guiado: 1) arquivo → 2) senha → leitura automática → 3) conferir.
-// Os campos só aparecem depois da leitura (ou de "preencher manualmente"),
-// para ninguém digitar tudo à mão sem querer.
+function base64ToBuffer(b64: string): ArrayBuffer {
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes.buffer;
+}
+
+// Cadastro novo por arquivo é guiado: 1) arquivo → 2) senha → leitura
+// automática → 3) conferir (campos só aparecem depois da leitura, para
+// ninguém digitar tudo à mão sem querer). Edição e cartão/token mostram
+// os campos direto; na edição o arquivo vira um bloco de "trocar/reler".
 export default function CertForm({
   initial,
   fixedCompanyId,
+  fixedCompanyName,
   onSubmit,
   onCancel,
 }: {
   initial?: Certificate;
   fixedCompanyId?: string; // criando de dentro do cofre de uma empresa
+  fixedCompanyName?: string; // razaoSocial da empresa, para nomear o .pfx
   onSubmit: (data: Omit<Certificate, "id">) => void;
   onCancel: () => void;
 }) {
@@ -55,14 +65,26 @@ export default function CertForm({
   const [companyId, setCompanyId] = useState(
     fixedCompanyId ?? initial?.companyId ?? "",
   );
+
+  // Ao trocar a empresa, atualiza o fileName do .pfx já carregado.
+  function handleCompanyChange(id: string) {
+    setCompanyId(id);
+    if (!fileBuffer.current && !fileData) return; // sem arquivo, nada a renomear
+    const company = id && companies ? companies.find((c) => c.id === id) : null;
+    if (company) {
+      const safeName = `${company.razaoSocial.replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "_")}.pfx`;
+      setFileName(safeName);
+    }
+  }
   const [companies, setCompanies] = useState<Company[] | null>(null);
   const [fileName, setFileName] = useState(initial?.fileName ?? "");
   const [fileData, setFileData] = useState(initial?.fileData ?? "");
   const fileBuffer = useRef<ArrayBuffer | null>(null);
   const [parseState, setParseState] = useState<ParseState>({ kind: "idle" });
-  // Edição e cartão/token já mostram tudo; cadastro novo por arquivo
-  // esconde os campos até a leitura (ou o clique em "preencher manualmente").
-  const [detailsOpen, setDetailsOpen] = useState(Boolean(initial) || media === "card");
+  // Só o cadastro novo por arquivo esconde os campos até a leitura.
+  const guided = media === "file" && !initial;
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const showFields = !guided || detailsOpen;
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -92,20 +114,28 @@ export default function CertForm({
     setMedia(next);
     const types = next === "file" ? FILE_TYPES : CARD_TYPES;
     if (!types.includes(form.type)) set("type", types[0]);
-    if (next === "card") setDetailsOpen(true);
-    else if (!initial && parseState.kind !== "ok") setDetailsOpen(false);
   }
 
   async function handleFile(file: File) {
     const buffer = await file.arrayBuffer();
     fileBuffer.current = buffer;
-    setFileName(file.name);
+    // Nomeia o arquivo com o nome da empresa se já houver uma selecionada,
+    // senão mantém o nome original do arquivo.
+    const resolvedName = fixedCompanyName
+      ? fixedCompanyName
+      : companyId && companies
+        ? companies.find((c) => c.id === companyId)?.razaoSocial
+        : null;
+    const safeName = resolvedName
+      ? `${resolvedName.replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "_")}.pfx`
+      : file.name;
+    setFileName(safeName);
     setFileData(bufferToBase64(buffer));
     setParseState({ kind: "idle" });
     if (form.password) {
       // Senha já digitada: lê direto.
       extract(buffer, form.password);
-    } else {
+    } else if (guided) {
       passwordRef.current?.focus();
     }
   }
@@ -145,6 +175,10 @@ export default function CertForm({
   }
 
   function tryExtract() {
+    // Na edição, o arquivo guardado também pode ser relido (base64 → buffer).
+    if (!fileBuffer.current && fileData) {
+      fileBuffer.current = base64ToBuffer(fileData);
+    }
     const buffer = fileBuffer.current;
     if (buffer) extract(buffer, form.password);
   }
@@ -171,6 +205,72 @@ export default function CertForm({
   const hasFile = Boolean(fileBuffer.current || fileData);
   const isCnpjType = form.type.startsWith("e-CNPJ") || form.type === "NF-e";
 
+  const dropzone = (
+    <div
+      onClick={() => inputRef.current?.click()}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragging(true);
+      }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDragging(false);
+        const file = e.dataTransfer.files[0];
+        if (file) handleFile(file);
+      }}
+      className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-xl border border-dashed px-4 text-center transition-colors ${
+        guided ? "py-6" : "py-4"
+      } ${
+        dragging
+          ? "border-brand bg-brand-soft"
+          : "border-line-strong hover:border-brand hover:bg-panel-2"
+      }`}
+    >
+      <UploadCloud className="size-6 text-ink-3" strokeWidth={1.5} />
+      {fileName ? (
+        <p className="font-mono text-xs text-ink">{fileName}</p>
+      ) : (
+        <p className="text-xs text-ink-2">
+          Arraste o <span className="font-mono">.pfx</span> aqui ou clique para
+          escolher
+        </p>
+      )}
+      {!guided && fileName && (
+        <p className="text-[0.65rem] text-ink-3">
+          Clique ou arraste outro arquivo para substituir
+        </p>
+      )}
+      <input
+        ref={inputRef}
+        type="file"
+        accept=".pfx,.p12"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleFile(file);
+        }}
+      />
+    </div>
+  );
+
+  const parseBanners = (
+    <>
+      {parseState.kind === "ok" && (
+        <p className="flex items-center gap-1.5 rounded-lg bg-ok-soft px-3 py-2 text-xs text-ok">
+          <CircleCheck className="size-3.5 shrink-0" />
+          Dados extraídos do certificado — confira e salve.
+        </p>
+      )}
+      {parseState.kind === "error" && (
+        <p className="flex items-center gap-1.5 rounded-lg bg-bad-soft px-3 py-2 text-xs text-bad">
+          <CircleAlert className="size-3.5 shrink-0" />
+          {parseState.message}
+        </p>
+      )}
+    </>
+  );
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Mídia do certificado */}
@@ -193,55 +293,16 @@ export default function CertForm({
         </button>
       </div>
 
-      {media === "file" && (
+      {/* Fluxo guiado — só cadastro novo por arquivo */}
+      {guided && (
         <>
-          {/* Passo 1 — arquivo */}
           <div>
             <StepLabel n={1} done={hasFile}>
               Envie o arquivo do certificado
             </StepLabel>
-            <div
-              onClick={() => inputRef.current?.click()}
-              onDragOver={(e) => {
-                e.preventDefault();
-                setDragging(true);
-              }}
-              onDragLeave={() => setDragging(false)}
-              onDrop={(e) => {
-                e.preventDefault();
-                setDragging(false);
-                const file = e.dataTransfer.files[0];
-                if (file) handleFile(file);
-              }}
-              className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-xl border border-dashed px-4 py-6 text-center transition-colors ${
-                dragging
-                  ? "border-brand bg-brand-soft"
-                  : "border-line-strong hover:border-brand hover:bg-panel-2"
-              }`}
-            >
-              <UploadCloud className="size-6 text-ink-3" strokeWidth={1.5} />
-              {fileName ? (
-                <p className="font-mono text-xs text-ink">{fileName}</p>
-              ) : (
-                <p className="text-xs text-ink-2">
-                  Arraste o <span className="font-mono">.pfx</span> aqui ou clique
-                  para escolher
-                </p>
-              )}
-              <input
-                ref={inputRef}
-                type="file"
-                accept=".pfx,.p12"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleFile(file);
-                }}
-              />
-            </div>
+            {dropzone}
           </div>
 
-          {/* Passo 2 — senha + leitura automática */}
           <div>
             <StepLabel n={2} done={parseState.kind === "ok"}>
               Digite a senha — os dados são lidos do próprio certificado
@@ -277,18 +338,7 @@ export default function CertForm({
             </button>
           </div>
 
-          {parseState.kind === "ok" && (
-            <p className="flex items-center gap-1.5 rounded-lg bg-ok-soft px-3 py-2 text-xs text-ok">
-              <CircleCheck className="size-3.5 shrink-0" />
-              Dados extraídos do certificado — confira abaixo e salve.
-            </p>
-          )}
-          {parseState.kind === "error" && (
-            <p className="flex items-center gap-1.5 rounded-lg bg-bad-soft px-3 py-2 text-xs text-bad">
-              <CircleAlert className="size-3.5 shrink-0" />
-              {parseState.message}
-            </p>
-          )}
+          {parseBanners}
 
           {!detailsOpen && (
             <p className="text-center text-[0.7rem] text-ink-3">
@@ -305,9 +355,9 @@ export default function CertForm({
         </>
       )}
 
-      {detailsOpen && (
-        <div className="space-y-4 border-t border-line pt-4">
-          {media === "file" && (
+      {showFields && (
+        <div className={`space-y-4 ${guided ? "border-t border-line pt-4" : ""}`}>
+          {guided && (
             <StepLabel n={3} done={false}>
               Confira os dados
             </StepLabel>
@@ -377,7 +427,8 @@ export default function CertForm({
             </Field>
           </div>
 
-          {media === "card" && (
+          {/* Senha editável direto (edição e cartão/token) */}
+          {!guided && (
             <Field label="Senha do certificado">
               <input
                 type="password"
@@ -389,6 +440,29 @@ export default function CertForm({
             </Field>
           )}
 
+          {/* Edição por arquivo: trocar o .pfx e reler os dados */}
+          {!guided && media === "file" && (
+            <div>
+              <p className="mb-1.5 block text-xs font-medium text-ink-2">
+                Arquivo (.pfx)
+              </p>
+              {dropzone}
+              <button
+                type="button"
+                className="vlt-btn vlt-btn-ghost mt-2 w-full"
+                disabled={!hasFile || !form.password || parseState.kind === "reading"}
+                onClick={tryExtract}
+                title="Preenche os campos acima com os dados do arquivo"
+              >
+                <Sparkles className="size-4" />
+                {parseState.kind === "reading"
+                  ? "Lendo o certificado…"
+                  : "Ler dados do arquivo"}
+              </button>
+              <div className="mt-2 space-y-2">{parseBanners}</div>
+            </div>
+          )}
+
           {/* Empresa dona do cofre */}
           {!fixedCompanyId && (
             <Field label="Empresa (opcional)">
@@ -397,7 +471,7 @@ export default function CertForm({
                 <select
                   className="vlt-input pl-9"
                   value={companyId}
-                  onChange={(e) => setCompanyId(e.target.value)}
+                  onChange={(e) => handleCompanyChange(e.target.value)}
                 >
                   <option value="">
                     {isCnpjType
@@ -436,7 +510,7 @@ export default function CertForm({
         <button
           type="submit"
           className="vlt-btn vlt-btn-primary"
-          disabled={!detailsOpen}
+          disabled={!showFields}
         >
           {initial ? "Salvar alterações" : "Guardar no cofre"}
         </button>
