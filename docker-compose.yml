@@ -14,8 +14,8 @@ services:
       - cofre-digital-db-data:/var/lib/postgresql/data
     ports:
       # bind em 127.0.0.1: o banco nunca fica exposto na rede, mas o
-      # `npm run dev` local alcança em localhost:5404
-      - "127.0.0.1:${DB_PORT:-5404}:5432"
+      # `npm run dev` local alcança em localhost:5004
+      - "127.0.0.1:${DB_PORT:-5004}:5432"
     networks:
       - cofre-digital-net
     healthcheck:
