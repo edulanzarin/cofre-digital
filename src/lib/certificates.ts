@@ -11,6 +11,7 @@ export type CertCompany = {
   razaoSocial: string;
   cnpj: string;
   groupId?: string | null; // grupo econômico, para filtrar o cofre por grupo
+  group?: { name: string } | null; // nome do grupo, para a coluna
 };
 
 export type Certificate = {

@@ -259,6 +259,7 @@ export default function CertificatesPage() {
             certs={filtered}
             alertDays={alertDays}
             onSelect={(id) => setSelectedId(id)}
+            showGroup={groups.length > 0}
           />
         </div>
       )}

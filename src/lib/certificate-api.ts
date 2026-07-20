@@ -12,10 +12,18 @@ const CERT_TYPES: CertType[] = [
   "NF-e",
 ];
 
-// Sempre buscar certificados com este include: o front mostra a empresa dona
-// e filtra por grupo econômico (groupId).
+// Sempre buscar certificados com este include: o front mostra a empresa dona,
+// filtra por grupo econômico (groupId) e exibe o nome do grupo na coluna.
 export const CERT_INCLUDE = {
-  company: { select: { id: true, razaoSocial: true, cnpj: true, groupId: true } },
+  company: {
+    select: {
+      id: true,
+      razaoSocial: true,
+      cnpj: true,
+      groupId: true,
+      group: { select: { name: true } },
+    },
+  },
 } as const;
 
 type CertRowFull = CertificateRow & {
@@ -24,6 +32,7 @@ type CertRowFull = CertificateRow & {
     razaoSocial: string;
     cnpj: string;
     groupId: string | null;
+    group: { name: string } | null;
   } | null;
 };
 
@@ -50,6 +59,7 @@ export function toDTO(row: CertRowFull, secrets = false): Certificate {
           razaoSocial: row.company.razaoSocial,
           cnpj: row.company.cnpj,
           groupId: row.company.groupId,
+          group: row.company.group,
         }
       : null,
     ...(secrets && {

@@ -17,11 +17,13 @@ export default function CertList({
   alertDays,
   onSelect,
   showCompany = true,
+  showGroup = false,
 }: {
   certs: Certificate[];
   alertDays: number;
   onSelect: (id: string) => void;
   showCompany?: boolean;
+  showGroup?: boolean;
 }) {
   return (
     <div className="vlt-card overflow-x-auto">
@@ -31,6 +33,9 @@ export default function CertList({
             <th className="px-5 py-3 font-medium">Titular</th>
             <th className="px-4 py-3 font-medium">CNPJ / CPF</th>
             {showCompany && <th className="px-4 py-3 font-medium">Empresa</th>}
+            {showGroup && (
+              <th className="px-4 py-3 font-medium max-md:hidden">Grupo</th>
+            )}
             <th className="px-4 py-3 font-medium">Vencimento</th>
             <th className="px-4 py-3 text-right font-medium">Dias</th>
             <th className="px-4 py-3 font-medium max-lg:hidden">Tipo</th>
@@ -65,6 +70,17 @@ export default function CertList({
                     <span className="block truncate text-xs text-ink-2">
                       {cert.company?.razaoSocial ?? "—"}
                     </span>
+                  </td>
+                )}
+                {showGroup && (
+                  <td className="max-w-40 px-4 py-3 max-md:hidden">
+                    {cert.company?.group ? (
+                      <span className="block truncate text-xs text-ink-2">
+                        {cert.company.group.name}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-ink-3">—</span>
+                    )}
                   </td>
                 )}
                 <td className="px-4 py-3 text-xs whitespace-nowrap text-ink-2">
