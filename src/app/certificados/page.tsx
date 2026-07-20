@@ -5,6 +5,7 @@ import { Plus, Search, Inbox } from "lucide-react";
 import {
   certStatus,
   daysLeft,
+  docGroup,
   type Certificate,
   type CertStatus,
 } from "@/lib/certificates";
@@ -30,6 +31,21 @@ const FILTERS: { key: Filter; label: string }[] = [
 
 const FILTER_KEYS = FILTERS.map((f) => f.key);
 
+// Eixo independente do de situação: dá para pedir "e-CPF vencendo".
+// O que separa os dois é o documento (14 dígitos = CNPJ), não o tipo
+// escrito no certificado — NF-e também é de CNPJ.
+type DocFilter = "all" | "cnpj" | "cpf";
+
+// "Ambos" e não "Todos": o segmentado de situação fica ao lado e dois
+// "Todos" grudados não deixam claro qual eixo cada um zera.
+const DOC_FILTERS: { key: DocFilter; label: string }[] = [
+  { key: "all", label: "Ambos" },
+  { key: "cnpj", label: "e-CNPJ" },
+  { key: "cpf", label: "e-CPF" },
+];
+
+const DOC_FILTER_KEYS = DOC_FILTERS.map((f) => f.key);
+
 export default function CertificatesPage() {
   const { certs, ready, add, update, remove } = useCertificates();
   const { alertDays } = useVaultConfig();
@@ -39,6 +55,11 @@ export default function CertificatesPage() {
   // não joga o contexto fora.
   const [query, setQuery] = useUrlState("q", "");
   const [filter, setFilter] = useUrlState<Filter>("status", "all", FILTER_KEYS);
+  const [docFilter, setDocFilter] = useUrlState<DocFilter>(
+    "doc",
+    "all",
+    DOC_FILTER_KEYS,
+  );
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [modal, setModal] = useState<"closed" | "new" | "edit">("closed");
   const [editCert, setEditCert] = useState<Certificate | null>(null);
@@ -68,6 +89,7 @@ export default function CertificatesPage() {
     const q = query.trim().toLowerCase();
     return certs
       .filter((c) => filter === "all" || certStatus(c, alertDays) === filter)
+      .filter((c) => docFilter === "all" || docGroup(c) === docFilter)
       .filter(
         (c) =>
           !q ||
@@ -78,7 +100,7 @@ export default function CertificatesPage() {
           (c.company?.razaoSocial.toLowerCase().includes(q) ?? false),
       )
       .sort((a, b) => daysLeft(a) - daysLeft(b));
-  }, [certs, query, filter, alertDays]);
+  }, [certs, query, filter, docFilter, alertDays]);
 
   const selected = certs.find((c) => c.id === selectedId) ?? null;
 
@@ -146,6 +168,17 @@ export default function CertificatesPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
+        </div>
+        <div className="vlt-segment">
+          {DOC_FILTERS.map(({ key, label }) => (
+            <button
+              key={key}
+              data-active={docFilter === key}
+              onClick={() => setDocFilter(key)}
+            >
+              {label}
+            </button>
+          ))}
         </div>
         <div className="vlt-segment">
           {FILTERS.map(({ key, label }) => (
