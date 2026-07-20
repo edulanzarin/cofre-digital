@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Search, Inbox } from "lucide-react";
+import { Plus, Search, Inbox, Network } from "lucide-react";
 import {
   certStatus,
   daysLeft,
@@ -9,13 +9,16 @@ import {
   type Certificate,
   type CertStatus,
 } from "@/lib/certificates";
+import { NO_GROUP } from "@/lib/companyGroups";
 import { useCertificates } from "@/lib/useCertificates";
+import { useCompanyGroups } from "@/lib/useCompanyGroups";
 import { useVaultConfig } from "@/lib/vaultConfig";
 import { useMe } from "@/lib/useMe";
 import { useUrlState } from "@/lib/useUrlState";
 import { toast, toastError } from "@/lib/toast";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import Modal from "@/components/ui/Modal";
+import Combobox from "@/components/ui/Combobox";
 import CertForm from "@/components/certificates/CertForm";
 import CertModal from "@/components/certificates/CertModal";
 import CertList from "@/components/certificates/CertList";
@@ -48,6 +51,7 @@ const DOC_FILTER_KEYS = DOC_FILTERS.map((f) => f.key);
 
 export default function CertificatesPage() {
   const { certs, ready, add, update, remove } = useCertificates();
+  const { groups } = useCompanyGroups();
   const { alertDays } = useVaultConfig();
   const { can } = useMe();
   const canEdit = can("certificados", "edit");
@@ -60,6 +64,7 @@ export default function CertificatesPage() {
     "all",
     DOC_FILTER_KEYS,
   );
+  const [group, setGroup] = useUrlState("grupo", "");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [modal, setModal] = useState<"closed" | "new" | "edit">("closed");
   const [editCert, setEditCert] = useState<Certificate | null>(null);
@@ -88,6 +93,13 @@ export default function CertificatesPage() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return certs
+      .filter((c) =>
+        !group
+          ? true
+          : group === NO_GROUP
+            ? !c.company?.groupId
+            : c.company?.groupId === group,
+      )
       .filter((c) => filter === "all" || certStatus(c, alertDays) === filter)
       .filter((c) => docFilter === "all" || docGroup(c) === docFilter)
       .filter(
@@ -100,7 +112,30 @@ export default function CertificatesPage() {
           (c.company?.razaoSocial.toLowerCase().includes(q) ?? false),
       )
       .sort((a, b) => daysLeft(a) - daysLeft(b));
-  }, [certs, query, filter, docFilter, alertDays]);
+  }, [certs, query, filter, docFilter, group, alertDays]);
+
+  // Contagem por grupo sobre os certificados: o hint mostra quantos há em
+  // cada grupo, casando com o que o filtro vai render.
+  const groupOptions = useMemo(() => {
+    const counts = new Map<string, number>();
+    let ungrouped = 0;
+    for (const c of certs) {
+      const gid = c.company?.groupId;
+      if (gid) counts.set(gid, (counts.get(gid) ?? 0) + 1);
+      else ungrouped++;
+    }
+    return [
+      { value: "", label: "Todos os grupos", hint: String(certs.length) },
+      ...groups.map((g) => ({
+        value: g.id,
+        label: g.name,
+        hint: String(counts.get(g.id) ?? 0),
+      })),
+      ...(ungrouped > 0
+        ? [{ value: NO_GROUP, label: "Sem grupo", hint: String(ungrouped) }]
+        : []),
+    ];
+  }, [certs, groups]);
 
   const selected = certs.find((c) => c.id === selectedId) ?? null;
 
@@ -169,6 +204,16 @@ export default function CertificatesPage() {
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
+        {groups.length > 0 && (
+          <Combobox
+            className="w-56"
+            options={groupOptions}
+            value={group}
+            onChange={setGroup}
+            searchPlaceholder="Buscar grupo…"
+            icon={<Network className="size-4 shrink-0 text-ink-3" />}
+          />
+        )}
         <div className="vlt-segment">
           {DOC_FILTERS.map(({ key, label }) => (
             <button

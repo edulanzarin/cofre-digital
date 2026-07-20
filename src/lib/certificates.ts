@@ -6,7 +6,12 @@ export type CertType = "e-CNPJ A1" | "e-CPF A1" | "e-CNPJ A3" | "e-CPF A3" | "NF
 // A1/NF-e são arquivos .pfx; A3 vive num cartão ou token físico.
 export type CertMedia = "file" | "card";
 
-export type CertCompany = { id: string; razaoSocial: string; cnpj: string };
+export type CertCompany = {
+  id: string;
+  razaoSocial: string;
+  cnpj: string;
+  groupId?: string | null; // grupo econômico, para filtrar o cofre por grupo
+};
 
 export type Certificate = {
   id: string;
