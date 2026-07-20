@@ -64,12 +64,7 @@ export default function TeamPage() {
   return (
     <div className="mx-auto w-full max-w-3xl">
       <header className="anim-fade-up mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Equipe</h1>
-          <p className="mt-1 text-sm text-ink-2">
-            Quem acessa o cofre e o que cada perfil pode fazer.
-          </p>
-        </div>
+        <h1 className="text-2xl font-semibold tracking-tight">Equipe</h1>
         <div className="vlt-segment">
           <button data-active={tab === "usuarios"} onClick={() => setTab("usuarios")}>
             <Users className="size-3.5" />

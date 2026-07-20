@@ -54,14 +54,7 @@ export default function AccessesPage() {
     <div>
       {/* Cabeçalho */}
       <header className="anim-fade-up mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Acessos</h1>
-          <p className="mt-1 text-sm text-ink-2">
-            {ready
-              ? `${accesses.length} ${accesses.length === 1 ? "site guardado" : "sites guardados"} — prefeituras, portais e sistemas.`
-              : "Abrindo o cofre…"}
-          </p>
-        </div>
+        <h1 className="text-2xl font-semibold tracking-tight">Acessos</h1>
         {editor && (
           <button onClick={() => setCreating(true)} className="vlt-btn vlt-btn-primary">
             <Plus className="size-4" />

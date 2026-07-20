@@ -66,14 +66,7 @@ export default function CompaniesPage() {
     <div>
       {/* Cabeçalho */}
       <header className="anim-fade-up mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Empresas</h1>
-          <p className="mt-1 text-sm text-ink-2">
-            {ready
-              ? `${companies.length} ${companies.length === 1 ? "empresa" : "empresas"} — cada uma com seu próprio cofre.`
-              : "Abrindo o cofre…"}
-          </p>
-        </div>
+        <h1 className="text-2xl font-semibold tracking-tight">Empresas</h1>
         {canEdit && (
           <button onClick={() => setCreating(true)} className="vlt-btn vlt-btn-primary">
             <Plus className="size-4" />

@@ -53,11 +53,6 @@ export default function SettingsPage() {
     <div className="mx-auto w-full max-w-2xl">
       <header className="anim-fade-up mb-8">
         <h1 className="text-2xl font-semibold tracking-tight">Configurações</h1>
-        <p className="mt-1 text-sm text-ink-2">
-          {editor
-            ? "Políticas do cofre (valem para todos) e preferências pessoais."
-            : "Preferências pessoais deste navegador."}
-        </p>
       </header>
 
       <div className="space-y-6">

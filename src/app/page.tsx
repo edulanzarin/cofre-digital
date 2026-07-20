@@ -132,12 +132,7 @@ export default function DashboardPage() {
     <div>
       {/* Cabeçalho */}
       <header className="anim-fade-up mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Visão geral</h1>
-          <p className="mt-1 text-sm text-ink-2">
-            O estado do cofre — certificados e alvarás, num relance.
-          </p>
-        </div>
+        <h1 className="text-2xl font-semibold tracking-tight">Visão geral</h1>
         {can("certificados", "edit") && (
           <Link href="/certificados?novo=1" className="vlt-btn vlt-btn-primary">
             <Plus className="size-4" />

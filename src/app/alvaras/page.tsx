@@ -125,14 +125,7 @@ export default function AlvarasPage() {
     <div>
       {/* Cabeçalho */}
       <header className="anim-fade-up mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Alvarás</h1>
-          <p className="mt-1 text-sm text-ink-2">
-            {ready
-              ? `${alvaras.length} ${alvaras.length === 1 ? "alvará guardado" : "alvarás guardados"} no cofre.`
-              : "Abrindo o cofre…"}
-          </p>
-        </div>
+        <h1 className="text-2xl font-semibold tracking-tight">Alvarás</h1>
         {canEdit && (
           <button onClick={() => setModal("new")} className="vlt-btn vlt-btn-primary">
             <Plus className="size-4" />
