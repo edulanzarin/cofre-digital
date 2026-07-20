@@ -22,6 +22,9 @@ import {
   type CertStatus,
 } from "@/lib/certificates";
 import { useMe } from "@/lib/useMe";
+import { useUrlState } from "@/lib/useUrlState";
+import { toast } from "@/lib/toast";
+import { SkeletonCards } from "@/components/ui/Skeleton";
 import Modal from "@/components/ui/Modal";
 import CompanyForm from "@/components/companies/CompanyForm";
 
@@ -36,7 +39,8 @@ export default function CompaniesPage() {
   const { alertDays } = useVaultConfig();
   const { can } = useMe();
   const canEdit = can("empresas", "edit");
-  const [query, setQuery] = useState("");
+  // Busca na URL: link compartilhável e reload sem perder o contexto.
+  const [query, setQuery] = useUrlState("q", "");
   const [creating, setCreating] = useState(false);
 
   const filtered = useMemo(() => {
@@ -51,8 +55,11 @@ export default function CompaniesPage() {
   }, [companies, query]);
 
   async function handleCreate(data: { cnpj: string; razaoSocial: string }) {
+    // O erro sobe para o CompanyForm, que já o mostra ao lado dos campos —
+    // um toast aqui repetiria a mesma mensagem em dois lugares.
     await add(data);
     setCreating(false);
+    toast.success("Empresa criada — o cofre dela já está disponível.");
   }
 
   return (
@@ -90,11 +97,7 @@ export default function CompaniesPage() {
 
       {/* Lista */}
       {!ready ? (
-        <ul className="space-y-2">
-          {[0, 1, 2, 3].map((i) => (
-            <li key={i} className="vlt-card h-16 animate-pulse bg-panel-2/40" />
-          ))}
-        </ul>
+        <SkeletonCards rows={5} className="h-16" />
       ) : filtered.length === 0 ? (
         <div
           className="vlt-card anim-fade-up flex flex-col items-center gap-3 px-6 py-16 text-center"

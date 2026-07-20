@@ -11,6 +11,9 @@ import {
 import { useAlvaras } from "@/lib/useAlvaras";
 import { useVaultConfig } from "@/lib/vaultConfig";
 import { useMe } from "@/lib/useMe";
+import { useUrlState } from "@/lib/useUrlState";
+import { toast, toastError } from "@/lib/toast";
+import { SkeletonTable } from "@/components/ui/Skeleton";
 import Modal from "@/components/ui/Modal";
 import AlvaraForm from "@/components/alvaras/AlvaraForm";
 import AlvaraModal from "@/components/alvaras/AlvaraModal";
@@ -26,27 +29,34 @@ const FILTERS: { key: Filter; label: string }[] = [
   { key: "none", label: "Sem vencimento" },
 ];
 
+const FILTER_KEYS = FILTERS.map((f) => f.key);
+
 export default function AlvarasPage() {
   const { alvaras, ready, add, update, remove } = useAlvaras();
   const { alertDays } = useVaultConfig();
   const { can } = useMe();
   const canEdit = can("alvaras", "edit");
-  const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState<Filter>("all");
+  // Busca e filtro vivem na URL: link compartilhável e reload sem perder contexto.
+  const [query, setQuery] = useUrlState("q", "");
+  const [filter, setFilter] = useUrlState<Filter>("status", "all", FILTER_KEYS);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [modal, setModal] = useState<"closed" | "new" | "edit">("closed");
   const [editAlvara, setEditAlvara] = useState<Alvara | null>(null);
 
   // Deep-link vindo do dashboard: ?novo=1 abre o modal, ?alvara=id abre o detalhe.
   // Sincronização one-shot com a URL — o setState aqui é intencional.
+  // Só esses dois parâmetros são consumidos e limpos; q/status ficam na URL.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (params.get("novo")) setModal("new");
     const alvaraId = params.get("alvara");
     if (alvaraId) setSelectedId(alvaraId);
-    if (params.size > 0) {
-      window.history.replaceState(null, "", "/alvaras");
+    if (params.has("novo") || params.has("alvara")) {
+      params.delete("novo");
+      params.delete("alvara");
+      const qs = params.toString();
+      window.history.replaceState(null, "", qs ? `/alvaras?${qs}` : "/alvaras");
     }
   }, []);
 
@@ -77,12 +87,14 @@ export default function AlvarasPage() {
     try {
       if (modal === "edit" && selected) {
         await update(selected.id, data);
+        toast.success("Alvará atualizado.");
       } else {
         await add(data);
+        toast.success("Alvará guardado no cofre.");
       }
       setModal("closed");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Falha ao salvar.");
+      toastError(err, "Falha ao salvar.");
     }
   }
 
@@ -90,8 +102,9 @@ export default function AlvarasPage() {
     try {
       await remove(id);
       setSelectedId(null);
+      toast.success("Alvará excluído do cofre.");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Falha ao excluir.");
+      toastError(err, "Falha ao excluir.");
     }
   }
 
@@ -104,7 +117,7 @@ export default function AlvarasPage() {
       setEditAlvara((await res.json()) as Alvara);
       setModal("edit");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Falha ao abrir edição.");
+      toastError(err, "Falha ao abrir edição.");
     }
   }
 
@@ -157,7 +170,7 @@ export default function AlvarasPage() {
 
       {/* Lista */}
       {!ready ? (
-        <div className="vlt-card h-64 animate-pulse bg-panel-2/40" />
+        <SkeletonTable rows={6} cols={6} />
       ) : filtered.length === 0 ? (
         <div
           className="vlt-card anim-fade-up flex flex-col items-center gap-3 px-6 py-16 text-center"

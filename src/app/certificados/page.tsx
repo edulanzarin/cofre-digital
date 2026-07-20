@@ -11,6 +11,9 @@ import {
 import { useCertificates } from "@/lib/useCertificates";
 import { useVaultConfig } from "@/lib/vaultConfig";
 import { useMe } from "@/lib/useMe";
+import { useUrlState } from "@/lib/useUrlState";
+import { toast, toastError } from "@/lib/toast";
+import { SkeletonTable } from "@/components/ui/Skeleton";
 import Modal from "@/components/ui/Modal";
 import CertForm from "@/components/certificates/CertForm";
 import CertModal from "@/components/certificates/CertModal";
@@ -25,27 +28,39 @@ const FILTERS: { key: Filter; label: string }[] = [
   { key: "expired", label: "Vencidos" },
 ];
 
+const FILTER_KEYS = FILTERS.map((f) => f.key);
+
 export default function CertificatesPage() {
   const { certs, ready, add, update, remove } = useCertificates();
   const { alertDays } = useVaultConfig();
   const { can } = useMe();
   const canEdit = can("certificados", "edit");
-  const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState<Filter>("all");
+  // Busca e filtro vivem na URL: o link fica compartilhável e recarregar
+  // não joga o contexto fora.
+  const [query, setQuery] = useUrlState("q", "");
+  const [filter, setFilter] = useUrlState<Filter>("status", "all", FILTER_KEYS);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [modal, setModal] = useState<"closed" | "new" | "edit">("closed");
   const [editCert, setEditCert] = useState<Certificate | null>(null);
 
   // Deep-link vindo do dashboard: ?novo=1 abre o modal, ?cert=id abre o drawer.
   // Sincronização one-shot com a URL — o setState aqui é intencional.
+  // Só esses dois parâmetros são consumidos e limpos; q/status ficam na URL.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (params.get("novo")) setModal("new");
     const certId = params.get("cert");
     if (certId) setSelectedId(certId);
-    if (params.size > 0) {
-      window.history.replaceState(null, "", "/certificados");
+    if (params.has("novo") || params.has("cert")) {
+      params.delete("novo");
+      params.delete("cert");
+      const qs = params.toString();
+      window.history.replaceState(
+        null,
+        "",
+        qs ? `/certificados?${qs}` : "/certificados",
+      );
     }
   }, []);
 
@@ -71,12 +86,14 @@ export default function CertificatesPage() {
     try {
       if (modal === "edit" && selected) {
         await update(selected.id, data);
+        toast.success("Certificado atualizado.");
       } else {
         await add(data);
+        toast.success("Certificado guardado no cofre.");
       }
       setModal("closed");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Falha ao salvar.");
+      toastError(err, "Falha ao salvar.");
     }
   }
 
@@ -84,8 +101,9 @@ export default function CertificatesPage() {
     try {
       await remove(id);
       setSelectedId(null);
+      toast.success("Certificado excluído do cofre.");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Falha ao excluir.");
+      toastError(err, "Falha ao excluir.");
     }
   }
 
@@ -98,7 +116,7 @@ export default function CertificatesPage() {
       setEditCert((await res.json()) as Certificate);
       setModal("edit");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Falha ao abrir edição.");
+      toastError(err, "Falha ao abrir edição.");
     }
   }
 
@@ -151,7 +169,7 @@ export default function CertificatesPage() {
 
       {/* Lista */}
       {!ready ? (
-        <div className="vlt-card h-64 animate-pulse bg-panel-2/40" />
+        <SkeletonTable rows={6} cols={7} />
       ) : filtered.length === 0 ? (
         <div
           className="vlt-card anim-fade-up flex flex-col items-center gap-3 px-6 py-16 text-center"

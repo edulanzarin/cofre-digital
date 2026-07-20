@@ -22,6 +22,7 @@ import {
   type Profile,
 } from "@/lib/permissions";
 import { useMe } from "@/lib/useMe";
+import { toast } from "@/lib/toast";
 import Modal from "@/components/ui/Modal";
 import Switch from "@/components/ui/Switch";
 
@@ -137,11 +138,12 @@ function UsersTab({
     const res = await fetch(`/api/users/${id}`, { method: "DELETE" });
     if (!res.ok) {
       const body = (await res.json().catch(() => null)) as { error?: string } | null;
-      alert(body?.error ?? "Falha ao excluir.");
+      toast.error(body?.error ?? "Falha ao excluir.");
       return;
     }
     setUsers((prev) => (prev ?? []).filter((u) => u.id !== id));
     setDeleting(null);
+    toast.success("Usuário removido.");
   }
 
   return (
@@ -166,7 +168,7 @@ function UsersTab({
       </div>
 
       {users === null ? (
-        <div className="vlt-card h-40 animate-pulse bg-panel-2/40" />
+        <div className="vlt-skeleton h-40" />
       ) : filtered.length === 0 ? (
         <div className="vlt-card flex flex-col items-center gap-3 px-6 py-16 text-center">
           <Users className="size-8 text-ink-3" strokeWidth={1.5} />
@@ -442,12 +444,13 @@ function ProfilesTab({
     const res = await fetch(`/api/profiles/${id}`, { method: "DELETE" });
     if (!res.ok) {
       const body = (await res.json().catch(() => null)) as { error?: string } | null;
-      alert(body?.error ?? "Falha ao excluir.");
+      toast.error(body?.error ?? "Falha ao excluir.");
       setDeleting(null);
       return;
     }
     setProfiles((prev) => (prev ?? []).filter((p) => p.id !== id));
     setDeleting(null);
+    toast.success("Perfil removido.");
   }
 
   return (
@@ -467,7 +470,7 @@ function ProfilesTab({
       </div>
 
       {profiles === null ? (
-        <div className="vlt-card h-40 animate-pulse bg-panel-2/40" />
+        <div className="vlt-skeleton h-40" />
       ) : profiles.length === 0 ? (
         <div className="vlt-card flex flex-col items-center gap-3 px-6 py-16 text-center">
           <KeyRound className="size-8 text-ink-3" strokeWidth={1.5} />

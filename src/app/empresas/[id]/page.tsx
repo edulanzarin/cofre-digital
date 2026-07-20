@@ -24,6 +24,7 @@ import { useAccesses } from "@/lib/useAccesses";
 import { useAlvaras } from "@/lib/useAlvaras";
 import { useVaultConfig } from "@/lib/vaultConfig";
 import { useMe } from "@/lib/useMe";
+import { toast, toastError } from "@/lib/toast";
 import Modal from "@/components/ui/Modal";
 import CertList from "@/components/certificates/CertList";
 import CertForm from "@/components/certificates/CertForm";
@@ -79,9 +80,10 @@ export default function CompanyVaultPage() {
   async function handleDelete() {
     const res = await fetch(`/api/companies/${id}`, { method: "DELETE" });
     if (!res.ok) {
-      alert("Falha ao excluir a empresa.");
+      toast.error("Falha ao excluir a empresa.");
       return;
     }
+    toast.success("Empresa excluída.");
     router.push("/empresas");
   }
 
@@ -101,9 +103,9 @@ export default function CompanyVaultPage() {
   if (!company) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-40 animate-pulse rounded-lg bg-panel-2/60" />
-        <div className="vlt-card h-24 animate-pulse bg-panel-2/40" />
-        <div className="vlt-card h-64 animate-pulse bg-panel-2/40" />
+        <div className="vlt-skeleton h-8 w-40" />
+        <div className="vlt-skeleton h-24" />
+        <div className="vlt-skeleton h-64" />
       </div>
     );
   }
@@ -256,8 +258,9 @@ function CompanyCerts({
         await add(data);
       }
       setModal("closed");
+      toast.success("Certificado salvo no cofre da empresa.");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Falha ao salvar.");
+      toastError(err, "Falha ao salvar.");
     }
   }
 
@@ -269,7 +272,7 @@ function CompanyCerts({
       setEditCert((await res.json()) as Certificate);
       setModal("edit");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Falha ao abrir edição.");
+      toastError(err, "Falha ao abrir edição.");
     }
   }
 
@@ -285,7 +288,7 @@ function CompanyCerts({
       )}
 
       {!ready ? (
-        <div className="vlt-card h-48 animate-pulse bg-panel-2/40" />
+        <div className="vlt-skeleton h-48" />
       ) : certs.length === 0 ? (
         <div className="vlt-card flex flex-col items-center gap-3 px-6 py-14 text-center">
           <ShieldCheck className="size-8 text-ink-3" strokeWidth={1.5} />
@@ -312,8 +315,9 @@ function CompanyCerts({
             try {
               await remove(selected.id);
               setSelectedId(null);
+              toast.success("Certificado excluído.");
             } catch (err) {
-              alert(err instanceof Error ? err.message : "Falha ao excluir.");
+              toastError(err, "Falha ao excluir.");
             }
           }}
         />
@@ -350,8 +354,9 @@ function CompanyAccesses({ companyId }: { companyId: string }) {
     try {
       await add(data);
       setCreating(false);
+      toast.success("Acesso salvo no cofre da empresa.");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Falha ao salvar.");
+      toastError(err, "Falha ao salvar.");
     }
   }
 
@@ -367,7 +372,7 @@ function CompanyAccesses({ companyId }: { companyId: string }) {
       )}
 
       {!ready ? (
-        <div className="vlt-card h-40 animate-pulse bg-panel-2/40" />
+        <div className="vlt-skeleton h-40" />
       ) : accesses.length === 0 ? (
         <div className="vlt-card flex flex-col items-center gap-3 px-6 py-14 text-center">
           <Globe className="size-8 text-ink-3" strokeWidth={1.5} />
@@ -449,8 +454,9 @@ function CompanyAlvaras({
         await add(data);
       }
       setModal("closed");
+      toast.success("Alvará salvo no cofre da empresa.");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Falha ao salvar.");
+      toastError(err, "Falha ao salvar.");
     }
   }
 
@@ -463,7 +469,7 @@ function CompanyAlvaras({
       setEditAlvara((await res.json()) as Alvara);
       setModal("edit");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Falha ao abrir edição.");
+      toastError(err, "Falha ao abrir edição.");
     }
   }
 
@@ -479,7 +485,7 @@ function CompanyAlvaras({
       )}
 
       {!ready ? (
-        <div className="vlt-card h-48 animate-pulse bg-panel-2/40" />
+        <div className="vlt-skeleton h-48" />
       ) : alvaras.length === 0 ? (
         <div className="vlt-card flex flex-col items-center gap-3 px-6 py-14 text-center">
           <FileBadge className="size-8 text-ink-3" strokeWidth={1.5} />
@@ -506,8 +512,9 @@ function CompanyAlvaras({
             try {
               await remove(selected.id);
               setSelectedId(null);
+              toast.success("Alvará excluído.");
             } catch (err) {
-              alert(err instanceof Error ? err.message : "Falha ao excluir.");
+              toastError(err, "Falha ao excluir.");
             }
           }}
         />

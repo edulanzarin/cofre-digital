@@ -22,6 +22,7 @@ import StatusBadge from "@/components/ui/StatusBadge";
 import type { Access } from "@/lib/accesses";
 import { useSettings } from "@/lib/settings";
 import { useMe } from "@/lib/useMe";
+import { toast } from "@/lib/toast";
 import Modal from "@/components/ui/Modal";
 import MarkdownView from "@/components/ui/MarkdownView";
 import AccessForm from "@/components/accesses/AccessForm";
@@ -99,19 +100,21 @@ export default function AccessDetailPage() {
     });
     if (!res.ok) {
       const body = (await res.json().catch(() => null)) as { error?: string } | null;
-      alert(body?.error ?? "Falha ao salvar as alterações.");
+      toast.error(body?.error ?? "Falha ao salvar as alterações.");
       return;
     }
     setAccess((await res.json()) as Access);
     setEditing(false);
+    toast.success("Acesso atualizado.");
   }
 
   async function handleDelete() {
     const res = await fetch(`/api/accesses/${id}`, { method: "DELETE" });
     if (!res.ok) {
-      alert("Falha ao excluir.");
+      toast.error("Falha ao excluir.");
       return;
     }
+    toast.success("Acesso excluído do cofre.");
     router.push("/acessos");
   }
 
@@ -131,11 +134,11 @@ export default function AccessDetailPage() {
   if (!access) {
     return (
       <div className="space-y-6">
-        <div className="h-8 w-40 animate-pulse rounded-lg bg-panel-2/60" />
-        <div className="vlt-card h-24 animate-pulse bg-panel-2/40" />
+        <div className="vlt-skeleton h-8 w-40" />
+        <div className="vlt-skeleton h-24" />
         <div className="grid gap-6 lg:grid-cols-3">
-          <div className="vlt-card h-64 animate-pulse bg-panel-2/40" />
-          <div className="vlt-card h-64 animate-pulse bg-panel-2/40 lg:col-span-2" />
+          <div className="vlt-skeleton h-64" />
+          <div className="vlt-skeleton h-64 lg:col-span-2" />
         </div>
       </div>
     );

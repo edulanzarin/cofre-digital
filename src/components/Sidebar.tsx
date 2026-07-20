@@ -20,6 +20,7 @@ import { setTheme, useTheme } from "@/lib/theme";
 import { lockVault, useVaultConfig } from "@/lib/vaultConfig";
 import { logout, useMe } from "@/lib/useMe";
 import { SECTOR_LABELS } from "@/lib/sectors";
+import { toast } from "@/lib/toast";
 import type { ModuleKey } from "@/lib/permissions";
 
 const NAV: {
@@ -45,7 +46,8 @@ function LockPill() {
   return (
     <button
       onClick={() =>
-        hasPin && lockVault().catch(() => alert("Falha ao bloquear o cofre."))
+        hasPin &&
+        lockVault().catch(() => toast.error("Falha ao bloquear o cofre."))
       }
       disabled={!hasPin}
       title={

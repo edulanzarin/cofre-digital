@@ -6,6 +6,9 @@ import { Plus, Search, Globe, Inbox, BookOpen } from "lucide-react";
 import type { Access } from "@/lib/accesses";
 import { useAccesses } from "@/lib/useAccesses";
 import { useMe } from "@/lib/useMe";
+import { useUrlState } from "@/lib/useUrlState";
+import { toast, toastError } from "@/lib/toast";
+import { Skeleton } from "@/components/ui/Skeleton";
 import Modal from "@/components/ui/Modal";
 import AccessForm from "@/components/accesses/AccessForm";
 
@@ -21,7 +24,8 @@ export default function AccessesPage() {
   const { accesses, ready, add } = useAccesses();
   const { can } = useMe();
   const editor = can("acessos", "edit");
-  const [query, setQuery] = useState("");
+  // Busca na URL: link compartilhável e reload sem perder o contexto.
+  const [query, setQuery] = useUrlState("q", "");
   const [creating, setCreating] = useState(false);
 
   const filtered = useMemo(() => {
@@ -40,8 +44,9 @@ export default function AccessesPage() {
     try {
       await add(data);
       setCreating(false);
+      toast.success("Acesso guardado no cofre.");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Falha ao salvar.");
+      toastError(err, "Falha ao salvar.");
     }
   }
 
@@ -81,8 +86,10 @@ export default function AccessesPage() {
       {/* Lista */}
       {!ready ? (
         <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {[0, 1, 2].map((i) => (
-            <li key={i} className="vlt-card h-28 animate-pulse bg-panel-2/40" />
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <li key={i}>
+              <Skeleton className="h-28 w-full" />
+            </li>
           ))}
         </ul>
       ) : filtered.length === 0 ? (

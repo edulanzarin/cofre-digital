@@ -6,6 +6,7 @@ import Switch from "@/components/ui/Switch";
 import { setSetting, useSettings } from "@/lib/settings";
 import { setTheme, useTheme } from "@/lib/theme";
 import { useMe } from "@/lib/useMe";
+import { toast, toastError } from "@/lib/toast";
 import {
   lockVault,
   removeVaultPin,
@@ -43,7 +44,9 @@ export default function SettingsPage() {
   }
 
   function policy(patch: Parameters<typeof updateVaultPolicy>[0]) {
-    updateVaultPolicy(patch).catch(() => alert("Falha ao salvar a política do cofre."));
+    updateVaultPolicy(patch).catch(() =>
+      toast.error("Falha ao salvar a política do cofre."),
+    );
   }
 
   return (
@@ -190,7 +193,7 @@ function PinManager({ hasPin }: { hasPin: boolean }) {
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Falha ao salvar o PIN.");
+      toastError(err, "Falha ao salvar o PIN.");
     }
   }
 
@@ -211,7 +214,9 @@ function PinManager({ hasPin }: { hasPin: boolean }) {
               <>
                 <button
                   onClick={() =>
-                    lockVault().catch(() => alert("Falha ao bloquear o cofre."))
+                    lockVault().catch(() =>
+                      toast.error("Falha ao bloquear o cofre."),
+                    )
                   }
                   className="vlt-btn vlt-btn-ghost !px-3 !py-1.5 text-xs"
                 >
@@ -220,7 +225,9 @@ function PinManager({ hasPin }: { hasPin: boolean }) {
                 </button>
                 <button
                   onClick={() =>
-                    removeVaultPin().catch(() => alert("Falha ao remover o PIN."))
+                    removeVaultPin().catch(() =>
+                      toast.error("Falha ao remover o PIN."),
+                    )
                   }
                   className="vlt-btn vlt-btn-danger !px-3 !py-1.5 text-xs"
                 >
