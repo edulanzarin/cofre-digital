@@ -34,7 +34,7 @@ import { useVaultConfig } from "@/lib/vaultConfig";
 import { useMe } from "@/lib/useMe";
 import ExpiryRing from "@/components/ui/ExpiryRing";
 import StatusBadge from "@/components/ui/StatusBadge";
-import CertHistory from "@/components/certificates/CertHistory";
+import HistoryPanel from "@/components/ui/HistoryPanel";
 
 // "válido por 12 meses" / "válido por 3 anos"
 function validityLabel(cert: Pick<Certificate, "issuedAt" | "expiresAt">): string {
@@ -75,7 +75,9 @@ export default function CertModal({
   // Acessos que fazem login com este certificado (FK certificateId).
   const [linkedAccesses, setLinkedAccesses] = useState<Access[] | null>(null);
 
+  // Portal só existe no cliente — o setState aqui é intencional.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -411,7 +413,11 @@ export default function CertModal({
 
           {/* Coluna do histórico */}
           <div className="flex min-h-0 flex-col border-t border-line bg-panel-2/30 lg:border-t-0 lg:border-l">
-            <CertHistory key={cert.id} certId={cert.id} />
+            <HistoryPanel
+              key={cert.id}
+              endpoint={`/api/certificates/${cert.id}/events`}
+              placeholder="Escreva uma observação… (ex.: solicitado renovação, cliente avisado)"
+            />
           </div>
         </div>
 

@@ -8,10 +8,18 @@ import {
   PlusCircle,
   Send,
 } from "lucide-react";
-import type { CertEvent } from "@/lib/certificates";
+
+// Evento da linha do tempo — mesmo shape nas APIs de certificados e alvarás.
+export type HistoryEvent = {
+  id: string;
+  kind: "created" | "updated" | "note";
+  message?: string;
+  userName: string;
+  createdAt: string; // ISO
+};
 
 const KIND_META: Record<
-  CertEvent["kind"],
+  HistoryEvent["kind"],
   { label: string; icon: typeof History; color: string; soft: string }
 > = {
   created: {
@@ -63,18 +71,25 @@ function fullWhen(iso: string): string {
   });
 }
 
-// Painel de histórico do certificado: linha do tempo completa (cadastro,
-// alterações e observações da equipe) + campo para anotar.
-export default function CertHistory({ certId }: { certId: string }) {
-  const [events, setEvents] = useState<CertEvent[] | null>(null);
+// Painel de histórico de um item do cofre: linha do tempo completa
+// (cadastro, alterações e observações da equipe) + campo para anotar.
+// `endpoint` é a rota de eventos do item (GET lista, POST cria nota).
+export default function HistoryPanel({
+  endpoint,
+  placeholder,
+}: {
+  endpoint: string;
+  placeholder: string;
+}) {
+  const [events, setEvents] = useState<HistoryEvent[] | null>(null);
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     let active = true;
-    fetch(`/api/certificates/${certId}/events`)
-      .then((r) => (r.ok ? (r.json() as Promise<CertEvent[]>) : []))
+    fetch(endpoint)
+      .then((r) => (r.ok ? (r.json() as Promise<HistoryEvent[]>) : []))
       .then((data) => {
         if (active) setEvents(data);
       })
@@ -84,7 +99,7 @@ export default function CertHistory({ certId }: { certId: string }) {
     return () => {
       active = false;
     };
-  }, [certId]);
+  }, [endpoint]);
 
   async function addNote() {
     const text = message.trim();
@@ -92,7 +107,7 @@ export default function CertHistory({ certId }: { certId: string }) {
     setSending(true);
     setError("");
     try {
-      const res = await fetch(`/api/certificates/${certId}/events`, {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text }),
@@ -102,7 +117,7 @@ export default function CertHistory({ certId }: { certId: string }) {
         setError(body?.error ?? "Falha ao salvar a observação.");
         return;
       }
-      const created = (await res.json()) as CertEvent;
+      const created = (await res.json()) as HistoryEvent;
       setEvents((prev) => [created, ...(prev ?? [])]);
       setMessage("");
     } finally {
@@ -132,7 +147,7 @@ export default function CertHistory({ certId }: { certId: string }) {
       <div className="border-b border-line px-5 py-3.5">
         <textarea
           className="vlt-input min-h-16 w-full resize-y text-[0.82rem]"
-          placeholder="Escreva uma observação… (ex.: solicitado renovação, cliente avisado)"
+          placeholder={placeholder}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={(e) => {
