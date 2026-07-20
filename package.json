@@ -1,9 +1,9 @@
 {
-  "name": "intranet-navecon",
+  "name": "cofre-digital",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p ${PORT:-4004}",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

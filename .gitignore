@@ -22,6 +22,3 @@ npm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# docker (só na máquina de dev)
-docker-compose.override.yml

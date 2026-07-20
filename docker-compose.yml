@@ -1,13 +1,23 @@
+# Slug do projeto: cofre-digital. Todo recurso deriva dele.
+# Porta interna é constante (3000 app / 5432 db); a externa vem do .env.
+# Rodar em outra porta: APP_PORT=4010 docker compose up -d  (sem rebuild)
 services:
   db:
     image: postgres:17-alpine
+    container_name: cofre-digital-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: vault
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vault_secret}
       POSTGRES_DB: vault
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - cofre-digital-db-data:/var/lib/postgresql/data
+    ports:
+      # bind em 127.0.0.1: o banco nunca fica exposto na rede, mas o
+      # `npm run dev` local alcança em localhost:5404
+      - "127.0.0.1:${DB_PORT:-5404}:5432"
+    networks:
+      - cofre-digital-net
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U vault -d vault"]
       interval: 5s
@@ -18,20 +28,26 @@ services:
     build:
       context: .
       target: builder
+    image: cofre-digital-migrate
+    container_name: cofre-digital-migrate
     restart: "no"
     depends_on:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://vault:${POSTGRES_PASSWORD:-vault_secret}@db:5432/vault
+      DATABASE_URL: postgresql://vault:${POSTGRES_PASSWORD:-vault_secret}@cofre-digital-db:5432/vault
       # Opcionais (defina num .env na raiz antes do primeiro up):
       SEED_ADMIN_NAME: ${SEED_ADMIN_NAME:-}
       SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-}
       SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
+    networks:
+      - cofre-digital-net
     command: sh -c "npx prisma migrate deploy && node prisma/seed.mjs"
 
   app:
     build: .
+    image: cofre-digital-app
+    container_name: cofre-digital-app
     restart: unless-stopped
     depends_on:
       db:
@@ -39,13 +55,20 @@ services:
       migrate:
         condition: service_completed_successfully
     environment:
-      DATABASE_URL: postgresql://vault:${POSTGRES_PASSWORD:-vault_secret}@db:5432/vault
+      DATABASE_URL: postgresql://vault:${POSTGRES_PASSWORD:-vault_secret}@cofre-digital-db:5432/vault
       AUTH_SECRET: ${AUTH_SECRET:-troque-este-segredo-em-producao}
       # acesso na rede é por http:// (sem TLS); cookie Secure quebraria o login
       COOKIE_SECURE: "false"
     ports:
       # 0.0.0.0 → acessível na rede pelo IP do host: http://<ip-do-pc>:4004
-      - "4004:3000"
+      - "${APP_PORT:-4004}:3000"
+    networks:
+      - cofre-digital-net
 
 volumes:
-  pgdata:
+  cofre-digital-db-data:
+    name: cofre-digital-db-data
+
+networks:
+  cofre-digital-net:
+    name: cofre-digital-net
