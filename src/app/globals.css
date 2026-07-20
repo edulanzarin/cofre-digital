@@ -427,6 +427,70 @@ body {
     margin: 1em 0;
   }
 
+  /* ---------- Esqueleto de carregamento ---------- */
+  /* Placeholder com brilho passando: mostra a FORMA do conteúdo que vem,
+     em vez de um bloco cinza pulsando. */
+  .vlt-skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--panel-2);
+    border-radius: 0.75rem;
+  }
+  .vlt-skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--line-strong) 55%, transparent),
+      transparent
+    );
+    animation: vlt-shimmer 1.5s ease-in-out infinite;
+  }
+
+  /* ---------- Toast ---------- */
+  .vlt-toast {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 0.7rem 0.85rem;
+    border-radius: 0.875rem;
+    border: 1px solid var(--line);
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-float);
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+  /* A cor do estado entra só numa faixa à esquerda + no ícone —
+     o fundo continua neutro pra não gritar. */
+  .vlt-toast::before {
+    content: "";
+    position: absolute;
+    top: 0.7rem;
+    bottom: 0.7rem;
+    left: 0;
+    width: 2px;
+    border-radius: 0 99px 99px 0;
+    background: var(--toast-accent);
+  }
+  .vlt-toast {
+    position: relative;
+  }
+  .vlt-toast[data-kind="success"] {
+    --toast-accent: var(--ok);
+  }
+  .vlt-toast[data-kind="error"] {
+    --toast-accent: var(--bad);
+  }
+  .vlt-toast[data-kind="info"] {
+    --toast-accent: var(--info);
+  }
+
   /* ---------- Badges ---------- */
   .vlt-badge {
     display: inline-flex;
@@ -476,6 +540,23 @@ body {
       opacity: 1;
     }
   }
+  @keyframes vlt-shimmer {
+    to {
+      transform: translateX(100%);
+    }
+  }
+  /* Toast entra subindo pela direita e sai encolhendo a própria altura,
+     pra pilha se reorganizar sem salto. */
+  @keyframes vlt-toast-in {
+    from {
+      opacity: 0;
+      transform: translateX(12px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
 
   .anim-fade-up {
     animation: vlt-fade-up 0.4s ease-out both;
@@ -489,13 +570,20 @@ body {
   .anim-overlay {
     animation: vlt-overlay-in 0.2s ease-out both;
   }
+  .anim-toast-in {
+    animation: vlt-toast-in 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .anim-fade-up,
   .anim-pop,
   .anim-slide-in,
-  .anim-overlay {
+  .anim-overlay,
+  .anim-toast-in {
+    animation: none;
+  }
+  .vlt-skeleton::after {
     animation: none;
   }
   .vlt-card-hover,

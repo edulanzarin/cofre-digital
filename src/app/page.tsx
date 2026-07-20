@@ -31,6 +31,7 @@ import { useSettings } from "@/lib/settings";
 import { useVaultConfig } from "@/lib/vaultConfig";
 import { useMe } from "@/lib/useMe";
 import { maybeNotifyExpiring } from "@/lib/notify";
+import { Skeleton, SkeletonRows } from "@/components/ui/Skeleton";
 
 type Counts = { total: number; valid: number; expiring: number; expired: number };
 
@@ -163,11 +164,19 @@ export default function DashboardPage() {
                 <span className="text-[0.65rem] text-ink-3">≤ {alertDays} dias</span>
               )}
             </div>
-            <p className="mt-4 text-3xl font-semibold tracking-tight tabular-nums">
-              {all[key]}
-            </p>
+            {ready ? (
+              <p className="mt-4 text-3xl font-semibold tracking-tight tabular-nums">
+                {all[key]}
+              </p>
+            ) : (
+              <Skeleton className="mt-4 h-9 w-12" />
+            )}
             <p className="mt-0.5 text-xs font-medium text-ink-3">{label}</p>
-            <p className="mt-0.5 text-[0.68rem] text-ink-3">{ready ? detail : "…"}</p>
+            {ready ? (
+              <p className="mt-0.5 text-[0.68rem] text-ink-3">{detail}</p>
+            ) : (
+              <Skeleton className="mt-1 h-2.5 w-20" />
+            )}
           </div>
         ))}
       </section>
@@ -304,7 +313,7 @@ function AlvaraAttentionList({
       </div>
 
       {!ready ? (
-        <div className="px-6 py-14" />
+        <SkeletonRows rows={4} />
       ) : alvaras.length === 0 ? (
         <div className="flex flex-col items-center gap-2 px-6 py-14 text-center">
           <ShieldCheck className="size-8 text-ok" strokeWidth={1.5} />
@@ -444,7 +453,7 @@ function ExpiryList({
       </div>
 
       {!ready ? (
-        <div className="px-6 py-14" />
+        <SkeletonRows rows={4} />
       ) : certs.length === 0 ? (
         <div className="flex flex-col items-center gap-2 px-6 py-14 text-center">
           <ShieldCheck className="size-8 text-ok" strokeWidth={1.5} />

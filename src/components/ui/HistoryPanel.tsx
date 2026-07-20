@@ -179,7 +179,7 @@ export default function HistoryPanel({
         {events === null ? (
           <div className="space-y-3">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="h-12 animate-pulse rounded-xl bg-panel-2/60" />
+              <div key={i} className="vlt-skeleton h-12" />
             ))}
           </div>
         ) : events.length === 0 ? (

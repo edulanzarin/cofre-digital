@@ -365,7 +365,7 @@ export default function CertModal({
                   )}
                 </p>
                 {linkedAccesses === null ? (
-                  <div className="h-12 animate-pulse rounded-xl bg-panel-2/60" />
+                  <div className="vlt-skeleton h-12" />
                 ) : linkedAccesses.length === 0 ? (
                   <p className="rounded-xl border border-dashed border-line px-3.5 py-3 text-[0.72rem] text-ink-3">
                     Nenhum acesso entra com este certificado. Vincule em
