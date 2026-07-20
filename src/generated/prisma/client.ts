@@ -67,6 +67,16 @@ export type Certificate = Prisma.CertificateModel
  */
 export type CertificateEvent = Prisma.CertificateEventModel
 /**
+ * Model Alvara
+ * 
+ */
+export type Alvara = Prisma.AlvaraModel
+/**
+ * Model AlvaraEvent
+ * 
+ */
+export type AlvaraEvent = Prisma.AlvaraEventModel
+/**
  * Model Access
  * 
  */

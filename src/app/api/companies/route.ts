@@ -9,7 +9,7 @@ export async function GET() {
   const rows = await prisma.company.findMany({
     orderBy: { razaoSocial: "asc" },
     include: {
-      _count: { select: { certificates: true, accesses: true } },
+      _count: { select: { certificates: true, accesses: true, alvaras: true } },
       certificates: {
         select: { expiresAt: true },
         orderBy: { expiresAt: "asc" },
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
   const row = await prisma.company.create({
     data,
     include: {
-      _count: { select: { certificates: true, accesses: true } },
+      _count: { select: { certificates: true, accesses: true, alvaras: true } },
       certificates: {
         select: { expiresAt: true },
         orderBy: { expiresAt: "asc" },

@@ -389,6 +389,8 @@ export const ModelName = {
   Company: 'Company',
   Certificate: 'Certificate',
   CertificateEvent: 'CertificateEvent',
+  Alvara: 'Alvara',
+  AlvaraEvent: 'AlvaraEvent',
   Access: 'Access',
   TutorialImage: 'TutorialImage',
   VaultConfig: 'VaultConfig'
@@ -407,7 +409,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "permissionProfile" | "user" | "company" | "certificate" | "certificateEvent" | "access" | "tutorialImage" | "vaultConfig"
+    modelProps: "permissionProfile" | "user" | "company" | "certificate" | "certificateEvent" | "alvara" | "alvaraEvent" | "access" | "tutorialImage" | "vaultConfig"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -781,6 +783,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Alvara: {
+      payload: Prisma.$AlvaraPayload<ExtArgs>
+      fields: Prisma.AlvaraFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AlvaraFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AlvaraFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraPayload>
+        }
+        findFirst: {
+          args: Prisma.AlvaraFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AlvaraFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraPayload>
+        }
+        findMany: {
+          args: Prisma.AlvaraFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraPayload>[]
+        }
+        create: {
+          args: Prisma.AlvaraCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraPayload>
+        }
+        createMany: {
+          args: Prisma.AlvaraCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AlvaraCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraPayload>[]
+        }
+        delete: {
+          args: Prisma.AlvaraDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraPayload>
+        }
+        update: {
+          args: Prisma.AlvaraUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraPayload>
+        }
+        deleteMany: {
+          args: Prisma.AlvaraDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AlvaraUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AlvaraUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraPayload>[]
+        }
+        upsert: {
+          args: Prisma.AlvaraUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraPayload>
+        }
+        aggregate: {
+          args: Prisma.AlvaraAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAlvara>
+        }
+        groupBy: {
+          args: Prisma.AlvaraGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AlvaraGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AlvaraCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AlvaraCountAggregateOutputType> | number
+        }
+      }
+    }
+    AlvaraEvent: {
+      payload: Prisma.$AlvaraEventPayload<ExtArgs>
+      fields: Prisma.AlvaraEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AlvaraEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AlvaraEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraEventPayload>
+        }
+        findFirst: {
+          args: Prisma.AlvaraEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AlvaraEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraEventPayload>
+        }
+        findMany: {
+          args: Prisma.AlvaraEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraEventPayload>[]
+        }
+        create: {
+          args: Prisma.AlvaraEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraEventPayload>
+        }
+        createMany: {
+          args: Prisma.AlvaraEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AlvaraEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraEventPayload>[]
+        }
+        delete: {
+          args: Prisma.AlvaraEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraEventPayload>
+        }
+        update: {
+          args: Prisma.AlvaraEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.AlvaraEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AlvaraEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AlvaraEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.AlvaraEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AlvaraEventPayload>
+        }
+        aggregate: {
+          args: Prisma.AlvaraEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAlvaraEvent>
+        }
+        groupBy: {
+          args: Prisma.AlvaraEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AlvaraEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AlvaraEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AlvaraEventCountAggregateOutputType> | number
+        }
+      }
+    }
     Access: {
       payload: Prisma.$AccessPayload<ExtArgs>
       fields: Prisma.AccessFieldRefs
@@ -1111,6 +1261,36 @@ export const CertificateEventScalarFieldEnum = {
 export type CertificateEventScalarFieldEnum = (typeof CertificateEventScalarFieldEnum)[keyof typeof CertificateEventScalarFieldEnum]
 
 
+export const AlvaraScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  number: 'number',
+  issuer: 'issuer',
+  issuedAt: 'issuedAt',
+  expiresAt: 'expiresAt',
+  fileName: 'fileName',
+  fileData: 'fileData',
+  notes: 'notes',
+  companyId: 'companyId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AlvaraScalarFieldEnum = (typeof AlvaraScalarFieldEnum)[keyof typeof AlvaraScalarFieldEnum]
+
+
+export const AlvaraEventScalarFieldEnum = {
+  id: 'id',
+  alvaraId: 'alvaraId',
+  kind: 'kind',
+  message: 'message',
+  userName: 'userName',
+  createdAt: 'createdAt'
+} as const
+
+export type AlvaraEventScalarFieldEnum = (typeof AlvaraEventScalarFieldEnum)[keyof typeof AlvaraEventScalarFieldEnum]
+
+
 export const AccessScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -1416,6 +1596,8 @@ export type GlobalOmitConfig = {
   company?: Prisma.CompanyOmit
   certificate?: Prisma.CertificateOmit
   certificateEvent?: Prisma.CertificateEventOmit
+  alvara?: Prisma.AlvaraOmit
+  alvaraEvent?: Prisma.AlvaraEventOmit
   access?: Prisma.AccessOmit
   tutorialImage?: Prisma.TutorialImageOmit
   vaultConfig?: Prisma.VaultConfigOmit

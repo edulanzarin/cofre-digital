@@ -9,6 +9,7 @@ import {
   Inbox,
   ShieldCheck,
   Globe,
+  FileBadge,
   ChevronRight,
 } from "lucide-react";
 import type { Company } from "@/lib/companies";
@@ -138,6 +139,10 @@ export default function CompaniesPage() {
                     <span className="flex items-center gap-1.5" title="Acessos">
                       <Globe className="size-3.5" />
                       {company.accessCount}
+                    </span>
+                    <span className="flex items-center gap-1.5" title="Alvarás">
+                      <FileBadge className="size-3.5" />
+                      {company.alvaraCount}
                     </span>
                   </div>
                   {status && (

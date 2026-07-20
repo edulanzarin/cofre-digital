@@ -13,9 +13,9 @@ await client.query(
   `INSERT INTO "PermissionProfile" (id, name, admin, rules, "updatedAt")
    VALUES
      (gen_random_uuid()::text, 'Administrador', true,
-      '{"empresas":"edit","certificados":"edit","acessos":"edit"}', CURRENT_TIMESTAMP),
+      '{"empresas":"edit","certificados":"edit","acessos":"edit","alvaras":"edit"}', CURRENT_TIMESTAMP),
      (gen_random_uuid()::text, 'Visualização', false,
-      '{"empresas":"view","certificados":"view","acessos":"view"}', CURRENT_TIMESTAMP)
+      '{"empresas":"view","certificados":"view","acessos":"view","alvaras":"view"}', CURRENT_TIMESTAMP)
    ON CONFLICT (name) DO NOTHING`,
 );
 

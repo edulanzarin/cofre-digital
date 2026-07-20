@@ -6,6 +6,7 @@ import {
   ShieldCheck,
   ShieldAlert,
   ShieldX,
+  FileBadge,
   Layers,
   ArrowRight,
   Plus,
@@ -19,7 +20,13 @@ import {
   type Certificate,
   type CertStatus,
 } from "@/lib/certificates";
+import {
+  alvaraDaysLeft,
+  alvaraStatus,
+  type Alvara,
+} from "@/lib/alvaras";
 import { useCertificates } from "@/lib/useCertificates";
+import { useAlvaras } from "@/lib/useAlvaras";
 import { useSettings } from "@/lib/settings";
 import { useVaultConfig } from "@/lib/vaultConfig";
 import { useMe } from "@/lib/useMe";
@@ -33,6 +40,14 @@ function countOf(certs: Certificate[], alertDays: number): Counts {
   return counts;
 }
 
+// Contagem dos alvarás: os sem vencimento ficam de fora das barras
+// (não vencem), mas entram no total.
+function alvaraCountOf(alvaras: Alvara[], alertDays: number): Counts & { none: number } {
+  const counts = { total: alvaras.length, valid: 0, expiring: 0, expired: 0, none: 0 };
+  for (const a of alvaras) counts[alvaraStatus(a, alertDays)]++;
+  return counts;
+}
+
 function pct(part: number, total: number): string {
   if (total === 0) return "0%";
   return `${Math.round((part / total) * 100)}%`;
@@ -40,13 +55,14 @@ function pct(part: number, total: number): string {
 
 export default function DashboardPage() {
   const { certs, ready } = useCertificates();
+  const { alvaras, ready: alvarasReady } = useAlvaras();
   const { notifyBrowser } = useSettings();
   const { alertDays } = useVaultConfig();
   const { can } = useMe();
 
   useEffect(() => {
-    if (notifyBrowser) maybeNotifyExpiring(certs, alertDays);
-  }, [certs, alertDays, notifyBrowser]);
+    if (notifyBrowser) maybeNotifyExpiring(certs, alvaras, alertDays);
+  }, [certs, alvaras, alertDays, notifyBrowser]);
 
   const all = countOf(certs, alertDays);
   const cnpjCerts = certs.filter((c) => docGroup(c) === "cnpj");
@@ -59,6 +75,15 @@ export default function DashboardPage() {
   const expired = certs
     .filter((c) => certStatus(c, alertDays) === "expired")
     .sort((a, b) => daysLeft(b) - daysLeft(a)); // vencidos mais recentes primeiro
+
+  // Alvarás precisando de atenção: vencidos e vencendo, mais urgentes no topo.
+  const alvaraCounts = alvaraCountOf(alvaras, alertDays);
+  const alvarasAttention = alvaras
+    .filter((a) => {
+      const s = alvaraStatus(a, alertDays);
+      return s === "expiring" || s === "expired";
+    })
+    .sort((a, b) => alvaraDaysLeft(a) - alvaraDaysLeft(b));
 
   const TILES: {
     key: keyof Counts;
@@ -109,7 +134,7 @@ export default function DashboardPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Visão geral</h1>
           <p className="mt-1 text-sm text-ink-2">
-            O estado do cofre de certificados digitais, num relance.
+            O estado do cofre — certificados e alvarás, num relance.
           </p>
         </div>
         {can("certificados", "edit") && (
@@ -177,7 +202,156 @@ export default function DashboardPage() {
           delay="240ms"
         />
       </div>
+
+      {/* Alvarás */}
+      {can("alvaras") && (
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <AlvaraSummaryCard counts={alvaraCounts} alertDays={alertDays} />
+          <AlvaraAttentionList
+            alvaras={alvarasAttention}
+            ready={alvarasReady}
+          />
+        </div>
+      )}
     </div>
+  );
+}
+
+// Resumo dos alvarás com barras por situação, no formato dos grupos
+// de certificados. Os sem vencimento não entram nas barras.
+function AlvaraSummaryCard({
+  counts,
+  alertDays,
+}: {
+  counts: Counts & { none: number };
+  alertDays: number;
+}) {
+  const rows: { status: CertStatus; label: string }[] = [
+    { status: "expired", label: "Vencidos" },
+    { status: "expiring", label: `Vencendo em breve (≤ ${alertDays} dias)` },
+    { status: "valid", label: "A vencer" },
+  ];
+  const dated = counts.total - counts.none;
+
+  return (
+    <section className="vlt-card anim-fade-up p-6" style={{ animationDelay: "300ms" }}>
+      <div className="flex items-baseline justify-between">
+        <h2 className="flex items-center gap-2 text-sm font-semibold tracking-tight">
+          <FileBadge className="size-4 text-brand" />
+          Alvarás
+        </h2>
+        <p className="text-2xl font-semibold tracking-tight text-brand tabular-nums">
+          {counts.total}
+        </p>
+      </div>
+      <div className="mt-4 space-y-3.5">
+        {rows.map(({ status, label }) => {
+          const n = counts[status];
+          const meta = STATUS_META[status];
+          const width = dated === 0 ? 0 : Math.max((n / dated) * 100, n > 0 ? 2 : 0);
+          return (
+            <div key={status}>
+              <div className="flex items-baseline justify-between text-xs">
+                <span className="text-ink-2">{label}</span>
+                <span className="font-medium tabular-nums" style={{ color: meta.color }}>
+                  {n} ({pct(n, dated)})
+                </span>
+              </div>
+              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-panel-2">
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{ width: `${width}%`, background: meta.color }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {counts.none > 0 && (
+        <p className="mt-4 text-[0.68rem] text-ink-3">
+          + {counts.none} sem data de vencimento (permanente
+          {counts.none > 1 ? "s" : ""}).
+        </p>
+      )}
+    </section>
+  );
+}
+
+// Alvarás vencidos ou vencendo, mais urgentes no topo.
+function AlvaraAttentionList({
+  alvaras,
+  ready,
+}: {
+  alvaras: Alvara[];
+  ready: boolean;
+}) {
+  return (
+    <section className="vlt-card anim-fade-up" style={{ animationDelay: "360ms" }}>
+      <div className="flex items-center justify-between border-b border-line px-6 py-4">
+        <h2 className="flex items-center gap-2 text-sm font-semibold tracking-tight">
+          <FileBadge className="size-4 text-warn" />
+          Alvarás precisando de atenção
+          {ready && alvaras.length > 0 && (
+            <span className="text-xs font-normal text-ink-3">({alvaras.length})</span>
+          )}
+        </h2>
+        <Link
+          href="/alvaras"
+          className="flex items-center gap-1 text-xs font-medium text-brand hover:opacity-80"
+        >
+          Ver todos <ArrowRight className="size-3.5" />
+        </Link>
+      </div>
+
+      {!ready ? (
+        <div className="px-6 py-14" />
+      ) : alvaras.length === 0 ? (
+        <div className="flex flex-col items-center gap-2 px-6 py-14 text-center">
+          <ShieldCheck className="size-8 text-ok" strokeWidth={1.5} />
+          <p className="text-sm text-ink-2">
+            Nenhum alvará vencendo ou vencido — tudo em dia.
+          </p>
+        </div>
+      ) : (
+        <ul className="max-h-96 divide-y divide-line overflow-y-auto">
+          {alvaras.map((alvara) => {
+            const d = alvaraDaysLeft(alvara);
+            const meta = STATUS_META[d < 0 ? "expired" : "expiring"];
+            return (
+              <li key={alvara.id}>
+                <Link
+                  href={`/alvaras?alvara=${alvara.id}`}
+                  className="flex items-center gap-4 px-6 py-3.5 transition-colors hover:bg-panel-2/60"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{alvara.name}</p>
+                    <p className="mt-0.5 truncate text-[0.7rem] text-ink-3">
+                      {alvara.company?.razaoSocial ?? alvara.issuer ?? "Sem empresa"}
+                    </p>
+                  </div>
+                  {alvara.number && (
+                    <span className="vlt-badge shrink-0 bg-panel-2 font-mono !text-[0.65rem] text-ink-2 max-sm:hidden">
+                      Nº {alvara.number}
+                    </span>
+                  )}
+                  <div className="w-16 shrink-0 text-right">
+                    <p
+                      className="text-sm font-semibold tabular-nums"
+                      style={{ color: meta.color }}
+                    >
+                      {d}d
+                    </p>
+                    <p className="text-[0.65rem] text-ink-3">
+                      {formatDate(alvara.expiresAt!)}
+                    </p>
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
   );
 }
 

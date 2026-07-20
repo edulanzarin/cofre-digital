@@ -2,13 +2,14 @@
 // Um perfil é um "padrão de configuração" reutilizável: define o nível
 // por módulo e é aplicado a quantos usuários for preciso.
 
-export const MODULES = ["empresas", "certificados", "acessos"] as const;
+export const MODULES = ["empresas", "certificados", "acessos", "alvaras"] as const;
 export type ModuleKey = (typeof MODULES)[number];
 
 export const MODULE_LABELS: Record<ModuleKey, string> = {
   empresas: "Empresas",
   certificados: "Certificados",
   acessos: "Acessos",
+  alvaras: "Alvarás",
 };
 
 export const LEVELS = ["none", "view", "edit"] as const;

@@ -18,8 +18,10 @@ import {
 import type { Company } from "@/lib/companies";
 import { formatDocument, type Certificate } from "@/lib/certificates";
 import type { Access } from "@/lib/accesses";
+import type { Alvara } from "@/lib/alvaras";
 import { useCertificates } from "@/lib/useCertificates";
 import { useAccesses } from "@/lib/useAccesses";
+import { useAlvaras } from "@/lib/useAlvaras";
 import { useVaultConfig } from "@/lib/vaultConfig";
 import { useMe } from "@/lib/useMe";
 import Modal from "@/components/ui/Modal";
@@ -27,9 +29,12 @@ import CertList from "@/components/certificates/CertList";
 import CertForm from "@/components/certificates/CertForm";
 import CertModal from "@/components/certificates/CertModal";
 import AccessForm from "@/components/accesses/AccessForm";
+import AlvaraList from "@/components/alvaras/AlvaraList";
+import AlvaraForm from "@/components/alvaras/AlvaraForm";
+import AlvaraModal from "@/components/alvaras/AlvaraModal";
 import CompanyForm from "@/components/companies/CompanyForm";
 
-type Tab = "certificados" | "acessos";
+type Tab = "certificados" | "acessos" | "alvaras";
 
 // O cofre da empresa: tudo que é dela num lugar só. Novos módulos
 // (alvarás etc.) entram como novas abas.
@@ -186,10 +191,12 @@ export default function CompanyVaultPage() {
               Acessos
             </button>
           )}
-          <button disabled title="Em breve" className="!cursor-default opacity-40">
-            <FileBadge className="size-3.5" />
-            Alvarás · em breve
-          </button>
+          {can("alvaras") && (
+            <button data-active={tab === "alvaras"} onClick={() => setTab("alvaras")}>
+              <FileBadge className="size-3.5" />
+              Alvarás
+            </button>
+          )}
         </div>
       </div>
 
@@ -198,6 +205,9 @@ export default function CompanyVaultPage() {
       )}
       {tab === "acessos" && can("acessos") && (
         <CompanyAccesses companyId={company.id} />
+      )}
+      {tab === "alvaras" && can("alvaras") && (
+        <CompanyAlvaras companyId={company.id} alertDays={alertDays} />
       )}
 
       {/* Modal de edição da empresa */}
@@ -406,6 +416,116 @@ function CompanyAccesses({ companyId }: { companyId: string }) {
             fixedCompanyId={companyId}
             onSubmit={handleCreate}
             onCancel={() => setCreating(false)}
+          />
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// --- Aba de alvarás da empresa ---
+
+function CompanyAlvaras({
+  companyId,
+  alertDays,
+}: {
+  companyId: string;
+  alertDays: number;
+}) {
+  const { alvaras, ready, add, update, remove } = useAlvaras(companyId);
+  const { can } = useMe();
+  const canEdit = can("alvaras", "edit");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [modal, setModal] = useState<"closed" | "new" | "edit">("closed");
+  const [editAlvara, setEditAlvara] = useState<Alvara | null>(null);
+
+  const selected = alvaras.find((a) => a.id === selectedId) ?? null;
+
+  async function handleSubmit(data: Omit<Alvara, "id">) {
+    try {
+      if (modal === "edit" && selected) {
+        await update(selected.id, data);
+      } else {
+        await add(data);
+      }
+      setModal("closed");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Falha ao salvar.");
+    }
+  }
+
+  // Edição precisa do PDF — busca a versão completa (quem edita).
+  async function openEdit() {
+    if (!selected) return;
+    try {
+      const res = await fetch(`/api/alvaras/${selected.id}`);
+      if (!res.ok) throw new Error("Sem permissão para editar.");
+      setEditAlvara((await res.json()) as Alvara);
+      setModal("edit");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Falha ao abrir edição.");
+    }
+  }
+
+  return (
+    <div className="anim-fade-up" style={{ animationDelay: "100ms" }}>
+      {canEdit && (
+        <div className="mb-4 flex justify-end">
+          <button onClick={() => setModal("new")} className="vlt-btn vlt-btn-primary">
+            <Plus className="size-4" />
+            Novo alvará
+          </button>
+        </div>
+      )}
+
+      {!ready ? (
+        <div className="vlt-card h-48 animate-pulse bg-panel-2/40" />
+      ) : alvaras.length === 0 ? (
+        <div className="vlt-card flex flex-col items-center gap-3 px-6 py-14 text-center">
+          <FileBadge className="size-8 text-ink-3" strokeWidth={1.5} />
+          <p className="text-sm text-ink-2">
+            Nenhum alvará no cofre desta empresa.
+          </p>
+        </div>
+      ) : (
+        <AlvaraList
+          alvaras={alvaras}
+          alertDays={alertDays}
+          onSelect={setSelectedId}
+          showCompany={false}
+        />
+      )}
+
+      {selected && modal === "closed" && (
+        <AlvaraModal
+          alvara={selected}
+          editor={canEdit}
+          onClose={() => setSelectedId(null)}
+          onEdit={openEdit}
+          onDelete={async () => {
+            try {
+              await remove(selected.id);
+              setSelectedId(null);
+            } catch (err) {
+              alert(err instanceof Error ? err.message : "Falha ao excluir.");
+            }
+          }}
+        />
+      )}
+
+      {canEdit && modal !== "closed" && (
+        <Modal
+          title={modal === "edit" ? "Editar alvará" : "Novo alvará"}
+          subtitle={
+            modal === "edit" ? editAlvara?.name : "Entra direto no cofre desta empresa."
+          }
+          onClose={() => setModal("closed")}
+        >
+          <AlvaraForm
+            initial={modal === "edit" ? (editAlvara ?? undefined) : undefined}
+            fixedCompanyId={companyId}
+            onSubmit={handleSubmit}
+            onCancel={() => setModal("closed")}
           />
         </Modal>
       )}

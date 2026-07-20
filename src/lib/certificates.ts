@@ -28,15 +28,6 @@ export type Certificate = {
   company?: CertCompany | null; // empresa dona do cofre
 };
 
-// Linha do tempo do certificado (cadastro, alterações, observações).
-export type CertEvent = {
-  id: string;
-  kind: "created" | "updated" | "note";
-  message?: string;
-  userName: string;
-  createdAt: string; // ISO
-};
-
 export type CertStatus = "valid" | "expiring" | "expired";
 
 const DAY = 24 * 60 * 60 * 1000;

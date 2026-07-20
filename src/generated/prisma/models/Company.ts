@@ -184,6 +184,7 @@ export type CompanyWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Company"> | Date | string
   certificates?: Prisma.CertificateListRelationFilter
   accesses?: Prisma.AccessListRelationFilter
+  alvaras?: Prisma.AlvaraListRelationFilter
 }
 
 export type CompanyOrderByWithRelationInput = {
@@ -194,6 +195,7 @@ export type CompanyOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   certificates?: Prisma.CertificateOrderByRelationAggregateInput
   accesses?: Prisma.AccessOrderByRelationAggregateInput
+  alvaras?: Prisma.AlvaraOrderByRelationAggregateInput
 }
 
 export type CompanyWhereUniqueInput = Prisma.AtLeast<{
@@ -207,6 +209,7 @@ export type CompanyWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Company"> | Date | string
   certificates?: Prisma.CertificateListRelationFilter
   accesses?: Prisma.AccessListRelationFilter
+  alvaras?: Prisma.AlvaraListRelationFilter
 }, "id" | "cnpj">
 
 export type CompanyOrderByWithAggregationInput = {
@@ -239,6 +242,7 @@ export type CompanyCreateInput = {
   updatedAt?: Date | string
   certificates?: Prisma.CertificateCreateNestedManyWithoutCompanyInput
   accesses?: Prisma.AccessCreateNestedManyWithoutCompanyInput
+  alvaras?: Prisma.AlvaraCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateInput = {
@@ -249,6 +253,7 @@ export type CompanyUncheckedCreateInput = {
   updatedAt?: Date | string
   certificates?: Prisma.CertificateUncheckedCreateNestedManyWithoutCompanyInput
   accesses?: Prisma.AccessUncheckedCreateNestedManyWithoutCompanyInput
+  alvaras?: Prisma.AlvaraUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUpdateInput = {
@@ -259,6 +264,7 @@ export type CompanyUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   certificates?: Prisma.CertificateUpdateManyWithoutCompanyNestedInput
   accesses?: Prisma.AccessUpdateManyWithoutCompanyNestedInput
+  alvaras?: Prisma.AlvaraUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateInput = {
@@ -269,6 +275,7 @@ export type CompanyUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   certificates?: Prisma.CertificateUncheckedUpdateManyWithoutCompanyNestedInput
   accesses?: Prisma.AccessUncheckedUpdateManyWithoutCompanyNestedInput
+  alvaras?: Prisma.AlvaraUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateManyInput = {
@@ -340,6 +347,22 @@ export type CompanyUpdateOneWithoutCertificatesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutCertificatesInput, Prisma.CompanyUpdateWithoutCertificatesInput>, Prisma.CompanyUncheckedUpdateWithoutCertificatesInput>
 }
 
+export type CompanyCreateNestedOneWithoutAlvarasInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutAlvarasInput, Prisma.CompanyUncheckedCreateWithoutAlvarasInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutAlvarasInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneWithoutAlvarasNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutAlvarasInput, Prisma.CompanyUncheckedCreateWithoutAlvarasInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutAlvarasInput
+  upsert?: Prisma.CompanyUpsertWithoutAlvarasInput
+  disconnect?: Prisma.CompanyWhereInput | boolean
+  delete?: Prisma.CompanyWhereInput | boolean
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutAlvarasInput, Prisma.CompanyUpdateWithoutAlvarasInput>, Prisma.CompanyUncheckedUpdateWithoutAlvarasInput>
+}
+
 export type CompanyCreateNestedOneWithoutAccessesInput = {
   create?: Prisma.XOR<Prisma.CompanyCreateWithoutAccessesInput, Prisma.CompanyUncheckedCreateWithoutAccessesInput>
   connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutAccessesInput
@@ -363,6 +386,7 @@ export type CompanyCreateWithoutCertificatesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accesses?: Prisma.AccessCreateNestedManyWithoutCompanyInput
+  alvaras?: Prisma.AlvaraCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutCertificatesInput = {
@@ -372,6 +396,7 @@ export type CompanyUncheckedCreateWithoutCertificatesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   accesses?: Prisma.AccessUncheckedCreateNestedManyWithoutCompanyInput
+  alvaras?: Prisma.AlvaraUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutCertificatesInput = {
@@ -397,6 +422,7 @@ export type CompanyUpdateWithoutCertificatesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   accesses?: Prisma.AccessUpdateManyWithoutCompanyNestedInput
+  alvaras?: Prisma.AlvaraUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutCertificatesInput = {
@@ -405,6 +431,63 @@ export type CompanyUncheckedUpdateWithoutCertificatesInput = {
   razaoSocial?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  accesses?: Prisma.AccessUncheckedUpdateManyWithoutCompanyNestedInput
+  alvaras?: Prisma.AlvaraUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutAlvarasInput = {
+  id?: string
+  cnpj: string
+  razaoSocial: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  certificates?: Prisma.CertificateCreateNestedManyWithoutCompanyInput
+  accesses?: Prisma.AccessCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutAlvarasInput = {
+  id?: string
+  cnpj: string
+  razaoSocial: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  certificates?: Prisma.CertificateUncheckedCreateNestedManyWithoutCompanyInput
+  accesses?: Prisma.AccessUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutAlvarasInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutAlvarasInput, Prisma.CompanyUncheckedCreateWithoutAlvarasInput>
+}
+
+export type CompanyUpsertWithoutAlvarasInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutAlvarasInput, Prisma.CompanyUncheckedUpdateWithoutAlvarasInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutAlvarasInput, Prisma.CompanyUncheckedCreateWithoutAlvarasInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutAlvarasInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutAlvarasInput, Prisma.CompanyUncheckedUpdateWithoutAlvarasInput>
+}
+
+export type CompanyUpdateWithoutAlvarasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cnpj?: Prisma.StringFieldUpdateOperationsInput | string
+  razaoSocial?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  certificates?: Prisma.CertificateUpdateManyWithoutCompanyNestedInput
+  accesses?: Prisma.AccessUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutAlvarasInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  cnpj?: Prisma.StringFieldUpdateOperationsInput | string
+  razaoSocial?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  certificates?: Prisma.CertificateUncheckedUpdateManyWithoutCompanyNestedInput
   accesses?: Prisma.AccessUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
@@ -415,6 +498,7 @@ export type CompanyCreateWithoutAccessesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   certificates?: Prisma.CertificateCreateNestedManyWithoutCompanyInput
+  alvaras?: Prisma.AlvaraCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutAccessesInput = {
@@ -424,6 +508,7 @@ export type CompanyUncheckedCreateWithoutAccessesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   certificates?: Prisma.CertificateUncheckedCreateNestedManyWithoutCompanyInput
+  alvaras?: Prisma.AlvaraUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutAccessesInput = {
@@ -449,6 +534,7 @@ export type CompanyUpdateWithoutAccessesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   certificates?: Prisma.CertificateUpdateManyWithoutCompanyNestedInput
+  alvaras?: Prisma.AlvaraUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutAccessesInput = {
@@ -458,6 +544,7 @@ export type CompanyUncheckedUpdateWithoutAccessesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   certificates?: Prisma.CertificateUncheckedUpdateManyWithoutCompanyNestedInput
+  alvaras?: Prisma.AlvaraUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 
@@ -468,11 +555,13 @@ export type CompanyUncheckedUpdateWithoutAccessesInput = {
 export type CompanyCountOutputType = {
   certificates: number
   accesses: number
+  alvaras: number
 }
 
 export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   certificates?: boolean | CompanyCountOutputTypeCountCertificatesArgs
   accesses?: boolean | CompanyCountOutputTypeCountAccessesArgs
+  alvaras?: boolean | CompanyCountOutputTypeCountAlvarasArgs
 }
 
 /**
@@ -499,6 +588,13 @@ export type CompanyCountOutputTypeCountAccessesArgs<ExtArgs extends runtime.Type
   where?: Prisma.AccessWhereInput
 }
 
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountAlvarasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AlvaraWhereInput
+}
+
 
 export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -508,6 +604,7 @@ export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   updatedAt?: boolean
   certificates?: boolean | Prisma.Company$certificatesArgs<ExtArgs>
   accesses?: boolean | Prisma.Company$accessesArgs<ExtArgs>
+  alvaras?: boolean | Prisma.Company$alvarasArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["company"]>
 
@@ -539,6 +636,7 @@ export type CompanyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type CompanyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   certificates?: boolean | Prisma.Company$certificatesArgs<ExtArgs>
   accesses?: boolean | Prisma.Company$accessesArgs<ExtArgs>
+  alvaras?: boolean | Prisma.Company$alvarasArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CompanyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -549,6 +647,7 @@ export type $CompanyPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     certificates: Prisma.$CertificatePayload<ExtArgs>[]
     accesses: Prisma.$AccessPayload<ExtArgs>[]
+    alvaras: Prisma.$AlvaraPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -952,6 +1051,7 @@ export interface Prisma__CompanyClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   certificates<T extends Prisma.Company$certificatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$certificatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CertificatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   accesses<T extends Prisma.Company$accessesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$accessesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AccessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  alvaras<T extends Prisma.Company$alvarasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$alvarasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AlvaraPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1424,6 +1524,30 @@ export type Company$accessesArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.AccessScalarFieldEnum | Prisma.AccessScalarFieldEnum[]
+}
+
+/**
+ * Company.alvaras
+ */
+export type Company$alvarasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Alvara
+   */
+  select?: Prisma.AlvaraSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Alvara
+   */
+  omit?: Prisma.AlvaraOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AlvaraInclude<ExtArgs> | null
+  where?: Prisma.AlvaraWhereInput
+  orderBy?: Prisma.AlvaraOrderByWithRelationInput | Prisma.AlvaraOrderByWithRelationInput[]
+  cursor?: Prisma.AlvaraWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AlvaraScalarFieldEnum | Prisma.AlvaraScalarFieldEnum[]
 }
 
 /**

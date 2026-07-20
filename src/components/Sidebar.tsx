@@ -8,6 +8,7 @@ import {
   Building2,
   ShieldCheck,
   Globe,
+  FileBadge,
   Users,
   Settings2,
   Sun,
@@ -32,6 +33,7 @@ const NAV: {
   { href: "/empresas", label: "Empresas", icon: Building2, module: "empresas" },
   { href: "/certificados", label: "Certificados", icon: ShieldCheck, module: "certificados" },
   { href: "/acessos", label: "Acessos", icon: Globe, module: "acessos" },
+  { href: "/alvaras", label: "Alvarás", icon: FileBadge, module: "alvaras" },
   { href: "/equipe", label: "Equipe", icon: Users, adminOnly: true },
   { href: "/configuracoes", label: "Configurações", icon: Settings2 },
 ];

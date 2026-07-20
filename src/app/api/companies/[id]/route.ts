@@ -9,7 +9,7 @@ const notFound = () =>
   NextResponse.json({ error: "Empresa não encontrada." }, { status: 404 });
 
 const COMPANY_INCLUDE = {
-  _count: { select: { certificates: true, accesses: true } },
+  _count: { select: { certificates: true, accesses: true, alvaras: true } },
   certificates: {
     select: { expiresAt: true },
     orderBy: { expiresAt: "asc" },

@@ -49,8 +49,8 @@ model User {
   createdAt    DateTime           @default(now())
 }
 
-// Empresa (cliente) — dona de um cofre próprio: certificados, acessos
-// e, futuramente, alvarás e outros documentos.
+// Empresa (cliente) — dona de um cofre próprio: certificados, acessos,
+// alvarás e outros documentos.
 model Company {
   id           String        @id @default(uuid())
   cnpj         String        @unique // só dígitos
@@ -59,6 +59,7 @@ model Company {
   updatedAt    DateTime      @updatedAt
   certificates Certificate[]
   accesses     Access[]
+  alvaras      Alvara[]
 }
 
 model Certificate {
@@ -94,6 +95,40 @@ model CertificateEvent {
   createdAt     DateTime    @default(now())
 
   @@index([certificateId, createdAt])
+}
+
+// Alvarás e licenças da empresa (funcionamento, sanitário, bombeiros…).
+// Os dados são digitados manualmente; o PDF do documento fica guardado.
+// Sem data de vencimento = alvará permanente.
+model Alvara {
+  id        String        @id @default(uuid())
+  name      String // ex.: Alvará de Funcionamento
+  number    String? // número/protocolo do documento
+  issuer    String? // órgão emissor (prefeitura, corpo de bombeiros…)
+  issuedAt  DateTime?
+  expiresAt DateTime?
+  fileName  String?
+  fileData  String? // PDF em base64
+  notes     String?
+  companyId String?
+  company   Company?      @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  events    AlvaraEvent[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+// Linha do tempo do alvará: cadastro, alterações e observações da
+// equipe ("foi cobrado do cliente", "renovação em andamento"…).
+model AlvaraEvent {
+  id        String   @id @default(uuid())
+  alvaraId  String
+  alvara    Alvara   @relation(fields: [alvaraId], references: [id], onDelete: Cascade)
+  kind      String // created | updated | note
+  message   String?
+  userName  String
+  createdAt DateTime @default(now())
+
+  @@index([alvaraId, createdAt])
 }
 
 // Acessos a sites (prefeituras, portais, sistemas) com tutorial em Markdown.

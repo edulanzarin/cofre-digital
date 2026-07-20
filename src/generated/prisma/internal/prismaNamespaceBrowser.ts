@@ -56,6 +56,8 @@ export const ModelName = {
   Company: 'Company',
   Certificate: 'Certificate',
   CertificateEvent: 'CertificateEvent',
+  Alvara: 'Alvara',
+  AlvaraEvent: 'AlvaraEvent',
   Access: 'Access',
   TutorialImage: 'TutorialImage',
   VaultConfig: 'VaultConfig'
@@ -144,6 +146,36 @@ export const CertificateEventScalarFieldEnum = {
 } as const
 
 export type CertificateEventScalarFieldEnum = (typeof CertificateEventScalarFieldEnum)[keyof typeof CertificateEventScalarFieldEnum]
+
+
+export const AlvaraScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  number: 'number',
+  issuer: 'issuer',
+  issuedAt: 'issuedAt',
+  expiresAt: 'expiresAt',
+  fileName: 'fileName',
+  fileData: 'fileData',
+  notes: 'notes',
+  companyId: 'companyId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AlvaraScalarFieldEnum = (typeof AlvaraScalarFieldEnum)[keyof typeof AlvaraScalarFieldEnum]
+
+
+export const AlvaraEventScalarFieldEnum = {
+  id: 'id',
+  alvaraId: 'alvaraId',
+  kind: 'kind',
+  message: 'message',
+  userName: 'userName',
+  createdAt: 'createdAt'
+} as const
+
+export type AlvaraEventScalarFieldEnum = (typeof AlvaraEventScalarFieldEnum)[keyof typeof AlvaraEventScalarFieldEnum]
 
 
 export const AccessScalarFieldEnum = {

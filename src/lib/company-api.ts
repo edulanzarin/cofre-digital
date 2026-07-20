@@ -7,7 +7,7 @@ type CompanyRow = {
   cnpj: string;
   razaoSocial: string;
   createdAt: Date;
-  _count?: { certificates: number; accesses: number };
+  _count?: { certificates: number; accesses: number; alvaras: number };
   certificates?: { expiresAt: Date }[];
 };
 
@@ -21,6 +21,7 @@ export function toCompanyDTO(row: CompanyRow): Company {
     createdAt: row.createdAt.toISOString(),
     certCount: row._count?.certificates ?? 0,
     accessCount: row._count?.accesses ?? 0,
+    alvaraCount: row._count?.alvaras ?? 0,
     nextExpiresAt: row.certificates?.[0]?.expiresAt.toISOString() ?? null,
   };
 }
