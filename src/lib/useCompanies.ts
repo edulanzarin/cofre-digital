@@ -8,7 +8,11 @@ async function errorOf(res: Response, fallback: string): Promise<string> {
   return body?.error ?? fallback;
 }
 
-export type CompanyInput = { cnpj: string; razaoSocial: string };
+export type CompanyInput = {
+  cnpj: string;
+  razaoSocial: string;
+  groupId?: string | null;
+};
 
 export function useCompanies() {
   const [companies, setCompanies] = useState<Company[] | null>(null);
@@ -26,6 +30,13 @@ export function useCompanies() {
     return () => {
       active = false;
     };
+  }, []);
+
+  // Mexer nos grupos (renomear, excluir) muda o que a empresa mostra sem
+  // passar por nenhum dos mutadores daqui — daí a recarga sob demanda.
+  const refresh = useCallback(async () => {
+    const res = await fetch("/api/companies");
+    if (res.ok) setCompanies((await res.json()) as Company[]);
   }, []);
 
   const add = useCallback(async (input: CompanyInput) => {
@@ -68,5 +79,6 @@ export function useCompanies() {
     add,
     update,
     remove,
+    refresh,
   };
 }

@@ -5,6 +5,8 @@ export type Company = {
   id: string;
   cnpj: string; // só dígitos
   razaoSocial: string;
+  groupId: string | null;
+  group: { id: string; name: string } | null; // grupo econômico, se houver
   createdAt: string; // ISO
   certCount: number;
   accessCount: number;

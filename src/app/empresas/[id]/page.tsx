@@ -16,6 +16,8 @@ import {
   FileBadge,
 } from "lucide-react";
 import type { Company } from "@/lib/companies";
+import type { CompanyInput } from "@/lib/useCompanies";
+import { useCompanyGroups } from "@/lib/useCompanyGroups";
 import { formatDocument, type Certificate } from "@/lib/certificates";
 import type { Access } from "@/lib/accesses";
 import type { Alvara } from "@/lib/alvaras";
@@ -45,6 +47,7 @@ export default function CompanyVaultPage() {
   const { can } = useMe();
   const { alertDays } = useVaultConfig();
 
+  const { groups } = useCompanyGroups();
   const [company, setCompany] = useState<Company | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [tab, setTab] = useState<Tab>("certificados");
@@ -63,7 +66,7 @@ export default function CompanyVaultPage() {
 
   useEffect(load, [load]);
 
-  async function handleUpdate(data: { cnpj: string; razaoSocial: string }) {
+  async function handleUpdate(data: CompanyInput) {
     const res = await fetch(`/api/companies/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -131,8 +134,19 @@ export default function CompanyVaultPage() {
             <h1 className="truncate text-2xl font-semibold tracking-tight">
               {company.razaoSocial}
             </h1>
-            <p className="truncate font-mono text-xs text-ink-3">
-              {formatDocument(company.cnpj)}
+            <p className="flex items-center gap-2 truncate text-xs text-ink-3">
+              <span className="font-mono">{formatDocument(company.cnpj)}</span>
+              {company.group && (
+                <>
+                  <span aria-hidden>·</span>
+                  <Link
+                    href={`/empresas?grupo=${company.group.id}`}
+                    className="truncate transition-colors hover:text-ink"
+                  >
+                    {company.group.name}
+                  </Link>
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -221,6 +235,7 @@ export default function CompanyVaultPage() {
         >
           <CompanyForm
             initial={company}
+            groups={groups}
             onSubmit={handleUpdate}
             onCancel={() => setEditingCompany(false)}
           />

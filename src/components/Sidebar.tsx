@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   Globe,
   FileBadge,
+  Network,
   Users,
   Settings2,
   Sun,
@@ -32,6 +33,7 @@ const NAV: {
 }[] = [
   { href: "/", label: "Visão geral", icon: LayoutGrid },
   { href: "/empresas", label: "Empresas", icon: Building2, module: "empresas" },
+  { href: "/grupos", label: "Grupos", icon: Network, module: "empresas" },
   { href: "/certificados", label: "Certificados", icon: ShieldCheck, module: "certificados" },
   { href: "/acessos", label: "Acessos", icon: Globe, module: "acessos" },
   { href: "/alvaras", label: "Alvarás", icon: FileBadge, module: "alvaras" },

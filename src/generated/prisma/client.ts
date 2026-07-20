@@ -52,6 +52,11 @@ export type PermissionProfile = Prisma.PermissionProfileModel
  */
 export type User = Prisma.UserModel
 /**
+ * Model CompanyGroup
+ * 
+ */
+export type CompanyGroup = Prisma.CompanyGroupModel
+/**
  * Model Company
  * 
  */

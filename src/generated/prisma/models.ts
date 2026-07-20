@@ -10,6 +10,7 @@
  */
 export type * from './models/PermissionProfile'
 export type * from './models/User'
+export type * from './models/CompanyGroup'
 export type * from './models/Company'
 export type * from './models/Certificate'
 export type * from './models/CertificateEvent'

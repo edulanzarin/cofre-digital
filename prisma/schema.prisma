@@ -49,17 +49,31 @@ model User {
   createdAt    DateTime           @default(now())
 }
 
+// Grupo econômico: empresas do mesmo dono/rede, agrupadas à mão.
+// Filtrar pelo grupo traz o cofre de todas as empresas dele de uma vez.
+model CompanyGroup {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  companies Company[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
 // Empresa (cliente) — dona de um cofre próprio: certificados, acessos,
 // alvarás e outros documentos.
 model Company {
   id           String        @id @default(uuid())
   cnpj         String        @unique // só dígitos
   razaoSocial  String
+  groupId      String?
+  group        CompanyGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   certificates Certificate[]
   accesses     Access[]
   alvaras      Alvara[]
+
+  @@index([groupId])
 }
 
 model Certificate {

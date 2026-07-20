@@ -1,21 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { guard } from "@/lib/api-auth";
-import { parseCompanyBody, toCompanyDTO } from "@/lib/company-api";
+import { COMPANY_INCLUDE, parseCompanyBody, toCompanyDTO } from "@/lib/company-api";
 
 export async function GET() {
   const auth = await guard("empresas", "view");
   if (auth instanceof NextResponse) return auth;
   const rows = await prisma.company.findMany({
     orderBy: { razaoSocial: "asc" },
-    include: {
-      _count: { select: { certificates: true, accesses: true, alvaras: true } },
-      certificates: {
-        select: { expiresAt: true },
-        orderBy: { expiresAt: "asc" },
-        take: 1,
-      },
-    },
+    include: COMPANY_INCLUDE,
   });
   return NextResponse.json(rows.map(toCompanyDTO));
 }
@@ -42,14 +35,7 @@ export async function POST(req: Request) {
   }
   const row = await prisma.company.create({
     data,
-    include: {
-      _count: { select: { certificates: true, accesses: true, alvaras: true } },
-      certificates: {
-        select: { expiresAt: true },
-        orderBy: { expiresAt: "asc" },
-        take: 1,
-      },
-    },
+    include: COMPANY_INCLUDE,
   });
   return NextResponse.json(toCompanyDTO(row), { status: 201 });
 }

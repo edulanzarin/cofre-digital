@@ -11,9 +11,13 @@ import {
   Globe,
   FileBadge,
   ChevronRight,
+  Network,
 } from "lucide-react";
 import type { Company } from "@/lib/companies";
+import type { CompanyInput } from "@/lib/useCompanies";
+import { NO_GROUP } from "@/lib/companyGroups";
 import { useCompanies } from "@/lib/useCompanies";
+import { useCompanyGroups } from "@/lib/useCompanyGroups";
 import { useVaultConfig } from "@/lib/vaultConfig";
 import {
   certStatus,
@@ -26,6 +30,7 @@ import { useUrlState } from "@/lib/useUrlState";
 import { toast } from "@/lib/toast";
 import { SkeletonCards } from "@/components/ui/Skeleton";
 import Modal from "@/components/ui/Modal";
+import Combobox from "@/components/ui/Combobox";
 import CompanyForm from "@/components/companies/CompanyForm";
 
 // Situação da empresa = situação do certificado que vence primeiro.
@@ -36,28 +41,55 @@ function companyStatus(company: Company, alertDays: number): CertStatus | null {
 
 export default function CompaniesPage() {
   const { companies, ready, add } = useCompanies();
+  const { groups, refresh: refreshGroups } = useCompanyGroups();
   const { alertDays } = useVaultConfig();
   const { can } = useMe();
   const canEdit = can("empresas", "edit");
-  // Busca na URL: link compartilhável e reload sem perder o contexto.
+  // Busca e grupo na URL: link compartilhável e reload sem perder o contexto.
   const [query, setQuery] = useUrlState("q", "");
+  const [group, setGroup] = useUrlState("grupo", "");
   const [creating, setCreating] = useState(false);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const digits = q.replace(/\D/g, "");
-    return companies.filter(
-      (c) =>
-        !q ||
-        c.razaoSocial.toLowerCase().includes(q) ||
-        (digits.length > 0 && c.cnpj.includes(digits)),
-    );
-  }, [companies, query]);
+    return companies
+      .filter((c) =>
+        !group ? true : group === NO_GROUP ? !c.groupId : c.groupId === group,
+      )
+      .filter(
+        (c) =>
+          !q ||
+          c.razaoSocial.toLowerCase().includes(q) ||
+          (digits.length > 0 && c.cnpj.includes(digits)),
+      );
+  }, [companies, query, group]);
 
-  async function handleCreate(data: { cnpj: string; razaoSocial: string }) {
+  const ungrouped = useMemo(
+    () => companies.filter((c) => !c.groupId).length,
+    [companies],
+  );
+
+  const groupOptions = useMemo(
+    () => [
+      { value: "", label: "Todos os grupos", hint: String(companies.length) },
+      ...groups.map((g) => ({
+        value: g.id,
+        label: g.name,
+        hint: String(g.companyCount),
+      })),
+      ...(ungrouped > 0
+        ? [{ value: NO_GROUP, label: "Sem grupo", hint: String(ungrouped) }]
+        : []),
+    ],
+    [groups, companies.length, ungrouped],
+  );
+
+  async function handleCreate(data: CompanyInput) {
     // O erro sobe para o CompanyForm, que já o mostra ao lado dos campos —
     // um toast aqui repetiria a mesma mensagem em dois lugares.
     await add(data);
+    if (data.groupId) await refreshGroups(); // a contagem do grupo mudou
     setCreating(false);
     toast.success("Empresa criada — o cofre dela já está disponível.");
   }
@@ -75,9 +107,13 @@ export default function CompaniesPage() {
         )}
       </header>
 
-      {/* Busca */}
-      <div className="anim-fade-up mb-5" style={{ animationDelay: "60ms" }}>
-        <div className="relative max-w-md">
+      {/* Busca + grupo. O seletor não cresce com a quantidade de grupos —
+          o cadastro deles mora em /grupos. */}
+      <div
+        className="anim-fade-up mb-5 flex flex-wrap items-center gap-3"
+        style={{ animationDelay: "60ms" }}
+      >
+        <div className="relative min-w-56 flex-1 sm:max-w-md">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" />
           <input
             className="vlt-input pl-9"
@@ -86,6 +122,16 @@ export default function CompaniesPage() {
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
+        {groups.length > 0 && (
+          <Combobox
+            className="w-56"
+            options={groupOptions}
+            value={group}
+            onChange={setGroup}
+            searchPlaceholder="Buscar grupo…"
+            icon={<Network className="size-4 shrink-0 text-ink-3" />}
+          />
+        )}
       </div>
 
       {/* Lista */}
@@ -100,7 +146,9 @@ export default function CompaniesPage() {
           <p className="text-sm text-ink-2">
             {companies.length === 0
               ? "Nenhuma empresa cadastrada. Cadastre a primeira — ou guarde um e-CNPJ, que a empresa é criada sozinha."
-              : "Nada encontrado com essa busca."}
+              : group && !query.trim()
+                ? "Nenhuma empresa neste grupo ainda."
+                : "Nada encontrado com esses filtros."}
           </p>
         </div>
       ) : (
@@ -123,8 +171,16 @@ export default function CompaniesPage() {
                     <p className="truncate text-sm font-medium">
                       {company.razaoSocial}
                     </p>
-                    <p className="mt-0.5 font-mono text-[0.7rem] text-ink-3">
-                      {formatDocument(company.cnpj)}
+                    <p className="mt-0.5 flex items-center gap-2 text-[0.7rem] text-ink-3">
+                      <span className="font-mono">
+                        {formatDocument(company.cnpj)}
+                      </span>
+                      {company.group && (
+                        <>
+                          <span aria-hidden>·</span>
+                          <span className="truncate">{company.group.name}</span>
+                        </>
+                      )}
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-4 text-[0.72rem] text-ink-3 max-sm:hidden">
@@ -167,7 +223,11 @@ export default function CompaniesPage() {
           subtitle="Razão social e CNPJ — o cofre dela nasce junto."
           onClose={() => setCreating(false)}
         >
-          <CompanyForm onSubmit={handleCreate} onCancel={() => setCreating(false)} />
+          <CompanyForm
+            groups={groups}
+            onSubmit={handleCreate}
+            onCancel={() => setCreating(false)}
+          />
         </Modal>
       )}
     </div>

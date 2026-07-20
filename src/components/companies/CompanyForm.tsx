@@ -1,24 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { Network } from "lucide-react";
 import type { Company } from "@/lib/companies";
+import type { CompanyGroup } from "@/lib/companyGroups";
 import type { CompanyInput } from "@/lib/useCompanies";
 import { formatDocument } from "@/lib/certificates";
+import Combobox from "@/components/ui/Combobox";
 
 export default function CompanyForm({
   initial,
+  groups,
   onSubmit,
   onCancel,
 }: {
   initial?: Company;
+  groups?: CompanyGroup[];
   onSubmit: (data: CompanyInput) => Promise<void> | void;
   onCancel: () => void;
 }) {
   const [razaoSocial, setRazaoSocial] = useState(initial?.razaoSocial ?? "");
   const [cnpj, setCnpj] = useState(initial ? formatDocument(initial.cnpj) : "");
+  const [groupId, setGroupId] = useState(initial?.groupId ?? "");
   const [error, setError] = useState("");
 
   const digits = cnpj.replace(/\D/g, "");
+
+  const groupOptions = useMemo(
+    () => [
+      { value: "", label: "Sem grupo" },
+      ...(groups ?? []).map((g) => ({ value: g.id, label: g.name })),
+    ],
+    [groups],
+  );
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,7 +42,11 @@ export default function CompanyForm({
       return;
     }
     try {
-      await onSubmit({ razaoSocial: razaoSocial.trim(), cnpj: digits });
+      await onSubmit({
+        razaoSocial: razaoSocial.trim(),
+        cnpj: digits,
+        groupId: groupId || null,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Falha ao salvar.");
     }
@@ -61,6 +79,22 @@ export default function CompanyForm({
           required
         />
       </label>
+
+      {/* Grupo econômico — só aparece depois que existe algum grupo criado. */}
+      {groups && groups.length > 0 && (
+        <div className="block">
+          <span className="mb-1.5 block text-xs font-medium text-ink-2">
+            Grupo (opcional)
+          </span>
+          <Combobox
+            options={groupOptions}
+            value={groupId}
+            onChange={setGroupId}
+            searchPlaceholder="Buscar grupo…"
+            icon={<Network className="size-4 shrink-0 text-ink-3" />}
+          />
+        </div>
+      )}
 
       {error && <p className="text-xs text-bad">{error}</p>}
 

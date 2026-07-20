@@ -1,21 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { guard } from "@/lib/api-auth";
-import { parseCompanyBody, toCompanyDTO } from "@/lib/company-api";
+import { COMPANY_INCLUDE, parseCompanyBody, toCompanyDTO } from "@/lib/company-api";
 
 type Params = { params: Promise<{ id: string }> };
 
 const notFound = () =>
   NextResponse.json({ error: "Empresa não encontrada." }, { status: 404 });
-
-const COMPANY_INCLUDE = {
-  _count: { select: { certificates: true, accesses: true, alvaras: true } },
-  certificates: {
-    select: { expiresAt: true },
-    orderBy: { expiresAt: "asc" },
-    take: 1,
-  },
-} as const;
 
 export async function GET(_req: Request, { params }: Params) {
   const auth = await guard("empresas", "view");

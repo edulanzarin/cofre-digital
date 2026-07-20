@@ -386,6 +386,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   PermissionProfile: 'PermissionProfile',
   User: 'User',
+  CompanyGroup: 'CompanyGroup',
   Company: 'Company',
   Certificate: 'Certificate',
   CertificateEvent: 'CertificateEvent',
@@ -409,7 +410,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "permissionProfile" | "user" | "company" | "certificate" | "certificateEvent" | "alvara" | "alvaraEvent" | "access" | "tutorialImage" | "vaultConfig"
+    modelProps: "permissionProfile" | "user" | "companyGroup" | "company" | "certificate" | "certificateEvent" | "alvara" | "alvaraEvent" | "access" | "tutorialImage" | "vaultConfig"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -558,6 +559,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.UserCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.UserCountAggregateOutputType> | number
+        }
+      }
+    }
+    CompanyGroup: {
+      payload: Prisma.$CompanyGroupPayload<ExtArgs>
+      fields: Prisma.CompanyGroupFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CompanyGroupFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyGroupPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CompanyGroupFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyGroupPayload>
+        }
+        findFirst: {
+          args: Prisma.CompanyGroupFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyGroupPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CompanyGroupFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyGroupPayload>
+        }
+        findMany: {
+          args: Prisma.CompanyGroupFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyGroupPayload>[]
+        }
+        create: {
+          args: Prisma.CompanyGroupCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyGroupPayload>
+        }
+        createMany: {
+          args: Prisma.CompanyGroupCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CompanyGroupCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyGroupPayload>[]
+        }
+        delete: {
+          args: Prisma.CompanyGroupDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyGroupPayload>
+        }
+        update: {
+          args: Prisma.CompanyGroupUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyGroupPayload>
+        }
+        deleteMany: {
+          args: Prisma.CompanyGroupDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CompanyGroupUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CompanyGroupUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyGroupPayload>[]
+        }
+        upsert: {
+          args: Prisma.CompanyGroupUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyGroupPayload>
+        }
+        aggregate: {
+          args: Prisma.CompanyGroupAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCompanyGroup>
+        }
+        groupBy: {
+          args: Prisma.CompanyGroupGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompanyGroupGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CompanyGroupCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompanyGroupCountAggregateOutputType> | number
         }
       }
     }
@@ -1217,10 +1292,21 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const CompanyGroupScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CompanyGroupScalarFieldEnum = (typeof CompanyGroupScalarFieldEnum)[keyof typeof CompanyGroupScalarFieldEnum]
+
+
 export const CompanyScalarFieldEnum = {
   id: 'id',
   cnpj: 'cnpj',
   razaoSocial: 'razaoSocial',
+  groupId: 'groupId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1593,6 +1679,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   permissionProfile?: Prisma.PermissionProfileOmit
   user?: Prisma.UserOmit
+  companyGroup?: Prisma.CompanyGroupOmit
   company?: Prisma.CompanyOmit
   certificate?: Prisma.CertificateOmit
   certificateEvent?: Prisma.CertificateEventOmit
