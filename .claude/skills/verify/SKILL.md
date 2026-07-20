@@ -75,3 +75,12 @@ docker compose exec -T db psql -U vault -d vault -c "delete from ..."
 
 `CertificateEvent` tem FK para `Certificate` — apague o evento antes do
 certificado.
+
+**Semear é criar linha nova descartável, não mudar linha que já existe.**
+Se o teste vincular/alterar uma linha real (ex.: pôr uma empresa do Eduardo
+num grupo de teste), a limpeza *não desfaz*: apagar o grupo com
+`onDelete: SetNull` zera o `groupId`, mas não devolve o valor anterior — some
+a vinculação de verdade. Aconteceu com "2RXD → Teste" em 20/07/2026. Se
+precisar mesmo mexer numa linha real, leia o valor antes e restaure-o no fim;
+melhor ainda, crie uma empresa/grupo descartável só pro teste. Ver princípio
+[[Semear teste cria linha nova, não muta linha real]] no Brain.
