@@ -59,9 +59,16 @@ services:
       AUTH_SECRET: ${AUTH_SECRET:-troque-este-segredo-em-producao}
       # acesso na rede é por http:// (sem TLS); cookie Secure quebraria o login
       COOKIE_SECURE: "false"
+      # Senha para definir/alterar a pasta raiz dos arquivos (Configurações).
+      STORAGE_ROOT_PASSWORD: ${STORAGE_ROOT_PASSWORD:-}
     ports:
       # 0.0.0.0 → acessível na rede pelo IP do host: http://<ip-do-pc>:4004
       - "${APP_PORT:-4004}:3000"
+    # Monte aqui o compartilhamento de rede onde os arquivos vão morar e, em
+    # Configurações → Armazenamento, defina a pasta raiz como o caminho de
+    # DENTRO do container (ex.: /data/arquivos). Descomente e ajuste a origem:
+    # volumes:
+    #   - "${STORAGE_HOST_PATH:-/mnt/rede/cofre}:/data/arquivos"
     networks:
       - cofre-digital-net
 

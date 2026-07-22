@@ -20,6 +20,9 @@ function toDTO(config: Awaited<ReturnType<typeof readConfig>>) {
     lockMinutes: config.lockMinutes,
     locked: config.locked,
     hasPin: config.lockPinHash !== null,
+    storageRoot: config.storageRoot,
+    // A pasta só pode ser alterada se a senha existir na env do servidor.
+    storageUnlockable: Boolean(process.env.STORAGE_ROOT_PASSWORD?.trim()),
   };
 }
 

@@ -12,6 +12,8 @@ export type VaultConfig = {
   lockMinutes: number;
   locked: boolean;
   hasPin: boolean;
+  storageRoot: string | null; // pasta raiz dos arquivos; null = arquivos no banco
+  storageUnlockable: boolean; // há senha na env para poder alterar a pasta
 };
 
 const DEFAULT: VaultConfig = {
@@ -20,6 +22,8 @@ const DEFAULT: VaultConfig = {
   lockMinutes: 15,
   locked: false,
   hasPin: false,
+  storageRoot: null,
+  storageUnlockable: false,
 };
 
 let config: VaultConfig = DEFAULT;
@@ -86,6 +90,25 @@ export async function updateVaultPolicy(patch: {
 
 export async function setVaultPin(pin: string) {
   await put("/api/config/pin", { pin });
+}
+
+// Definir/alterar a pasta raiz dos arquivos — exige a senha (env do servidor).
+export async function setStorageRoot(path: string, password: string) {
+  await put("/api/config/storage", { path, password });
+}
+
+// Move para a pasta os arquivos que ainda estão no banco. Devolve a contagem.
+export async function migrateStorageFiles(): Promise<{
+  certificados: number;
+  alvaras: number;
+  prints: number;
+}> {
+  const res = await fetch("/api/config/storage/migrate", { method: "POST" });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as { error?: string } | null;
+    throw new Error(body?.error ?? "Falha ao migrar os arquivos.");
+  }
+  return res.json();
 }
 
 export async function removeVaultPin() {
