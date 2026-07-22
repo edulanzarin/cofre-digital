@@ -9,10 +9,17 @@ import {
   CircleCheck,
   CreditCard,
   Building2,
+  Network,
 } from "lucide-react";
 import type { Certificate, CertMedia, CertType } from "@/lib/certificates";
 import type { Company } from "@/lib/companies";
+import type { CompanyGroup } from "@/lib/companyGroups";
 import { bufferToBase64, parsePfx, PfxError } from "@/lib/pfx";
+import Combobox from "@/components/ui/Combobox";
+
+// O certificado carrega, além dos seus campos, o grupo a aplicar na empresa
+// dona do cofre — resolve tudo numa tela só quando o cert cria a empresa.
+export type CertSubmit = Omit<Certificate, "id"> & { groupId?: string | null };
 
 const FILE_TYPES: CertType[] = ["e-CNPJ A1", "e-CPF A1", "NF-e"];
 const CARD_TYPES: CertType[] = ["e-CNPJ A3", "e-CPF A3"];
@@ -42,13 +49,17 @@ export default function CertForm({
   initial,
   fixedCompanyId,
   fixedCompanyName,
+  groups,
+  onCreateGroup,
   onSubmit,
   onCancel,
 }: {
   initial?: Certificate;
   fixedCompanyId?: string; // criando de dentro do cofre de uma empresa
   fixedCompanyName?: string; // razaoSocial da empresa, para nomear o .pfx
-  onSubmit: (data: Omit<Certificate, "id">) => void;
+  groups?: CompanyGroup[]; // grupos econômicos, para atribuir à empresa
+  onCreateGroup?: (name: string) => Promise<string>; // cria grupo na hora
+  onSubmit: (data: CertSubmit) => void;
   onCancel: () => void;
 }) {
   const [media, setMedia] = useState<CertMedia>(initial?.media ?? "file");
@@ -65,6 +76,9 @@ export default function CertForm({
   const [companyId, setCompanyId] = useState(
     fixedCompanyId ?? initial?.companyId ?? "",
   );
+  // Grupo a aplicar na empresa dona. Começa no grupo atual dela (edição) e
+  // ao salvar só atribui — vazio = não mexe no grupo da empresa.
+  const [groupId, setGroupId] = useState(initial?.company?.groupId ?? "");
 
   // Ao trocar a empresa, atualiza o fileName do .pfx já carregado.
   function handleCompanyChange(id: string) {
@@ -198,8 +212,11 @@ export default function CertForm({
       fileData: media === "file" ? fileData || undefined : undefined,
       notes: form.notes.trim() || undefined,
       companyId: companyId || undefined,
+      groupId: groupId || undefined,
     });
   }
+
+  const groupOptions = (groups ?? []).map((g) => ({ value: g.id, label: g.name }));
 
   const types = media === "file" ? FILE_TYPES : CARD_TYPES;
   const hasFile = Boolean(fileBuffer.current || fileData);
@@ -485,6 +502,24 @@ export default function CertForm({
                   ))}
                 </select>
               </div>
+            </Field>
+          )}
+
+          {/* Grupo econômico — atribuído à empresa dona do cofre. Some quando
+              o certificado é cadastrado de dentro de uma empresa (lá o grupo
+              se define na própria empresa). Vazio = mantém o grupo atual. */}
+          {!fixedCompanyId && (groups?.length || onCreateGroup) && (
+            <Field label="Grupo da empresa (opcional)">
+              <Combobox
+                options={groupOptions}
+                value={groupId}
+                onChange={setGroupId}
+                placeholder="Sem alterar o grupo"
+                searchPlaceholder="Buscar ou criar grupo…"
+                onCreate={onCreateGroup}
+                createLabel="Criar grupo"
+                icon={<Network className="size-4 shrink-0 text-ink-3" />}
+              />
             </Field>
           )}
 

@@ -11,11 +11,14 @@ import Combobox from "@/components/ui/Combobox";
 export default function CompanyForm({
   initial,
   groups,
+  onCreateGroup,
   onSubmit,
   onCancel,
 }: {
   initial?: Company;
   groups?: CompanyGroup[];
+  // Cria um grupo na hora (digitando o nome no seletor) e devolve o id.
+  onCreateGroup?: (name: string) => Promise<string>;
   onSubmit: (data: CompanyInput) => Promise<void> | void;
   onCancel: () => void;
 }) {
@@ -80,21 +83,22 @@ export default function CompanyForm({
         />
       </label>
 
-      {/* Grupo econômico — só aparece depois que existe algum grupo criado. */}
-      {groups && groups.length > 0 && (
-        <div className="block">
-          <span className="mb-1.5 block text-xs font-medium text-ink-2">
-            Grupo (opcional)
-          </span>
-          <Combobox
-            options={groupOptions}
-            value={groupId}
-            onChange={setGroupId}
-            searchPlaceholder="Buscar grupo…"
-            icon={<Network className="size-4 shrink-0 text-ink-3" />}
-          />
-        </div>
-      )}
+      {/* Grupo econômico — opcional. O grupo nasce aqui mesmo: digite um nome
+          que não existe e ele é criado na hora, sem passar por outra tela. */}
+      <div className="block">
+        <span className="mb-1.5 block text-xs font-medium text-ink-2">
+          Grupo (opcional)
+        </span>
+        <Combobox
+          options={groupOptions}
+          value={groupId}
+          onChange={setGroupId}
+          searchPlaceholder="Buscar ou criar grupo…"
+          onCreate={onCreateGroup}
+          createLabel="Criar grupo"
+          icon={<Network className="size-4 shrink-0 text-ink-3" />}
+        />
+      </div>
 
       {error && <p className="text-xs text-bad">{error}</p>}
 

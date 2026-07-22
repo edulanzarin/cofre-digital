@@ -19,7 +19,7 @@ import { toast, toastError } from "@/lib/toast";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import Modal from "@/components/ui/Modal";
 import Combobox from "@/components/ui/Combobox";
-import CertForm from "@/components/certificates/CertForm";
+import CertForm, { type CertSubmit } from "@/components/certificates/CertForm";
 import CertModal from "@/components/certificates/CertModal";
 import CertList from "@/components/certificates/CertList";
 
@@ -50,11 +50,20 @@ const DOC_FILTERS: { key: DocFilter; label: string }[] = [
 const DOC_FILTER_KEYS = DOC_FILTERS.map((f) => f.key);
 
 export default function CertificatesPage() {
-  const { certs, ready, add, update, remove } = useCertificates();
-  const { groups } = useCompanyGroups();
+  const { certs, ready, add, update, remove, refresh: refreshCerts } =
+    useCertificates();
+  const {
+    groups,
+    refresh: refreshGroups,
+    add: addGroup,
+    rename: renameGroup,
+    remove: removeGroup,
+  } = useCompanyGroups();
   const { alertDays } = useVaultConfig();
   const { can } = useMe();
   const canEdit = can("certificados", "edit");
+  // Grupo é conceito de empresa: só quem edita empresas cria/renomeia/exclui.
+  const canEditGroups = can("empresas", "edit");
   // Busca e filtro vivem na URL: o link fica compartilhável e recarregar
   // não joga o contexto fora.
   const [query, setQuery] = useUrlState("q", "");
@@ -130,6 +139,7 @@ export default function CertificatesPage() {
         value: g.id,
         label: g.name,
         hint: String(counts.get(g.id) ?? 0),
+        manageable: true,
       })),
       ...(ungrouped > 0
         ? [{ value: NO_GROUP, label: "Sem grupo", hint: String(ungrouped) }]
@@ -139,7 +149,7 @@ export default function CertificatesPage() {
 
   const selected = certs.find((c) => c.id === selectedId) ?? null;
 
-  async function handleSubmit(data: Omit<Certificate, "id">) {
+  async function handleSubmit(data: CertSubmit) {
     try {
       if (modal === "edit" && selected) {
         await update(selected.id, data);
@@ -148,9 +158,40 @@ export default function CertificatesPage() {
         await add(data);
         toast.success("Certificado guardado no cofre.");
       }
+      // Atribuir grupo à empresa dona mexe nas contagens e no nome que a
+      // coluna mostra — recarrega os dois para refletir na hora.
+      if (data.groupId) {
+        await Promise.all([refreshGroups(), refreshCerts()]);
+      }
       setModal("closed");
     } catch (err) {
       toastError(err, "Falha ao salvar.");
+    }
+  }
+
+  async function handleCreateGroup(name: string) {
+    const created = await addGroup(name);
+    return created.id;
+  }
+
+  // Renomear/excluir grupo vivem no próprio filtro; o nome vem embutido em
+  // cada certificado, então recarrega a lista para refletir.
+  async function handleRenameGroup(id: string, name: string) {
+    try {
+      await renameGroup(id, name);
+      await refreshCerts();
+    } catch (err) {
+      toastError(err, "Falha ao renomear o grupo.");
+    }
+  }
+
+  async function handleDeleteGroup(id: string) {
+    try {
+      await removeGroup(id);
+      await refreshCerts();
+      toast.success("Grupo excluído — as empresas ficaram sem grupo.");
+    } catch (err) {
+      toastError(err, "Falha ao excluir o grupo.");
     }
   }
 
@@ -211,6 +252,8 @@ export default function CertificatesPage() {
             value={group}
             onChange={setGroup}
             searchPlaceholder="Buscar grupo…"
+            onRename={canEditGroups ? handleRenameGroup : undefined}
+            onDelete={canEditGroups ? handleDeleteGroup : undefined}
             icon={<Network className="size-4 shrink-0 text-ink-3" />}
           />
         )}
@@ -288,6 +331,8 @@ export default function CertificatesPage() {
         >
           <CertForm
             initial={modal === "edit" ? (editCert ?? undefined) : undefined}
+            groups={canEditGroups ? groups : undefined}
+            onCreateGroup={canEditGroups ? handleCreateGroup : undefined}
             onSubmit={handleSubmit}
             onCancel={() => setModal("closed")}
           />

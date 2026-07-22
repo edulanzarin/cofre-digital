@@ -13,11 +13,12 @@ async function errorOf(res: Response, fallback: string): Promise<string> {
 export function useCertificates(companyId?: string) {
   const [certs, setCerts] = useState<Certificate[] | null>(null);
 
+  const url = companyId
+    ? `/api/certificates?companyId=${encodeURIComponent(companyId)}`
+    : "/api/certificates";
+
   useEffect(() => {
     let active = true;
-    const url = companyId
-      ? `/api/certificates?companyId=${encodeURIComponent(companyId)}`
-      : "/api/certificates";
     fetch(url)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((data: Certificate[]) => {
@@ -29,7 +30,14 @@ export function useCertificates(companyId?: string) {
     return () => {
       active = false;
     };
-  }, [companyId]);
+  }, [url]);
+
+  // Renomear/excluir um grupo muda o nome que cada certificado mostra na
+  // coluna, sem passar pelos mutadores daqui — daí a recarga sob demanda.
+  const refresh = useCallback(async () => {
+    const res = await fetch(url);
+    if (res.ok) setCerts((await res.json()) as Certificate[]);
+  }, [url]);
 
   const add = useCallback(async (cert: Omit<Certificate, "id">) => {
     const res = await fetch("/api/certificates", {
@@ -59,5 +67,5 @@ export function useCertificates(companyId?: string) {
     setCerts((prev) => (prev ?? []).filter((c) => c.id !== id));
   }, []);
 
-  return { certs: certs ?? [], ready: certs !== null, add, update, remove };
+  return { certs: certs ?? [], ready: certs !== null, add, update, remove, refresh };
 }

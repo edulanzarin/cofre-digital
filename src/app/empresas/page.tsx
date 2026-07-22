@@ -27,7 +27,7 @@ import {
 } from "@/lib/certificates";
 import { useMe } from "@/lib/useMe";
 import { useUrlState } from "@/lib/useUrlState";
-import { toast } from "@/lib/toast";
+import { toast, toastError } from "@/lib/toast";
 import { SkeletonCards } from "@/components/ui/Skeleton";
 import Modal from "@/components/ui/Modal";
 import Combobox from "@/components/ui/Combobox";
@@ -40,8 +40,14 @@ function companyStatus(company: Company, alertDays: number): CertStatus | null {
 }
 
 export default function CompaniesPage() {
-  const { companies, ready, add } = useCompanies();
-  const { groups, refresh: refreshGroups } = useCompanyGroups();
+  const { companies, ready, add, refresh: refreshCompanies } = useCompanies();
+  const {
+    groups,
+    refresh: refreshGroups,
+    add: addGroup,
+    rename: renameGroup,
+    remove: removeGroup,
+  } = useCompanyGroups();
   const { alertDays } = useVaultConfig();
   const { can } = useMe();
   const canEdit = can("empresas", "edit");
@@ -77,6 +83,7 @@ export default function CompaniesPage() {
         value: g.id,
         label: g.name,
         hint: String(g.companyCount),
+        manageable: true,
       })),
       ...(ungrouped > 0
         ? [{ value: NO_GROUP, label: "Sem grupo", hint: String(ungrouped) }]
@@ -84,6 +91,34 @@ export default function CompaniesPage() {
     ],
     [groups, companies.length, ungrouped],
   );
+
+  // Grupo criado na hora, de dentro do cadastro da empresa — devolve o id
+  // para o formulário já vinculá-lo.
+  async function handleCreateGroup(name: string) {
+    const created = await addGroup(name);
+    return created.id;
+  }
+
+  // Renomear/excluir grupo vivem no próprio filtro. Como o nome do grupo
+  // aparece embutido em cada empresa, recarrega a lista para refletir.
+  async function handleRenameGroup(id: string, name: string) {
+    try {
+      await renameGroup(id, name);
+      await refreshCompanies();
+    } catch (err) {
+      toastError(err, "Falha ao renomear o grupo.");
+    }
+  }
+
+  async function handleDeleteGroup(id: string) {
+    try {
+      await removeGroup(id);
+      await refreshCompanies();
+      toast.success("Grupo excluído — as empresas ficaram sem grupo.");
+    } catch (err) {
+      toastError(err, "Falha ao excluir o grupo.");
+    }
+  }
 
   async function handleCreate(data: CompanyInput) {
     // O erro sobe para o CompanyForm, que já o mostra ao lado dos campos —
@@ -107,8 +142,8 @@ export default function CompaniesPage() {
         )}
       </header>
 
-      {/* Busca + grupo. O seletor não cresce com a quantidade de grupos —
-          o cadastro deles mora em /grupos. */}
+      {/* Busca + grupo. O grupo nasce e é gerenciado de dentro do cadastro da
+          empresa e deste próprio filtro — não há mais tela separada. */}
       <div
         className="anim-fade-up mb-5 flex flex-wrap items-center gap-3"
         style={{ animationDelay: "60ms" }}
@@ -129,6 +164,8 @@ export default function CompaniesPage() {
             value={group}
             onChange={setGroup}
             searchPlaceholder="Buscar grupo…"
+            onRename={canEdit ? handleRenameGroup : undefined}
+            onDelete={canEdit ? handleDeleteGroup : undefined}
             icon={<Network className="size-4 shrink-0 text-ink-3" />}
           />
         )}
@@ -225,6 +262,7 @@ export default function CompaniesPage() {
         >
           <CompanyForm
             groups={groups}
+            onCreateGroup={handleCreateGroup}
             onSubmit={handleCreate}
             onCancel={() => setCreating(false)}
           />

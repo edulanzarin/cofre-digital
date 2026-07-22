@@ -47,7 +47,7 @@ export default function CompanyVaultPage() {
   const { can } = useMe();
   const { alertDays } = useVaultConfig();
 
-  const { groups } = useCompanyGroups();
+  const { groups, add: addGroup } = useCompanyGroups();
   const [company, setCompany] = useState<Company | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [tab, setTab] = useState<Tab>("certificados");
@@ -236,6 +236,7 @@ export default function CompanyVaultPage() {
           <CompanyForm
             initial={company}
             groups={groups}
+            onCreateGroup={async (name) => (await addGroup(name)).id}
             onSubmit={handleUpdate}
             onCancel={() => setEditingCompany(false)}
           />
