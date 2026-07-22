@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { CERT_INCLUDE, parseCertBody, toDTO } from "@/lib/certificate-api";
 import { guard } from "@/lib/api-auth";
-import { assignCompanyGroup } from "@/lib/company-group-prune";
+import { assignCompanyGroup } from "@/lib/company-group-assign";
 
 type Params = { params: Promise<{ id: string }> };
 
