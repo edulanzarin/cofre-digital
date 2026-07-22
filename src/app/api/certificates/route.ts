@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { CERT_INCLUDE, parseCertBody, toDTO } from "@/lib/certificate-api";
 import { guard } from "@/lib/api-auth";
+import { assignCompanyGroup } from "@/lib/company-group-prune";
 
 export async function GET(req: Request) {
   const auth = await guard("certificados", "view");
@@ -63,7 +64,8 @@ function companyFileName(razaoSocial: string, document: string): string {
 export async function POST(req: Request) {
   const auth = await guard("certificados", "edit");
   if (auth instanceof NextResponse) return auth;
-  const data = parseCertBody(await req.json().catch(() => null));
+  const raw = await req.json().catch(() => null);
+  const data = parseCertBody(raw);
   if (!data) {
     return NextResponse.json(
       { error: "Dados do certificado inválidos." },
@@ -85,6 +87,11 @@ export async function POST(req: Request) {
   // Renomeia o .pfx para o nome da empresa, independente do nome original.
   if (company && data.fileName) {
     data.fileName = companyFileName(company.razaoSocial, data.document);
+  }
+  // Grupo escolhido no formulário entra na empresa dona — feito antes de criar
+  // o certificado para o include já trazer o nome do grupo na resposta.
+  if (company) {
+    await assignCompanyGroup(company.id, (raw as { groupId?: unknown })?.groupId, auth);
   }
   const row = await prisma.certificate.create({
     data: {

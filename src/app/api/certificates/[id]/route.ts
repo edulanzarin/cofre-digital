@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { CERT_INCLUDE, parseCertBody, toDTO } from "@/lib/certificate-api";
 import { guard } from "@/lib/api-auth";
+import { assignCompanyGroup } from "@/lib/company-group-prune";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -45,7 +46,8 @@ export async function PUT(req: Request, { params }: Params) {
   const auth = await guard("certificados", "edit");
   if (auth instanceof NextResponse) return auth;
   const { id } = await params;
-  const data = parseCertBody(await req.json().catch(() => null));
+  const raw = await req.json().catch(() => null);
+  const data = parseCertBody(raw);
   if (!data) {
     return NextResponse.json(
       { error: "Dados do certificado inválidos." },
@@ -87,6 +89,10 @@ export async function PUT(req: Request, { params }: Params) {
       select: { expiresAt: true },
     });
     const renewed = before.expiresAt.getTime() !== data.expiresAt.getTime();
+    // Grupo escolhido no formulário entra na empresa dona (nunca desvincula).
+    if (data.companyId) {
+      await assignCompanyGroup(data.companyId, (raw as { groupId?: unknown })?.groupId, auth);
+    }
     const row = await prisma.certificate.update({
       where: { id },
       data: {

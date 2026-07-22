@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { guard } from "@/lib/api-auth";
 import { COMPANY_INCLUDE, parseCompanyBody, toCompanyDTO } from "@/lib/company-api";
+import { pruneEmptyGroups } from "@/lib/company-group-prune";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -47,6 +48,8 @@ export async function PUT(req: Request, { params }: Params) {
       data,
       include: COMPANY_INCLUDE,
     });
+    // Trocar/limpar o grupo pode ter esvaziado o grupo anterior.
+    await pruneEmptyGroups();
     return NextResponse.json(toCompanyDTO(row));
   } catch {
     return notFound();
@@ -61,6 +64,8 @@ export async function DELETE(_req: Request, { params }: Params) {
   const { id } = await params;
   try {
     await prisma.company.delete({ where: { id } });
+    // A empresa era a última do grupo? Então o grupo some junto.
+    await pruneEmptyGroups();
     return NextResponse.json({ ok: true });
   } catch {
     return notFound();
