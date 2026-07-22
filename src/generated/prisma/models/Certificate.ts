@@ -36,6 +36,7 @@ export type CertificateMinAggregateOutputType = {
   password: string | null
   fileName: string | null
   fileData: string | null
+  filePath: string | null
   notes: string | null
   companyId: string | null
   createdAt: Date | null
@@ -54,6 +55,7 @@ export type CertificateMaxAggregateOutputType = {
   password: string | null
   fileName: string | null
   fileData: string | null
+  filePath: string | null
   notes: string | null
   companyId: string | null
   createdAt: Date | null
@@ -72,6 +74,7 @@ export type CertificateCountAggregateOutputType = {
   password: number
   fileName: number
   fileData: number
+  filePath: number
   notes: number
   companyId: number
   createdAt: number
@@ -92,6 +95,7 @@ export type CertificateMinAggregateInputType = {
   password?: true
   fileName?: true
   fileData?: true
+  filePath?: true
   notes?: true
   companyId?: true
   createdAt?: true
@@ -110,6 +114,7 @@ export type CertificateMaxAggregateInputType = {
   password?: true
   fileName?: true
   fileData?: true
+  filePath?: true
   notes?: true
   companyId?: true
   createdAt?: true
@@ -128,6 +133,7 @@ export type CertificateCountAggregateInputType = {
   password?: true
   fileName?: true
   fileData?: true
+  filePath?: true
   notes?: true
   companyId?: true
   createdAt?: true
@@ -219,6 +225,7 @@ export type CertificateGroupByOutputType = {
   password: string
   fileName: string | null
   fileData: string | null
+  filePath: string | null
   notes: string | null
   companyId: string | null
   createdAt: Date
@@ -258,6 +265,7 @@ export type CertificateWhereInput = {
   password?: Prisma.StringFilter<"Certificate"> | string
   fileName?: Prisma.StringNullableFilter<"Certificate"> | string | null
   fileData?: Prisma.StringNullableFilter<"Certificate"> | string | null
+  filePath?: Prisma.StringNullableFilter<"Certificate"> | string | null
   notes?: Prisma.StringNullableFilter<"Certificate"> | string | null
   companyId?: Prisma.StringNullableFilter<"Certificate"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Certificate"> | Date | string
@@ -279,6 +287,7 @@ export type CertificateOrderByWithRelationInput = {
   password?: Prisma.SortOrder
   fileName?: Prisma.SortOrderInput | Prisma.SortOrder
   fileData?: Prisma.SortOrderInput | Prisma.SortOrder
+  filePath?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -303,6 +312,7 @@ export type CertificateWhereUniqueInput = Prisma.AtLeast<{
   password?: Prisma.StringFilter<"Certificate"> | string
   fileName?: Prisma.StringNullableFilter<"Certificate"> | string | null
   fileData?: Prisma.StringNullableFilter<"Certificate"> | string | null
+  filePath?: Prisma.StringNullableFilter<"Certificate"> | string | null
   notes?: Prisma.StringNullableFilter<"Certificate"> | string | null
   companyId?: Prisma.StringNullableFilter<"Certificate"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Certificate"> | Date | string
@@ -324,6 +334,7 @@ export type CertificateOrderByWithAggregationInput = {
   password?: Prisma.SortOrder
   fileName?: Prisma.SortOrderInput | Prisma.SortOrder
   fileData?: Prisma.SortOrderInput | Prisma.SortOrder
+  filePath?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -348,6 +359,7 @@ export type CertificateScalarWhereWithAggregatesInput = {
   password?: Prisma.StringWithAggregatesFilter<"Certificate"> | string
   fileName?: Prisma.StringNullableWithAggregatesFilter<"Certificate"> | string | null
   fileData?: Prisma.StringNullableWithAggregatesFilter<"Certificate"> | string | null
+  filePath?: Prisma.StringNullableWithAggregatesFilter<"Certificate"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Certificate"> | string | null
   companyId?: Prisma.StringNullableWithAggregatesFilter<"Certificate"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Certificate"> | Date | string
@@ -366,6 +378,7 @@ export type CertificateCreateInput = {
   password: string
   fileName?: string | null
   fileData?: string | null
+  filePath?: string | null
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -386,6 +399,7 @@ export type CertificateUncheckedCreateInput = {
   password: string
   fileName?: string | null
   fileData?: string | null
+  filePath?: string | null
   notes?: string | null
   companyId?: string | null
   createdAt?: Date | string
@@ -406,6 +420,7 @@ export type CertificateUpdateInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -426,6 +441,7 @@ export type CertificateUncheckedUpdateInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -446,6 +462,7 @@ export type CertificateCreateManyInput = {
   password: string
   fileName?: string | null
   fileData?: string | null
+  filePath?: string | null
   notes?: string | null
   companyId?: string | null
   createdAt?: Date | string
@@ -464,6 +481,7 @@ export type CertificateUpdateManyMutationInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -481,6 +499,7 @@ export type CertificateUncheckedUpdateManyInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -509,6 +528,7 @@ export type CertificateCountOrderByAggregateInput = {
   password?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   fileData?: Prisma.SortOrder
+  filePath?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -527,6 +547,7 @@ export type CertificateMaxOrderByAggregateInput = {
   password?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   fileData?: Prisma.SortOrder
+  filePath?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -545,6 +566,7 @@ export type CertificateMinOrderByAggregateInput = {
   password?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   fileData?: Prisma.SortOrder
+  filePath?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -649,6 +671,7 @@ export type CertificateCreateWithoutCompanyInput = {
   password: string
   fileName?: string | null
   fileData?: string | null
+  filePath?: string | null
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -668,6 +691,7 @@ export type CertificateUncheckedCreateWithoutCompanyInput = {
   password: string
   fileName?: string | null
   fileData?: string | null
+  filePath?: string | null
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -716,6 +740,7 @@ export type CertificateScalarWhereInput = {
   password?: Prisma.StringFilter<"Certificate"> | string
   fileName?: Prisma.StringNullableFilter<"Certificate"> | string | null
   fileData?: Prisma.StringNullableFilter<"Certificate"> | string | null
+  filePath?: Prisma.StringNullableFilter<"Certificate"> | string | null
   notes?: Prisma.StringNullableFilter<"Certificate"> | string | null
   companyId?: Prisma.StringNullableFilter<"Certificate"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Certificate"> | Date | string
@@ -734,6 +759,7 @@ export type CertificateCreateWithoutEventsInput = {
   password: string
   fileName?: string | null
   fileData?: string | null
+  filePath?: string | null
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -753,6 +779,7 @@ export type CertificateUncheckedCreateWithoutEventsInput = {
   password: string
   fileName?: string | null
   fileData?: string | null
+  filePath?: string | null
   notes?: string | null
   companyId?: string | null
   createdAt?: Date | string
@@ -788,6 +815,7 @@ export type CertificateUpdateWithoutEventsInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -807,6 +835,7 @@ export type CertificateUncheckedUpdateWithoutEventsInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -826,6 +855,7 @@ export type CertificateCreateWithoutAccessesInput = {
   password: string
   fileName?: string | null
   fileData?: string | null
+  filePath?: string | null
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -845,6 +875,7 @@ export type CertificateUncheckedCreateWithoutAccessesInput = {
   password: string
   fileName?: string | null
   fileData?: string | null
+  filePath?: string | null
   notes?: string | null
   companyId?: string | null
   createdAt?: Date | string
@@ -880,6 +911,7 @@ export type CertificateUpdateWithoutAccessesInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -899,6 +931,7 @@ export type CertificateUncheckedUpdateWithoutAccessesInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -918,6 +951,7 @@ export type CertificateCreateManyCompanyInput = {
   password: string
   fileName?: string | null
   fileData?: string | null
+  filePath?: string | null
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -935,6 +969,7 @@ export type CertificateUpdateWithoutCompanyInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -954,6 +989,7 @@ export type CertificateUncheckedUpdateWithoutCompanyInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -973,6 +1009,7 @@ export type CertificateUncheckedUpdateManyWithoutCompanyInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1030,6 +1067,7 @@ export type CertificateSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   password?: boolean
   fileName?: boolean
   fileData?: boolean
+  filePath?: boolean
   notes?: boolean
   companyId?: boolean
   createdAt?: boolean
@@ -1052,6 +1090,7 @@ export type CertificateSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   password?: boolean
   fileName?: boolean
   fileData?: boolean
+  filePath?: boolean
   notes?: boolean
   companyId?: boolean
   createdAt?: boolean
@@ -1071,6 +1110,7 @@ export type CertificateSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   password?: boolean
   fileName?: boolean
   fileData?: boolean
+  filePath?: boolean
   notes?: boolean
   companyId?: boolean
   createdAt?: boolean
@@ -1090,13 +1130,14 @@ export type CertificateSelectScalar = {
   password?: boolean
   fileName?: boolean
   fileData?: boolean
+  filePath?: boolean
   notes?: boolean
   companyId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CertificateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "holder" | "document" | "type" | "media" | "issuer" | "issuedAt" | "expiresAt" | "password" | "fileName" | "fileData" | "notes" | "companyId" | "createdAt" | "updatedAt", ExtArgs["result"]["certificate"]>
+export type CertificateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "holder" | "document" | "type" | "media" | "issuer" | "issuedAt" | "expiresAt" | "password" | "fileName" | "fileData" | "filePath" | "notes" | "companyId" | "createdAt" | "updatedAt", ExtArgs["result"]["certificate"]>
 export type CertificateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.Certificate$companyArgs<ExtArgs>
   events?: boolean | Prisma.Certificate$eventsArgs<ExtArgs>
@@ -1129,6 +1170,7 @@ export type $CertificatePayload<ExtArgs extends runtime.Types.Extensions.Interna
     password: string
     fileName: string | null
     fileData: string | null
+    filePath: string | null
     notes: string | null
     companyId: string | null
     createdAt: Date
@@ -1570,6 +1612,7 @@ export interface CertificateFieldRefs {
   readonly password: Prisma.FieldRef<"Certificate", 'String'>
   readonly fileName: Prisma.FieldRef<"Certificate", 'String'>
   readonly fileData: Prisma.FieldRef<"Certificate", 'String'>
+  readonly filePath: Prisma.FieldRef<"Certificate", 'String'>
   readonly notes: Prisma.FieldRef<"Certificate", 'String'>
   readonly companyId: Prisma.FieldRef<"Certificate", 'String'>
   readonly createdAt: Prisma.FieldRef<"Certificate", 'DateTime'>

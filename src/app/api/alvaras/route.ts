@@ -1,7 +1,9 @@
+import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ALVARA_INCLUDE, parseAlvaraBody, toAlvaraDTO } from "@/lib/alvara-api";
 import { guard } from "@/lib/api-auth";
+import { fileFieldsFor } from "@/lib/storage";
 
 export async function GET(req: Request) {
   const auth = await guard("alvaras", "view");
@@ -33,9 +35,15 @@ export async function POST(req: Request) {
     });
     if (!company) data.companyId = null;
   }
+  // Com pasta configurada, o PDF vai pro disco; senão, fica no banco (base64).
+  const id = randomUUID();
+  const file = await fileFieldsFor("alvaras", id, data.fileData, "pdf");
   const row = await prisma.alvara.create({
     data: {
+      id,
       ...data,
+      fileData: file.base64,
+      filePath: file.filePath,
       events: { create: { kind: "created", userName: auth.name } },
     },
     include: ALVARA_INCLUDE,

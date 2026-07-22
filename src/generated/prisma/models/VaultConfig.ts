@@ -45,6 +45,7 @@ export type VaultConfigMinAggregateOutputType = {
   lockPinHash: string | null
   autoLock: boolean | null
   lockMinutes: number | null
+  storageRoot: string | null
 }
 
 export type VaultConfigMaxAggregateOutputType = {
@@ -54,6 +55,7 @@ export type VaultConfigMaxAggregateOutputType = {
   lockPinHash: string | null
   autoLock: boolean | null
   lockMinutes: number | null
+  storageRoot: string | null
 }
 
 export type VaultConfigCountAggregateOutputType = {
@@ -63,6 +65,7 @@ export type VaultConfigCountAggregateOutputType = {
   lockPinHash: number
   autoLock: number
   lockMinutes: number
+  storageRoot: number
   _all: number
 }
 
@@ -86,6 +89,7 @@ export type VaultConfigMinAggregateInputType = {
   lockPinHash?: true
   autoLock?: true
   lockMinutes?: true
+  storageRoot?: true
 }
 
 export type VaultConfigMaxAggregateInputType = {
@@ -95,6 +99,7 @@ export type VaultConfigMaxAggregateInputType = {
   lockPinHash?: true
   autoLock?: true
   lockMinutes?: true
+  storageRoot?: true
 }
 
 export type VaultConfigCountAggregateInputType = {
@@ -104,6 +109,7 @@ export type VaultConfigCountAggregateInputType = {
   lockPinHash?: true
   autoLock?: true
   lockMinutes?: true
+  storageRoot?: true
   _all?: true
 }
 
@@ -200,6 +206,7 @@ export type VaultConfigGroupByOutputType = {
   lockPinHash: string | null
   autoLock: boolean
   lockMinutes: number
+  storageRoot: string | null
   _count: VaultConfigCountAggregateOutputType | null
   _avg: VaultConfigAvgAggregateOutputType | null
   _sum: VaultConfigSumAggregateOutputType | null
@@ -232,6 +239,7 @@ export type VaultConfigWhereInput = {
   lockPinHash?: Prisma.StringNullableFilter<"VaultConfig"> | string | null
   autoLock?: Prisma.BoolFilter<"VaultConfig"> | boolean
   lockMinutes?: Prisma.IntFilter<"VaultConfig"> | number
+  storageRoot?: Prisma.StringNullableFilter<"VaultConfig"> | string | null
 }
 
 export type VaultConfigOrderByWithRelationInput = {
@@ -241,6 +249,7 @@ export type VaultConfigOrderByWithRelationInput = {
   lockPinHash?: Prisma.SortOrderInput | Prisma.SortOrder
   autoLock?: Prisma.SortOrder
   lockMinutes?: Prisma.SortOrder
+  storageRoot?: Prisma.SortOrderInput | Prisma.SortOrder
 }
 
 export type VaultConfigWhereUniqueInput = Prisma.AtLeast<{
@@ -253,6 +262,7 @@ export type VaultConfigWhereUniqueInput = Prisma.AtLeast<{
   lockPinHash?: Prisma.StringNullableFilter<"VaultConfig"> | string | null
   autoLock?: Prisma.BoolFilter<"VaultConfig"> | boolean
   lockMinutes?: Prisma.IntFilter<"VaultConfig"> | number
+  storageRoot?: Prisma.StringNullableFilter<"VaultConfig"> | string | null
 }, "id">
 
 export type VaultConfigOrderByWithAggregationInput = {
@@ -262,6 +272,7 @@ export type VaultConfigOrderByWithAggregationInput = {
   lockPinHash?: Prisma.SortOrderInput | Prisma.SortOrder
   autoLock?: Prisma.SortOrder
   lockMinutes?: Prisma.SortOrder
+  storageRoot?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.VaultConfigCountOrderByAggregateInput
   _avg?: Prisma.VaultConfigAvgOrderByAggregateInput
   _max?: Prisma.VaultConfigMaxOrderByAggregateInput
@@ -279,6 +290,7 @@ export type VaultConfigScalarWhereWithAggregatesInput = {
   lockPinHash?: Prisma.StringNullableWithAggregatesFilter<"VaultConfig"> | string | null
   autoLock?: Prisma.BoolWithAggregatesFilter<"VaultConfig"> | boolean
   lockMinutes?: Prisma.IntWithAggregatesFilter<"VaultConfig"> | number
+  storageRoot?: Prisma.StringNullableWithAggregatesFilter<"VaultConfig"> | string | null
 }
 
 export type VaultConfigCreateInput = {
@@ -288,6 +300,7 @@ export type VaultConfigCreateInput = {
   lockPinHash?: string | null
   autoLock?: boolean
   lockMinutes?: number
+  storageRoot?: string | null
 }
 
 export type VaultConfigUncheckedCreateInput = {
@@ -297,6 +310,7 @@ export type VaultConfigUncheckedCreateInput = {
   lockPinHash?: string | null
   autoLock?: boolean
   lockMinutes?: number
+  storageRoot?: string | null
 }
 
 export type VaultConfigUpdateInput = {
@@ -306,6 +320,7 @@ export type VaultConfigUpdateInput = {
   lockPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoLock?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lockMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  storageRoot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type VaultConfigUncheckedUpdateInput = {
@@ -315,6 +330,7 @@ export type VaultConfigUncheckedUpdateInput = {
   lockPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoLock?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lockMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  storageRoot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type VaultConfigCreateManyInput = {
@@ -324,6 +340,7 @@ export type VaultConfigCreateManyInput = {
   lockPinHash?: string | null
   autoLock?: boolean
   lockMinutes?: number
+  storageRoot?: string | null
 }
 
 export type VaultConfigUpdateManyMutationInput = {
@@ -333,6 +350,7 @@ export type VaultConfigUpdateManyMutationInput = {
   lockPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoLock?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lockMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  storageRoot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type VaultConfigUncheckedUpdateManyInput = {
@@ -342,6 +360,7 @@ export type VaultConfigUncheckedUpdateManyInput = {
   lockPinHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   autoLock?: Prisma.BoolFieldUpdateOperationsInput | boolean
   lockMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  storageRoot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type VaultConfigCountOrderByAggregateInput = {
@@ -351,6 +370,7 @@ export type VaultConfigCountOrderByAggregateInput = {
   lockPinHash?: Prisma.SortOrder
   autoLock?: Prisma.SortOrder
   lockMinutes?: Prisma.SortOrder
+  storageRoot?: Prisma.SortOrder
 }
 
 export type VaultConfigAvgOrderByAggregateInput = {
@@ -366,6 +386,7 @@ export type VaultConfigMaxOrderByAggregateInput = {
   lockPinHash?: Prisma.SortOrder
   autoLock?: Prisma.SortOrder
   lockMinutes?: Prisma.SortOrder
+  storageRoot?: Prisma.SortOrder
 }
 
 export type VaultConfigMinOrderByAggregateInput = {
@@ -375,6 +396,7 @@ export type VaultConfigMinOrderByAggregateInput = {
   lockPinHash?: Prisma.SortOrder
   autoLock?: Prisma.SortOrder
   lockMinutes?: Prisma.SortOrder
+  storageRoot?: Prisma.SortOrder
 }
 
 export type VaultConfigSumOrderByAggregateInput = {
@@ -400,6 +422,7 @@ export type VaultConfigSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   lockPinHash?: boolean
   autoLock?: boolean
   lockMinutes?: boolean
+  storageRoot?: boolean
 }, ExtArgs["result"]["vaultConfig"]>
 
 export type VaultConfigSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -409,6 +432,7 @@ export type VaultConfigSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   lockPinHash?: boolean
   autoLock?: boolean
   lockMinutes?: boolean
+  storageRoot?: boolean
 }, ExtArgs["result"]["vaultConfig"]>
 
 export type VaultConfigSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -418,6 +442,7 @@ export type VaultConfigSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   lockPinHash?: boolean
   autoLock?: boolean
   lockMinutes?: boolean
+  storageRoot?: boolean
 }, ExtArgs["result"]["vaultConfig"]>
 
 export type VaultConfigSelectScalar = {
@@ -427,9 +452,10 @@ export type VaultConfigSelectScalar = {
   lockPinHash?: boolean
   autoLock?: boolean
   lockMinutes?: boolean
+  storageRoot?: boolean
 }
 
-export type VaultConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "alertDays" | "locked" | "lockPinHash" | "autoLock" | "lockMinutes", ExtArgs["result"]["vaultConfig"]>
+export type VaultConfigOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "alertDays" | "locked" | "lockPinHash" | "autoLock" | "lockMinutes" | "storageRoot", ExtArgs["result"]["vaultConfig"]>
 
 export type $VaultConfigPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "VaultConfig"
@@ -441,6 +467,7 @@ export type $VaultConfigPayload<ExtArgs extends runtime.Types.Extensions.Interna
     lockPinHash: string | null
     autoLock: boolean
     lockMinutes: number
+    storageRoot: string | null
   }, ExtArgs["result"]["vaultConfig"]>
   composites: {}
 }
@@ -870,6 +897,7 @@ export interface VaultConfigFieldRefs {
   readonly lockPinHash: Prisma.FieldRef<"VaultConfig", 'String'>
   readonly autoLock: Prisma.FieldRef<"VaultConfig", 'Boolean'>
   readonly lockMinutes: Prisma.FieldRef<"VaultConfig", 'Int'>
+  readonly storageRoot: Prisma.FieldRef<"VaultConfig", 'String'>
 }
     
 

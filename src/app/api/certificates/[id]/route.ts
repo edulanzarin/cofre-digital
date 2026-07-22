@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { CERT_INCLUDE, parseCertBody, toDTO } from "@/lib/certificate-api";
 import { guard } from "@/lib/api-auth";
 import { assignCompanyGroup } from "@/lib/company-group-assign";
+import { fileFieldsFor, loadBytes, removeFileAt } from "@/lib/storage";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -39,6 +40,12 @@ export async function GET(_req: Request, { params }: Params) {
     include: CERT_INCLUDE,
   });
   if (!row) return notFound();
+  // Se o .pfx vive em disco, traz os bytes para o form de edição enxergar o
+  // arquivo do mesmo jeito que quando ele estava no banco.
+  if (row.filePath) {
+    const bytes = await loadBytes(row.filePath, row.fileData);
+    if (bytes) row.fileData = bytes.toString("base64");
+  }
   return NextResponse.json(toDTO(row, true));
 }
 
@@ -86,17 +93,28 @@ export async function PUT(req: Request, { params }: Params) {
   try {
     const before = await prisma.certificate.findUniqueOrThrow({
       where: { id },
-      select: { expiresAt: true },
+      select: { expiresAt: true, fileData: true, filePath: true },
     });
     const renewed = before.expiresAt.getTime() !== data.expiresAt.getTime();
     // Grupo escolhido no formulário entra na empresa dona (nunca desvincula).
     if (data.companyId) {
       await assignCompanyGroup(data.companyId, (raw as { groupId?: unknown })?.groupId, auth);
     }
+    // Arquivo: cartão nunca tem; com novos bytes, (re)grava; sem bytes num
+    // certificado de arquivo, PRESERVA o que já existe (protege contra o disco
+    // falhar na hora da edição e apagar a referência sem querer).
+    const file =
+      data.media === "CARD"
+        ? { base64: null, filePath: null }
+        : data.fileData
+          ? await fileFieldsFor("certificados", id, data.fileData, "pfx")
+          : { base64: before.fileData, filePath: before.filePath };
     const row = await prisma.certificate.update({
       where: { id },
       data: {
         ...data,
+        fileData: file.base64,
+        filePath: file.filePath,
         events: {
           create: {
             kind: "updated",
@@ -107,6 +125,10 @@ export async function PUT(req: Request, { params }: Params) {
       },
       include: CERT_INCLUDE,
     });
+    // Arquivo que saiu do disco (virou cartão) é removido de lá.
+    if (before.filePath && before.filePath !== file.filePath) {
+      await removeFileAt(before.filePath);
+    }
     return NextResponse.json(toDTO(row, true));
   } catch {
     return notFound();
@@ -118,7 +140,11 @@ export async function DELETE(_req: Request, { params }: Params) {
   if (auth instanceof NextResponse) return auth;
   const { id } = await params;
   try {
-    await prisma.certificate.delete({ where: { id } });
+    const gone = await prisma.certificate.delete({
+      where: { id },
+      select: { filePath: true },
+    });
+    if (gone.filePath) await removeFileAt(gone.filePath);
     return NextResponse.json({ ok: true });
   } catch {
     return notFound();

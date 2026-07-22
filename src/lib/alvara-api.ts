@@ -23,7 +23,7 @@ export function toAlvaraDTO(row: AlvaraRowFull, withFile = false): Alvara {
     issuedAt: row.issuedAt?.toISOString(),
     expiresAt: row.expiresAt?.toISOString(),
     fileName: row.fileName ?? undefined,
-    hasFile: Boolean(row.fileData),
+    hasFile: Boolean(row.fileData || row.filePath),
     notes: row.notes ?? undefined,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),

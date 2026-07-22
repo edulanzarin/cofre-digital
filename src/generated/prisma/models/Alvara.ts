@@ -33,6 +33,7 @@ export type AlvaraMinAggregateOutputType = {
   expiresAt: Date | null
   fileName: string | null
   fileData: string | null
+  filePath: string | null
   notes: string | null
   companyId: string | null
   createdAt: Date | null
@@ -48,6 +49,7 @@ export type AlvaraMaxAggregateOutputType = {
   expiresAt: Date | null
   fileName: string | null
   fileData: string | null
+  filePath: string | null
   notes: string | null
   companyId: string | null
   createdAt: Date | null
@@ -63,6 +65,7 @@ export type AlvaraCountAggregateOutputType = {
   expiresAt: number
   fileName: number
   fileData: number
+  filePath: number
   notes: number
   companyId: number
   createdAt: number
@@ -80,6 +83,7 @@ export type AlvaraMinAggregateInputType = {
   expiresAt?: true
   fileName?: true
   fileData?: true
+  filePath?: true
   notes?: true
   companyId?: true
   createdAt?: true
@@ -95,6 +99,7 @@ export type AlvaraMaxAggregateInputType = {
   expiresAt?: true
   fileName?: true
   fileData?: true
+  filePath?: true
   notes?: true
   companyId?: true
   createdAt?: true
@@ -110,6 +115,7 @@ export type AlvaraCountAggregateInputType = {
   expiresAt?: true
   fileName?: true
   fileData?: true
+  filePath?: true
   notes?: true
   companyId?: true
   createdAt?: true
@@ -198,6 +204,7 @@ export type AlvaraGroupByOutputType = {
   expiresAt: Date | null
   fileName: string | null
   fileData: string | null
+  filePath: string | null
   notes: string | null
   companyId: string | null
   createdAt: Date
@@ -234,6 +241,7 @@ export type AlvaraWhereInput = {
   expiresAt?: Prisma.DateTimeNullableFilter<"Alvara"> | Date | string | null
   fileName?: Prisma.StringNullableFilter<"Alvara"> | string | null
   fileData?: Prisma.StringNullableFilter<"Alvara"> | string | null
+  filePath?: Prisma.StringNullableFilter<"Alvara"> | string | null
   notes?: Prisma.StringNullableFilter<"Alvara"> | string | null
   companyId?: Prisma.StringNullableFilter<"Alvara"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Alvara"> | Date | string
@@ -251,6 +259,7 @@ export type AlvaraOrderByWithRelationInput = {
   expiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   fileName?: Prisma.SortOrderInput | Prisma.SortOrder
   fileData?: Prisma.SortOrderInput | Prisma.SortOrder
+  filePath?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -271,6 +280,7 @@ export type AlvaraWhereUniqueInput = Prisma.AtLeast<{
   expiresAt?: Prisma.DateTimeNullableFilter<"Alvara"> | Date | string | null
   fileName?: Prisma.StringNullableFilter<"Alvara"> | string | null
   fileData?: Prisma.StringNullableFilter<"Alvara"> | string | null
+  filePath?: Prisma.StringNullableFilter<"Alvara"> | string | null
   notes?: Prisma.StringNullableFilter<"Alvara"> | string | null
   companyId?: Prisma.StringNullableFilter<"Alvara"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Alvara"> | Date | string
@@ -288,6 +298,7 @@ export type AlvaraOrderByWithAggregationInput = {
   expiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   fileName?: Prisma.SortOrderInput | Prisma.SortOrder
   fileData?: Prisma.SortOrderInput | Prisma.SortOrder
+  filePath?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -309,6 +320,7 @@ export type AlvaraScalarWhereWithAggregatesInput = {
   expiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Alvara"> | Date | string | null
   fileName?: Prisma.StringNullableWithAggregatesFilter<"Alvara"> | string | null
   fileData?: Prisma.StringNullableWithAggregatesFilter<"Alvara"> | string | null
+  filePath?: Prisma.StringNullableWithAggregatesFilter<"Alvara"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Alvara"> | string | null
   companyId?: Prisma.StringNullableWithAggregatesFilter<"Alvara"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Alvara"> | Date | string
@@ -324,6 +336,7 @@ export type AlvaraCreateInput = {
   expiresAt?: Date | string | null
   fileName?: string | null
   fileData?: string | null
+  filePath?: string | null
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -340,6 +353,7 @@ export type AlvaraUncheckedCreateInput = {
   expiresAt?: Date | string | null
   fileName?: string | null
   fileData?: string | null
+  filePath?: string | null
   notes?: string | null
   companyId?: string | null
   createdAt?: Date | string
@@ -356,6 +370,7 @@ export type AlvaraUpdateInput = {
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -372,6 +387,7 @@ export type AlvaraUncheckedUpdateInput = {
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -388,6 +404,7 @@ export type AlvaraCreateManyInput = {
   expiresAt?: Date | string | null
   fileName?: string | null
   fileData?: string | null
+  filePath?: string | null
   notes?: string | null
   companyId?: string | null
   createdAt?: Date | string
@@ -403,6 +420,7 @@ export type AlvaraUpdateManyMutationInput = {
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -417,6 +435,7 @@ export type AlvaraUncheckedUpdateManyInput = {
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -442,6 +461,7 @@ export type AlvaraCountOrderByAggregateInput = {
   expiresAt?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   fileData?: Prisma.SortOrder
+  filePath?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -457,6 +477,7 @@ export type AlvaraMaxOrderByAggregateInput = {
   expiresAt?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   fileData?: Prisma.SortOrder
+  filePath?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -472,6 +493,7 @@ export type AlvaraMinOrderByAggregateInput = {
   expiresAt?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   fileData?: Prisma.SortOrder
+  filePath?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -552,6 +574,7 @@ export type AlvaraCreateWithoutCompanyInput = {
   expiresAt?: Date | string | null
   fileName?: string | null
   fileData?: string | null
+  filePath?: string | null
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -567,6 +590,7 @@ export type AlvaraUncheckedCreateWithoutCompanyInput = {
   expiresAt?: Date | string | null
   fileName?: string | null
   fileData?: string | null
+  filePath?: string | null
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -611,6 +635,7 @@ export type AlvaraScalarWhereInput = {
   expiresAt?: Prisma.DateTimeNullableFilter<"Alvara"> | Date | string | null
   fileName?: Prisma.StringNullableFilter<"Alvara"> | string | null
   fileData?: Prisma.StringNullableFilter<"Alvara"> | string | null
+  filePath?: Prisma.StringNullableFilter<"Alvara"> | string | null
   notes?: Prisma.StringNullableFilter<"Alvara"> | string | null
   companyId?: Prisma.StringNullableFilter<"Alvara"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Alvara"> | Date | string
@@ -626,6 +651,7 @@ export type AlvaraCreateWithoutEventsInput = {
   expiresAt?: Date | string | null
   fileName?: string | null
   fileData?: string | null
+  filePath?: string | null
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -641,6 +667,7 @@ export type AlvaraUncheckedCreateWithoutEventsInput = {
   expiresAt?: Date | string | null
   fileName?: string | null
   fileData?: string | null
+  filePath?: string | null
   notes?: string | null
   companyId?: string | null
   createdAt?: Date | string
@@ -672,6 +699,7 @@ export type AlvaraUpdateWithoutEventsInput = {
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -687,6 +715,7 @@ export type AlvaraUncheckedUpdateWithoutEventsInput = {
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -702,6 +731,7 @@ export type AlvaraCreateManyCompanyInput = {
   expiresAt?: Date | string | null
   fileName?: string | null
   fileData?: string | null
+  filePath?: string | null
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -716,6 +746,7 @@ export type AlvaraUpdateWithoutCompanyInput = {
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -731,6 +762,7 @@ export type AlvaraUncheckedUpdateWithoutCompanyInput = {
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -746,6 +778,7 @@ export type AlvaraUncheckedUpdateManyWithoutCompanyInput = {
   expiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   fileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -791,6 +824,7 @@ export type AlvaraSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   expiresAt?: boolean
   fileName?: boolean
   fileData?: boolean
+  filePath?: boolean
   notes?: boolean
   companyId?: boolean
   createdAt?: boolean
@@ -809,6 +843,7 @@ export type AlvaraSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   expiresAt?: boolean
   fileName?: boolean
   fileData?: boolean
+  filePath?: boolean
   notes?: boolean
   companyId?: boolean
   createdAt?: boolean
@@ -825,6 +860,7 @@ export type AlvaraSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   expiresAt?: boolean
   fileName?: boolean
   fileData?: boolean
+  filePath?: boolean
   notes?: boolean
   companyId?: boolean
   createdAt?: boolean
@@ -841,13 +877,14 @@ export type AlvaraSelectScalar = {
   expiresAt?: boolean
   fileName?: boolean
   fileData?: boolean
+  filePath?: boolean
   notes?: boolean
   companyId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AlvaraOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "number" | "issuer" | "issuedAt" | "expiresAt" | "fileName" | "fileData" | "notes" | "companyId" | "createdAt" | "updatedAt", ExtArgs["result"]["alvara"]>
+export type AlvaraOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "number" | "issuer" | "issuedAt" | "expiresAt" | "fileName" | "fileData" | "filePath" | "notes" | "companyId" | "createdAt" | "updatedAt", ExtArgs["result"]["alvara"]>
 export type AlvaraInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.Alvara$companyArgs<ExtArgs>
   events?: boolean | Prisma.Alvara$eventsArgs<ExtArgs>
@@ -875,6 +912,7 @@ export type $AlvaraPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     expiresAt: Date | null
     fileName: string | null
     fileData: string | null
+    filePath: string | null
     notes: string | null
     companyId: string | null
     createdAt: Date
@@ -1312,6 +1350,7 @@ export interface AlvaraFieldRefs {
   readonly expiresAt: Prisma.FieldRef<"Alvara", 'DateTime'>
   readonly fileName: Prisma.FieldRef<"Alvara", 'String'>
   readonly fileData: Prisma.FieldRef<"Alvara", 'String'>
+  readonly filePath: Prisma.FieldRef<"Alvara", 'String'>
   readonly notes: Prisma.FieldRef<"Alvara", 'String'>
   readonly companyId: Prisma.FieldRef<"Alvara", 'String'>
   readonly createdAt: Prisma.FieldRef<"Alvara", 'DateTime'>

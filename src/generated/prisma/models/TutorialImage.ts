@@ -28,6 +28,7 @@ export type TutorialImageMinAggregateOutputType = {
   id: string | null
   mime: string | null
   data: string | null
+  filePath: string | null
   createdAt: Date | null
 }
 
@@ -35,6 +36,7 @@ export type TutorialImageMaxAggregateOutputType = {
   id: string | null
   mime: string | null
   data: string | null
+  filePath: string | null
   createdAt: Date | null
 }
 
@@ -42,6 +44,7 @@ export type TutorialImageCountAggregateOutputType = {
   id: number
   mime: number
   data: number
+  filePath: number
   createdAt: number
   _all: number
 }
@@ -51,6 +54,7 @@ export type TutorialImageMinAggregateInputType = {
   id?: true
   mime?: true
   data?: true
+  filePath?: true
   createdAt?: true
 }
 
@@ -58,6 +62,7 @@ export type TutorialImageMaxAggregateInputType = {
   id?: true
   mime?: true
   data?: true
+  filePath?: true
   createdAt?: true
 }
 
@@ -65,6 +70,7 @@ export type TutorialImageCountAggregateInputType = {
   id?: true
   mime?: true
   data?: true
+  filePath?: true
   createdAt?: true
   _all?: true
 }
@@ -144,7 +150,8 @@ export type TutorialImageGroupByArgs<ExtArgs extends runtime.Types.Extensions.In
 export type TutorialImageGroupByOutputType = {
   id: string
   mime: string
-  data: string
+  data: string | null
+  filePath: string | null
   createdAt: Date
   _count: TutorialImageCountAggregateOutputType | null
   _min: TutorialImageMinAggregateOutputType | null
@@ -172,14 +179,16 @@ export type TutorialImageWhereInput = {
   NOT?: Prisma.TutorialImageWhereInput | Prisma.TutorialImageWhereInput[]
   id?: Prisma.StringFilter<"TutorialImage"> | string
   mime?: Prisma.StringFilter<"TutorialImage"> | string
-  data?: Prisma.StringFilter<"TutorialImage"> | string
+  data?: Prisma.StringNullableFilter<"TutorialImage"> | string | null
+  filePath?: Prisma.StringNullableFilter<"TutorialImage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"TutorialImage"> | Date | string
 }
 
 export type TutorialImageOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   mime?: Prisma.SortOrder
-  data?: Prisma.SortOrder
+  data?: Prisma.SortOrderInput | Prisma.SortOrder
+  filePath?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -189,14 +198,16 @@ export type TutorialImageWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.TutorialImageWhereInput[]
   NOT?: Prisma.TutorialImageWhereInput | Prisma.TutorialImageWhereInput[]
   mime?: Prisma.StringFilter<"TutorialImage"> | string
-  data?: Prisma.StringFilter<"TutorialImage"> | string
+  data?: Prisma.StringNullableFilter<"TutorialImage"> | string | null
+  filePath?: Prisma.StringNullableFilter<"TutorialImage"> | string | null
   createdAt?: Prisma.DateTimeFilter<"TutorialImage"> | Date | string
 }, "id">
 
 export type TutorialImageOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   mime?: Prisma.SortOrder
-  data?: Prisma.SortOrder
+  data?: Prisma.SortOrderInput | Prisma.SortOrder
+  filePath?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.TutorialImageCountOrderByAggregateInput
   _max?: Prisma.TutorialImageMaxOrderByAggregateInput
@@ -209,56 +220,64 @@ export type TutorialImageScalarWhereWithAggregatesInput = {
   NOT?: Prisma.TutorialImageScalarWhereWithAggregatesInput | Prisma.TutorialImageScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"TutorialImage"> | string
   mime?: Prisma.StringWithAggregatesFilter<"TutorialImage"> | string
-  data?: Prisma.StringWithAggregatesFilter<"TutorialImage"> | string
+  data?: Prisma.StringNullableWithAggregatesFilter<"TutorialImage"> | string | null
+  filePath?: Prisma.StringNullableWithAggregatesFilter<"TutorialImage"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"TutorialImage"> | Date | string
 }
 
 export type TutorialImageCreateInput = {
   id?: string
   mime: string
-  data: string
+  data?: string | null
+  filePath?: string | null
   createdAt?: Date | string
 }
 
 export type TutorialImageUncheckedCreateInput = {
   id?: string
   mime: string
-  data: string
+  data?: string | null
+  filePath?: string | null
   createdAt?: Date | string
 }
 
 export type TutorialImageUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mime?: Prisma.StringFieldUpdateOperationsInput | string
-  data?: Prisma.StringFieldUpdateOperationsInput | string
+  data?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TutorialImageUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mime?: Prisma.StringFieldUpdateOperationsInput | string
-  data?: Prisma.StringFieldUpdateOperationsInput | string
+  data?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TutorialImageCreateManyInput = {
   id?: string
   mime: string
-  data: string
+  data?: string | null
+  filePath?: string | null
   createdAt?: Date | string
 }
 
 export type TutorialImageUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mime?: Prisma.StringFieldUpdateOperationsInput | string
-  data?: Prisma.StringFieldUpdateOperationsInput | string
+  data?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type TutorialImageUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mime?: Prisma.StringFieldUpdateOperationsInput | string
-  data?: Prisma.StringFieldUpdateOperationsInput | string
+  data?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  filePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -266,6 +285,7 @@ export type TutorialImageCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   mime?: Prisma.SortOrder
   data?: Prisma.SortOrder
+  filePath?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -273,6 +293,7 @@ export type TutorialImageMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   mime?: Prisma.SortOrder
   data?: Prisma.SortOrder
+  filePath?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -280,6 +301,7 @@ export type TutorialImageMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   mime?: Prisma.SortOrder
   data?: Prisma.SortOrder
+  filePath?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -289,6 +311,7 @@ export type TutorialImageSelect<ExtArgs extends runtime.Types.Extensions.Interna
   id?: boolean
   mime?: boolean
   data?: boolean
+  filePath?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["tutorialImage"]>
 
@@ -296,6 +319,7 @@ export type TutorialImageSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   id?: boolean
   mime?: boolean
   data?: boolean
+  filePath?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["tutorialImage"]>
 
@@ -303,6 +327,7 @@ export type TutorialImageSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   id?: boolean
   mime?: boolean
   data?: boolean
+  filePath?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["tutorialImage"]>
 
@@ -310,10 +335,11 @@ export type TutorialImageSelectScalar = {
   id?: boolean
   mime?: boolean
   data?: boolean
+  filePath?: boolean
   createdAt?: boolean
 }
 
-export type TutorialImageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "mime" | "data" | "createdAt", ExtArgs["result"]["tutorialImage"]>
+export type TutorialImageOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "mime" | "data" | "filePath" | "createdAt", ExtArgs["result"]["tutorialImage"]>
 
 export type $TutorialImagePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "TutorialImage"
@@ -321,7 +347,8 @@ export type $TutorialImagePayload<ExtArgs extends runtime.Types.Extensions.Inter
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     mime: string
-    data: string
+    data: string | null
+    filePath: string | null
     createdAt: Date
   }, ExtArgs["result"]["tutorialImage"]>
   composites: {}
@@ -749,6 +776,7 @@ export interface TutorialImageFieldRefs {
   readonly id: Prisma.FieldRef<"TutorialImage", 'String'>
   readonly mime: Prisma.FieldRef<"TutorialImage", 'String'>
   readonly data: Prisma.FieldRef<"TutorialImage", 'String'>
+  readonly filePath: Prisma.FieldRef<"TutorialImage", 'String'>
   readonly createdAt: Prisma.FieldRef<"TutorialImage", 'DateTime'>
 }
     

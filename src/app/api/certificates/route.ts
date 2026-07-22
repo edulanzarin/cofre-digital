@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { randomUUID } from "node:crypto";
 import { CERT_INCLUDE, parseCertBody, toDTO } from "@/lib/certificate-api";
 import { guard } from "@/lib/api-auth";
 import { assignCompanyGroup } from "@/lib/company-group-assign";
+import { fileFieldsFor } from "@/lib/storage";
 
 export async function GET(req: Request) {
   const auth = await guard("certificados", "view");
@@ -93,9 +95,15 @@ export async function POST(req: Request) {
   if (company) {
     await assignCompanyGroup(company.id, (raw as { groupId?: unknown })?.groupId, auth);
   }
+  // Com pasta configurada, o .pfx vai pro disco; senão, fica no banco (base64).
+  const id = randomUUID();
+  const file = await fileFieldsFor("certificados", id, data.fileData, "pfx");
   const row = await prisma.certificate.create({
     data: {
+      id,
       ...data,
+      fileData: file.base64,
+      filePath: file.filePath,
       companyId: company?.id ?? null,
       events: { create: { kind: "created", userName: auth.name } },
     },

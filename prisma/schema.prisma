@@ -87,7 +87,8 @@ model Certificate {
   expiresAt DateTime
   password  String
   fileName  String?
-  fileData  String? // .pfx em base64
+  fileData  String? // .pfx em base64 — usado quando não há pasta de arquivos
+  filePath  String? // caminho relativo na pasta raiz, quando o .pfx vive em disco
   notes     String?
   companyId String?
   company   Company?           @relation(fields: [companyId], references: [id], onDelete: SetNull)
@@ -122,7 +123,8 @@ model Alvara {
   issuedAt  DateTime?
   expiresAt DateTime?
   fileName  String?
-  fileData  String? // PDF em base64
+  fileData  String? // PDF em base64 — usado quando não há pasta de arquivos
+  filePath  String? // caminho relativo na pasta raiz, quando o PDF vive em disco
   notes     String?
   companyId String?
   company   Company?      @relation(fields: [companyId], references: [id], onDelete: SetNull)
@@ -168,7 +170,8 @@ model Access {
 model TutorialImage {
   id        String   @id @default(uuid())
   mime      String
-  data      String // base64
+  data      String? // base64 — usado quando não há pasta de arquivos
+  filePath  String? // caminho relativo na pasta raiz, quando a imagem vive em disco
   createdAt DateTime @default(now())
 }
 
@@ -181,4 +184,5 @@ model VaultConfig {
   lockPinHash String? // bcrypt do PIN de bloqueio (só admins conhecem)
   autoLock    Boolean @default(true) // sair por inatividade (política p/ todos)
   lockMinutes Int     @default(15)
+  storageRoot String? // pasta raiz (na rede) onde os arquivos ficam; null = no banco
 }

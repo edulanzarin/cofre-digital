@@ -1,6 +1,8 @@
+import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { guard } from "@/lib/api-auth";
+import { fileFieldsFor, IMAGE_EXT } from "@/lib/storage";
 
 const MAX_BYTES = 4 * 1024 * 1024; // 4 MB por imagem
 const ALLOWED = ["image/png", "image/jpeg", "image/webp", "image/gif"];
@@ -24,8 +26,11 @@ export async function POST(req: Request) {
     );
   }
 
+  // Com pasta configurada, a imagem vai pro disco; senão, fica no banco.
+  const id = randomUUID();
+  const file = await fileFieldsFor("prints", id, body.data, IMAGE_EXT[body.mime]);
   const row = await prisma.tutorialImage.create({
-    data: { mime: body.mime, data: body.data },
+    data: { id, mime: body.mime, data: file.base64, filePath: file.filePath },
   });
   return NextResponse.json({ id: row.id, url: `/api/images/${row.id}` }, { status: 201 });
 }

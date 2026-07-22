@@ -1326,6 +1326,7 @@ export const CertificateScalarFieldEnum = {
   password: 'password',
   fileName: 'fileName',
   fileData: 'fileData',
+  filePath: 'filePath',
   notes: 'notes',
   companyId: 'companyId',
   createdAt: 'createdAt',
@@ -1356,6 +1357,7 @@ export const AlvaraScalarFieldEnum = {
   expiresAt: 'expiresAt',
   fileName: 'fileName',
   fileData: 'fileData',
+  filePath: 'filePath',
   notes: 'notes',
   companyId: 'companyId',
   createdAt: 'createdAt',
@@ -1399,6 +1401,7 @@ export const TutorialImageScalarFieldEnum = {
   id: 'id',
   mime: 'mime',
   data: 'data',
+  filePath: 'filePath',
   createdAt: 'createdAt'
 } as const
 
@@ -1411,7 +1414,8 @@ export const VaultConfigScalarFieldEnum = {
   locked: 'locked',
   lockPinHash: 'lockPinHash',
   autoLock: 'autoLock',
-  lockMinutes: 'lockMinutes'
+  lockMinutes: 'lockMinutes',
+  storageRoot: 'storageRoot'
 } as const
 
 export type VaultConfigScalarFieldEnum = (typeof VaultConfigScalarFieldEnum)[keyof typeof VaultConfigScalarFieldEnum]
