@@ -161,7 +161,7 @@ export default function SettingsPage() {
           <Section
             icon={<FolderCog className="size-4" />}
             title="Armazenamento de arquivos"
-            subtitle="Onde ficam os arquivos (certificados, PDFs de alvará e prints)."
+            subtitle="Onde os arquivos ficam guardados (certificados, alvarás e imagens)."
             delay="150ms"
           >
             <StorageManager
@@ -327,9 +327,9 @@ function StorageManager({
       await setStorageRoot(path.trim(), password);
       setPassword("");
       setEditing(false);
-      toast.success("Pasta de arquivos definida.");
+      toast.success("Pasta definida.");
     } catch (err) {
-      toastError(err, "Falha ao definir a pasta.");
+      toastError(err, "Não foi possível definir a pasta.");
     } finally {
       setSaving(false);
     }
@@ -342,11 +342,11 @@ function StorageManager({
       const total = n.certificados + n.alvaras + n.prints;
       toast.success(
         total === 0
-          ? "Nada a migrar — os arquivos já estão na pasta."
-          : `Migrados para a pasta: ${n.certificados} certificado(s), ${n.alvaras} alvará(s), ${n.prints} print(s).`,
+          ? "Tudo certo. Os arquivos já estão na pasta."
+          : `Arquivos movidos para a pasta: ${n.certificados} certificado(s), ${n.alvaras} alvará(s), ${n.prints} imagem(ns).`,
       );
     } catch (err) {
-      toastError(err, "Falha ao migrar os arquivos.");
+      toastError(err, "Não foi possível mover os arquivos.");
     } finally {
       setMigrating(false);
     }
@@ -356,12 +356,12 @@ function StorageManager({
     <div className="py-3.5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-sm font-medium">Pasta raiz</p>
+          <p className="text-sm font-medium">Pasta dos arquivos</p>
           {storageRoot ? (
             <p className="mt-0.5 truncate font-mono text-xs text-ink-2">{storageRoot}</p>
           ) : (
             <p className="mt-0.5 text-xs text-ink-3">
-              Não definida — os arquivos ficam no banco de dados.
+              Ainda não definida. Os arquivos ficam guardados no próprio sistema.
             </p>
           )}
         </div>
@@ -381,9 +381,8 @@ function StorageManager({
       </div>
 
       {!unlockable && (
-        <p className="mt-2 text-xs text-warn">
-          Defina <span className="font-mono">STORAGE_ROOT_PASSWORD</span> no{" "}
-          <span className="font-mono">.env</span> do servidor para poder alterar a pasta.
+        <p className="mt-2 text-xs text-ink-3">
+          A alteração da pasta não está liberada nesta instalação.
         </p>
       )}
 
@@ -392,31 +391,29 @@ function StorageManager({
           onClick={migrate}
           disabled={migrating}
           className="vlt-btn vlt-btn-ghost mt-3 !px-3 !py-1.5 text-xs"
-          title="Copia para a pasta os arquivos que ainda estão no banco de dados"
+          title="Move para a pasta os arquivos guardados no sistema"
         >
-          {migrating ? "Migrando…" : "Migrar arquivos do banco para a pasta"}
+          {migrating ? "Movendo…" : "Mover os arquivos existentes para a pasta"}
         </button>
       )}
 
       {editing && (
         <div className="mt-3 space-y-2">
           <label className="block">
-            <span className="mb-1 block text-xs text-ink-3">
-              Caminho da pasta (no servidor) — procure ou digite
-            </span>
+            <span className="mb-1 block text-xs text-ink-3">Pasta dos arquivos</span>
             <div className="flex gap-2">
               <input
                 autoFocus
                 value={path}
                 onChange={(e) => setPath(e.target.value)}
-                placeholder="/data/arquivos"
+                placeholder="Escolha a pasta"
                 className="vlt-input font-mono text-xs"
               />
               <button
                 type="button"
                 onClick={() => setPicking(true)}
                 className="vlt-btn vlt-btn-ghost shrink-0 !px-3 !py-1.5 text-xs"
-                title="Navegar as pastas do servidor"
+                title="Procurar a pasta"
               >
                 <FolderSearch className="size-3.5" />
                 Procurar
@@ -424,9 +421,7 @@ function StorageManager({
             </div>
           </label>
           <label className="block">
-            <span className="mb-1 block text-xs text-ink-3">
-              Senha de alteração (a do <span className="font-mono">.env</span>)
-            </span>
+            <span className="mb-1 block text-xs text-ink-3">Senha de segurança</span>
             <input
               type="password"
               value={password}
@@ -442,7 +437,7 @@ function StorageManager({
               disabled={!path.trim() || !password || saving}
               className="vlt-btn vlt-btn-primary !px-3 !py-1.5 text-xs"
             >
-              {saving ? "Salvando…" : "Salvar pasta"}
+              {saving ? "Salvando…" : "Salvar"}
             </button>
             <button
               onClick={() => {
@@ -455,11 +450,8 @@ function StorageManager({
             </button>
           </div>
           <p className="text-[0.7rem] text-ink-3">
-            Numa instalação Docker, use <span className="font-mono">/data/arquivos</span>
-            {" "}— a pasta real do servidor montada no container (os arquivos ficam
-            de verdade na pasta do host, fora do container). Arquivos novos passam
-            a ser gravados aqui; os que já estão no banco seguem funcionando até
-            serem migrados.
+            Use Procurar para escolher a pasta. Os arquivos que já existem
+            continuam disponíveis.
           </p>
         </div>
       )}
