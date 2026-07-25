@@ -64,11 +64,18 @@ services:
     ports:
       # 0.0.0.0 → acessível na rede pelo IP do host: http://<ip-do-pc>:4004
       - "${APP_PORT:-4004}:3000"
-    # Monte aqui o compartilhamento de rede onde os arquivos vão morar e, em
-    # Configurações → Armazenamento, defina a pasta raiz como o caminho de
-    # DENTRO do container (ex.: /data/arquivos). Descomente e ajuste a origem:
-    # volumes:
-    #   - "${STORAGE_HOST_PATH:-/mnt/rede/cofre}:/data/arquivos"
+    volumes:
+      # A pasta REAL do servidor (ou um share de rede montado no host) onde os
+      # arquivos vão morar. O arquivo fica fisicamente aqui, no host — se o
+      # container morrer, continua na pasta. Dentro do container ela aparece em
+      # /data/arquivos, e é ESSE caminho que você define em Configurações →
+      # Armazenamento. Troque a origem pela sua pasta/rede no .env
+      # (STORAGE_HOST_PATH). Default: ./storage, ao lado deste arquivo.
+      #
+      # O app grava como uid 1000 (usuário nextjs da imagem). No Linux, a pasta
+      # do host precisa pertencer a ele: `sudo chown -R 1000:1000 <pasta>`. No
+      # Docker Desktop (Windows/Mac) normalmente não precisa.
+      - "${STORAGE_HOST_PATH:-./storage}:/data/arquivos"
     networks:
       - cofre-digital-net
 

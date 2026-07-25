@@ -409,7 +409,7 @@ function StorageManager({
                 autoFocus
                 value={path}
                 onChange={(e) => setPath(e.target.value)}
-                placeholder="/mnt/rede/cofre"
+                placeholder="/data/arquivos"
                 className="vlt-input font-mono text-xs"
               />
               <button
@@ -455,8 +455,11 @@ function StorageManager({
             </button>
           </div>
           <p className="text-[0.7rem] text-ink-3">
-            Arquivos novos passam a ser gravados aqui. Os que já estão no banco
-            continuam funcionando até serem migrados.
+            Numa instalação Docker, use <span className="font-mono">/data/arquivos</span>
+            {" "}— a pasta real do servidor montada no container (os arquivos ficam
+            de verdade na pasta do host, fora do container). Arquivos novos passam
+            a ser gravados aqui; os que já estão no banco seguem funcionando até
+            serem migrados.
           </p>
         </div>
       )}
