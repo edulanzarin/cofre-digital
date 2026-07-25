@@ -65,23 +65,44 @@ services:
       # 0.0.0.0 → acessível na rede pelo IP do host: http://<ip-do-pc>:4004
       - "${APP_PORT:-4004}:3000"
     volumes:
-      # A pasta REAL do servidor (ou um share de rede montado no host) onde os
-      # arquivos vão morar. O arquivo fica fisicamente aqui, no host — se o
-      # container morrer, continua na pasta. Dentro do container ela aparece em
-      # /data/arquivos, e é ESSE caminho que você define em Configurações →
-      # Armazenamento. Troque a origem pela sua pasta/rede no .env
-      # (STORAGE_HOST_PATH). Default: ./storage, ao lado deste arquivo.
-      #
-      # O app grava como uid 1000 (usuário nextjs da imagem). No Linux, a pasta
-      # do host precisa pertencer a ele: `sudo chown -R 1000:1000 <pasta>`. No
-      # Docker Desktop (Windows/Mac) normalmente não precisa.
-      - "${STORAGE_HOST_PATH:-./storage}:/data/arquivos"
+      # Os arquivos moram no volume cofre-digital-files (definido lá embaixo).
+      # Ele aponta para uma pasta local do servidor OU para uma pasta de rede
+      # (SMB/CIFS), conforme as variáveis do .env — dentro do container aparece
+      # em /data/arquivos, e é ESSE caminho que se define em Configurações →
+      # Armazenamento. Nos dois casos o arquivo fica fora do container: numa
+      # pasta do host ou no compartilhamento de rede.
+      - "cofre-digital-files:/data/arquivos"
     networks:
       - cofre-digital-net
 
 volumes:
   cofre-digital-db-data:
     name: cofre-digital-db-data
+
+  # Onde os arquivos (.pfx, PDF de alvará, imagem de print) ficam. A origem vem
+  # do .env, e as duas formas sobem com `docker compose up -d --build` (sem
+  # excluir container). O app grava como uid 1000.
+  #
+  #  (A) Pasta de REDE (SMB/CIFS) — a "pasta na rede":
+  #      STORAGE_TYPE=cifs
+  #      STORAGE_O="username=USUARIO,password=SENHA,uid=1000,gid=1000,vers=3.0,file_mode=0660,dir_mode=0770"
+  #      STORAGE_DEVICE=//servidor/pasta
+  #
+  #  (B) Pasta local do servidor (padrão) — crie a pasta antes e, no Linux, deixe
+  #      o uid 1000 como dono (`sudo chown -R 1000:1000 <pasta>`):
+  #      STORAGE_TYPE=none  STORAGE_O=bind  STORAGE_DEVICE=/srv/cofre-arquivos
+  #
+  # Trocar o alvo depois (ex.: mudar a pasta de rede) não exige excluir o
+  # container: `docker compose down && docker volume rm cofre-digital-files &&
+  # docker compose up -d --build`. Isso NÃO apaga os arquivos (eles ficam na
+  # pasta/rede) nem a imagem — só recria o ponteiro do volume.
+  cofre-digital-files:
+    name: cofre-digital-files
+    driver: local
+    driver_opts:
+      type: ${STORAGE_TYPE:-none}
+      o: ${STORAGE_O:-bind}
+      device: ${STORAGE_DEVICE:-/srv/cofre-arquivos}
 
 networks:
   cofre-digital-net:
