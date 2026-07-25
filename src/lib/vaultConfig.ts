@@ -97,6 +97,24 @@ export async function setStorageRoot(path: string, password: string) {
   await put("/api/config/storage", { path, password });
 }
 
+export type FolderListing = {
+  path: string; // pasta sendo listada ("" = lista de raízes/drives)
+  parent: string | null; // pasta acima; null quando não há para onde subir
+  separator: string; // separador do SO do servidor ("/" ou "\\")
+  entries: { name: string; path: string }[]; // subpastas
+};
+
+// Lista as pastas do servidor a partir de um caminho (vazio = raízes/drives).
+export async function browseStorage(path?: string): Promise<FolderListing> {
+  const qs = path ? `?path=${encodeURIComponent(path)}` : "";
+  const res = await fetch(`/api/config/storage/browse${qs}`);
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as { error?: string } | null;
+    throw new Error(body?.error ?? "Falha ao listar as pastas.");
+  }
+  return res.json();
+}
+
 // Move para a pasta os arquivos que ainda estão no banco. Devolve a contagem.
 export async function migrateStorageFiles(): Promise<{
   certificados: number;

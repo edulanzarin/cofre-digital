@@ -1,8 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { BellRing, ShieldCheck, Paintbrush, KeyRound, Lock, FolderCog } from "lucide-react";
+import {
+  BellRing,
+  ShieldCheck,
+  Paintbrush,
+  KeyRound,
+  Lock,
+  FolderCog,
+  FolderSearch,
+} from "lucide-react";
 import Switch from "@/components/ui/Switch";
+import FolderPicker from "@/components/settings/FolderPicker";
 import { setSetting, useSettings } from "@/lib/settings";
 import { setTheme, useTheme } from "@/lib/theme";
 import { useMe } from "@/lib/useMe";
@@ -309,6 +318,7 @@ function StorageManager({
   const [password, setPassword] = useState("");
   const [saving, setSaving] = useState(false);
   const [migrating, setMigrating] = useState(false);
+  const [picking, setPicking] = useState(false);
 
   async function save() {
     if (!path.trim() || !password) return;
@@ -392,15 +402,26 @@ function StorageManager({
         <div className="mt-3 space-y-2">
           <label className="block">
             <span className="mb-1 block text-xs text-ink-3">
-              Caminho da pasta (absoluto, como visto pelo servidor)
+              Caminho da pasta (no servidor) — procure ou digite
             </span>
-            <input
-              autoFocus
-              value={path}
-              onChange={(e) => setPath(e.target.value)}
-              placeholder="/mnt/rede/cofre"
-              className="vlt-input font-mono text-xs"
-            />
+            <div className="flex gap-2">
+              <input
+                autoFocus
+                value={path}
+                onChange={(e) => setPath(e.target.value)}
+                placeholder="/mnt/rede/cofre"
+                className="vlt-input font-mono text-xs"
+              />
+              <button
+                type="button"
+                onClick={() => setPicking(true)}
+                className="vlt-btn vlt-btn-ghost shrink-0 !px-3 !py-1.5 text-xs"
+                title="Navegar as pastas do servidor"
+              >
+                <FolderSearch className="size-3.5" />
+                Procurar
+              </button>
+            </div>
           </label>
           <label className="block">
             <span className="mb-1 block text-xs text-ink-3">
@@ -438,6 +459,17 @@ function StorageManager({
             continuam funcionando até serem migrados.
           </p>
         </div>
+      )}
+
+      {picking && (
+        <FolderPicker
+          initialPath={path.trim() || storageRoot || undefined}
+          onPick={(p) => {
+            setPath(p);
+            setPicking(false);
+          }}
+          onClose={() => setPicking(false)}
+        />
       )}
     </div>
   );
