@@ -247,11 +247,7 @@ function UsersTab({
       {modal !== "closed" && (
         <Modal
           title={modal === "edit" ? "Editar usuário" : "Novo usuário"}
-          subtitle={
-            modal === "edit"
-              ? editing?.email
-              : "O perfil de acesso define o que a pessoa pode fazer."
-          }
+          subtitle={modal === "edit" ? editing?.email : undefined}
           onClose={() => setModal("closed")}
         >
           <UserForm
@@ -452,8 +448,7 @@ function ProfilesTab({
     <div>
       <div className="anim-fade-up mb-5 flex items-center justify-between gap-3">
         <p className="text-xs text-ink-3">
-          Um perfil é um padrão de permissões — crie uma vez, aplique a quantos
-          usuários quiser.
+          Um perfil reúne permissões e se aplica a vários usuários.
         </p>
         <button
           onClick={() => setModal("new")}
@@ -560,11 +555,7 @@ function ProfilesTab({
       {modal !== "closed" && (
         <Modal
           title={modal === "edit" ? "Editar perfil" : "Novo perfil de acesso"}
-          subtitle={
-            modal === "edit"
-              ? editing?.name
-              : "Defina o nível por módulo e aplique aos usuários."
-          }
+          subtitle={modal === "edit" ? editing?.name : undefined}
           onClose={() => setModal("closed")}
         >
           <ProfileForm
@@ -636,7 +627,7 @@ function ProfileForm({
           className="vlt-input"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Ex.: Fiscal — edita acessos"
+          placeholder="Ex.: Fiscal"
           required
           autoFocus
         />

@@ -49,7 +49,7 @@ export default function SettingsPage() {
       setNotifyHint("");
     } else {
       setNotifyHint(
-        "Permissão negada pelo navegador — libere as notificações do site para ativar.",
+        "Permissão negada pelo navegador. Libere as notificações do site para ativar.",
       );
     }
   }
@@ -102,7 +102,7 @@ export default function SettingsPage() {
           <div>
             <Switch
               label="Notificações do navegador"
-              description="Ao abrir o cofre, avisa se houver certificados vencendo ou vencidos (no máximo uma vez por dia)."
+              description="Avisa sobre certificados vencendo ao abrir o cofre."
               checked={settings.notifyBrowser}
               onChange={toggleNotifications}
             />
@@ -117,7 +117,7 @@ export default function SettingsPage() {
           <Section
             icon={<ShieldCheck className="size-4" />}
             title="Segurança do cofre"
-            subtitle="Bloqueio geral e política de inatividade — vale para todos."
+            subtitle="Regras válidas para todos os setores."
             delay="120ms"
           >
             <PinManager hasPin={vault.hasPin} />
@@ -149,7 +149,7 @@ export default function SettingsPage() {
             )}
             <Switch
               label="Confirmar antes de revelar"
-              description="Pedir confirmação extra ao exibir uma senha (preferência sua)."
+              description="Pede confirmação extra ao exibir uma senha."
               checked={settings.confirmReveal}
               onChange={(v) => setSetting("confirmReveal", v)}
             />
@@ -175,7 +175,7 @@ export default function SettingsPage() {
         <Section
           icon={<Paintbrush className="size-4" />}
           title="Aparência"
-          subtitle="O cofre nasceu para o modo noturno, mas você escolhe."
+          subtitle="Tema da interface."
           delay="210ms"
         >
           <div className="flex items-center justify-between gap-4 py-3.5">
@@ -225,7 +225,7 @@ function PinManager({ hasPin }: { hasPin: boolean }) {
           <p className="text-sm font-medium">PIN de bloqueio</p>
           <p className="mt-0.5 text-xs text-ink-3">
             {hasPin
-              ? "Bloqueou, travou para todos — útil para alterações em massa."
+              ? "Bloqueia o cofre para todos de uma vez."
               : "Necessário para bloquear o cofre para todos."}
           </p>
         </div>

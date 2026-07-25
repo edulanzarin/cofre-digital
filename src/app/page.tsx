@@ -192,7 +192,7 @@ export default function DashboardPage() {
           icon={<ShieldAlert className="size-4 text-warn" />}
           certs={expiring}
           ready={ready}
-          empty="Nenhum certificado vencendo — tudo em dia."
+          empty="Tudo em dia, nada vencendo."
           delay="180ms"
         />
 
@@ -313,7 +313,7 @@ function AlvaraAttentionList({
         <div className="flex flex-col items-center gap-2 px-6 py-14 text-center">
           <ShieldCheck className="size-8 text-ok" strokeWidth={1.5} />
           <p className="text-sm text-ink-2">
-            Nenhum alvará vencendo ou vencido — tudo em dia.
+            Tudo em dia, nenhum alvará vencido.
           </p>
         </div>
       ) : (

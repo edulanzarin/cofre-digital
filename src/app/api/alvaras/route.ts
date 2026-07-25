@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   const data = parseAlvaraBody(await req.json().catch(() => null));
   if (!data) {
     return NextResponse.json(
-      { error: "Dados do alvará inválidos — informe ao menos o tipo." },
+      { error: "Dados do alvará inválidos. Informe ao menos o tipo." },
       { status: 400 },
     );
   }

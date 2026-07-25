@@ -3,7 +3,7 @@ import "./globals.css";
 import AppShell from "@/components/AppShell";
 
 export const metadata: Metadata = {
-  title: "Cofre Digital — Navecon",
+  title: "Cofre Digital · Navecon",
   description: "Cofre de certificados digitais e acessos da Navecon",
 };
 

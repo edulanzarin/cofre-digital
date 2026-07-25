@@ -145,7 +145,7 @@ export default function AccessForm({
                   </option>
                   {certs.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.holder} — {c.type}
+                      {c.holder} · {c.type}
                     </option>
                   ))}
                 </select>
@@ -189,7 +189,7 @@ export default function AccessForm({
               value={companyId}
               onChange={(e) => setCompanyId(e.target.value)}
             >
-              <option value="">Sem empresa — acesso geral</option>
+              <option value="">Sem empresa</option>
               {(companies ?? []).map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.razaoSocial}

@@ -151,10 +151,10 @@ export default function AlvaraModal({
                 )}
                 <p className="text-xs" style={{ color: meta.color }}>
                   {status === "none"
-                    ? "Sem data de vencimento — alvará permanente."
+                    ? "Alvará permanente, sem vencimento."
                     : status === "expired"
                       ? `Venceu em ${formatDate(alvara.expiresAt!)}, há ${Math.abs(d)} dias.`
-                      : `Vence em ${formatDate(alvara.expiresAt!)} — faltam ${d} dias.`}
+                      : `Vence em ${formatDate(alvara.expiresAt!)}, faltam ${d} dias.`}
                 </p>
               </div>
               {life !== null && (
@@ -206,7 +206,7 @@ export default function AlvaraModal({
                   {!alvara.hasFile && (
                     <p className="text-[0.68rem] text-ink-3">
                       {editor
-                        ? "PDF não anexado — edite para enviar o arquivo."
+                        ? "PDF não anexado. Edite para enviar."
                         : "PDF não anexado."}
                     </p>
                   )}

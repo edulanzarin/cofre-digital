@@ -201,11 +201,7 @@ export default function AlvarasPage() {
       {canEdit && modal !== "closed" && (
         <Modal
           title={modal === "edit" ? "Editar alvará" : "Novo alvará"}
-          subtitle={
-            modal === "edit"
-              ? editAlvara?.name
-              : "Digite os dados e anexe o PDF do documento."
-          }
+          subtitle={modal === "edit" ? editAlvara?.name : undefined}
           onClose={() => setModal("closed")}
         >
           <AlvaraForm

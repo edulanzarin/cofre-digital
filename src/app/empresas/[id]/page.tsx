@@ -342,7 +342,7 @@ function CompanyCerts({
       {canEdit && modal !== "closed" && (
         <Modal
           title={modal === "edit" ? "Editar certificado" : "Novo certificado"}
-          subtitle={modal === "edit" ? editCert?.holder : "Entra direto no cofre desta empresa."}
+          subtitle={modal === "edit" ? editCert?.holder : undefined}
           onClose={() => setModal("closed")}
         >
           <CertForm
@@ -427,12 +427,7 @@ function CompanyAccesses({ companyId }: { companyId: string }) {
       )}
 
       {canEdit && creating && (
-        <Modal
-          wide
-          title="Novo acesso"
-          subtitle="Entra direto no cofre desta empresa."
-          onClose={() => setCreating(false)}
-        >
+        <Modal wide title="Novo acesso" onClose={() => setCreating(false)}>
           <AccessForm
             fixedCompanyId={companyId}
             onSubmit={handleCreate}
@@ -539,9 +534,7 @@ function CompanyAlvaras({
       {canEdit && modal !== "closed" && (
         <Modal
           title={modal === "edit" ? "Editar alvará" : "Novo alvará"}
-          subtitle={
-            modal === "edit" ? editAlvara?.name : "Entra direto no cofre desta empresa."
-          }
+          subtitle={modal === "edit" ? editAlvara?.name : undefined}
           onClose={() => setModal("closed")}
         >
           <AlvaraForm

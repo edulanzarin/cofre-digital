@@ -73,7 +73,7 @@ export async function PUT(req: Request, { params }: Params) {
   if (duplicate) {
     return NextResponse.json(
       {
-        error: `Existe OUTRO certificado idêntico no cofre (${duplicate.holder} — mesmo documento, tipo e vencimento). Provavelmente é um cadastro duplicado: exclua um deles para poder salvar.`,
+        error: `Existe OUTRO certificado idêntico no cofre (${duplicate.holder}, mesmo documento, tipo e vencimento). Provavelmente é um cadastro duplicado: exclua um deles para poder salvar.`,
       },
       { status: 409 },
     );

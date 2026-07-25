@@ -276,7 +276,7 @@ export default function CertForm({
       {parseState.kind === "ok" && (
         <p className="flex items-center gap-1.5 rounded-lg bg-ok-soft px-3 py-2 text-xs text-ok">
           <CircleCheck className="size-3.5 shrink-0" />
-          Dados extraídos do certificado — confira e salve.
+          Dados extraídos do certificado. Confira e salve.
         </p>
       )}
       {parseState.kind === "error" && (
@@ -322,7 +322,7 @@ export default function CertForm({
 
           <div>
             <StepLabel n={2} done={parseState.kind === "ok"}>
-              Digite a senha — os dados são lidos do próprio certificado
+              Digite a senha. Os dados são lidos do certificado
             </StepLabel>
             <input
               ref={passwordRef}
@@ -492,7 +492,7 @@ export default function CertForm({
                 >
                   <option value="">
                     {isCnpjType
-                      ? "Automático — vincula pelo CNPJ do certificado"
+                      ? "Automático pelo CNPJ"
                       : "Sem empresa"}
                   </option>
                   {(companies ?? []).map((c) => (

@@ -51,7 +51,7 @@ export function maybeNotifyExpiring(
   if (alvaraLine) lines.push(`Alvarás: ${alvaraLine}.`);
   if (lines.length === 0) return;
 
-  new Notification("Cofre Digital — Navecon", {
+  new Notification("Cofre Digital · Navecon", {
     body: lines.join(" "),
   });
   try {

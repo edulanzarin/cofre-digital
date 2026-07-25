@@ -189,7 +189,7 @@ export default function CertificatesPage() {
     try {
       await removeGroup(id);
       await refreshCerts();
-      toast.success("Grupo excluído — as empresas ficaram sem grupo.");
+      toast.success("Grupo excluído.");
     } catch (err) {
       toastError(err, "Falha ao excluir o grupo.");
     }
@@ -322,11 +322,7 @@ export default function CertificatesPage() {
       {canEdit && modal !== "closed" && (
         <Modal
           title={modal === "edit" ? "Editar certificado" : "Novo certificado"}
-          subtitle={
-            modal === "edit"
-              ? editCert?.holder
-              : "Os dados ficam guardados com segurança no cofre."
-          }
+          subtitle={modal === "edit" ? editCert?.holder : undefined}
           onClose={() => setModal("closed")}
         >
           <CertForm

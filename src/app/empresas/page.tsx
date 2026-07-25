@@ -114,7 +114,7 @@ export default function CompaniesPage() {
     try {
       await removeGroup(id);
       await refreshCompanies();
-      toast.success("Grupo excluído — as empresas ficaram sem grupo.");
+      toast.success("Grupo excluído.");
     } catch (err) {
       toastError(err, "Falha ao excluir o grupo.");
     }
@@ -126,7 +126,7 @@ export default function CompaniesPage() {
     await add(data);
     if (data.groupId) await refreshGroups(); // a contagem do grupo mudou
     setCreating(false);
-    toast.success("Empresa criada — o cofre dela já está disponível.");
+    toast.success("Empresa criada.");
   }
 
   return (
@@ -182,7 +182,7 @@ export default function CompaniesPage() {
           <Inbox className="size-8 text-ink-3" strokeWidth={1.5} />
           <p className="text-sm text-ink-2">
             {companies.length === 0
-              ? "Nenhuma empresa cadastrada. Cadastre a primeira — ou guarde um e-CNPJ, que a empresa é criada sozinha."
+              ? "Nenhuma empresa cadastrada ainda."
               : group && !query.trim()
                 ? "Nenhuma empresa neste grupo ainda."
                 : "Nada encontrado com esses filtros."}
@@ -255,11 +255,7 @@ export default function CompaniesPage() {
 
       {/* Modal de cadastro */}
       {canEdit && creating && (
-        <Modal
-          title="Nova empresa"
-          subtitle="Razão social e CNPJ — o cofre dela nasce junto."
-          onClose={() => setCreating(false)}
-        >
+        <Modal title="Nova empresa" onClose={() => setCreating(false)}>
           <CompanyForm
             groups={groups}
             onCreateGroup={handleCreateGroup}

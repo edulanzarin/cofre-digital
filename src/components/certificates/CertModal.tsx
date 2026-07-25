@@ -220,7 +220,7 @@ export default function CertModal({
                 <p className="text-xs" style={{ color: STATUS_META[status].color }}>
                   {status === "expired"
                     ? `Venceu em ${formatDate(cert.expiresAt)}, há ${Math.abs(d)} dias.`
-                    : `Vence em ${formatDate(cert.expiresAt)} — faltam ${d} dias.`}
+                    : `Vence em ${formatDate(cert.expiresAt)}, faltam ${d} dias.`}
                 </p>
               </div>
               <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-black/20">
@@ -276,7 +276,7 @@ export default function CertModal({
                     {!cert.hasFile && (
                       <p className="text-[0.68rem] text-ink-3">
                         {editor
-                          ? "Arquivo não anexado — edite para enviar o .pfx."
+                          ? "Arquivo não anexado. Edite para enviar."
                           : "Arquivo não anexado."}
                       </p>
                     )}

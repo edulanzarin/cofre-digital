@@ -162,7 +162,7 @@ export default function AlvaraForm({
         </Field>
       </div>
       <p className="-mt-2 text-[0.68rem] text-ink-3">
-        Sem data de vencimento, o alvará fica como permanente — sem alertas.
+        Sem data de vencimento, o alvará é permanente e não gera alertas.
       </p>
 
       {/* PDF do alvará */}

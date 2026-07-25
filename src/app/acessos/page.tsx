@@ -138,12 +138,7 @@ export default function AccessesPage() {
 
       {/* Modal de cadastro — quem edita acessos */}
       {editor && creating && (
-        <Modal
-          wide
-          title="Novo acesso"
-          subtitle="Site, credenciais e o manual de como acessar."
-          onClose={() => setCreating(false)}
-        >
+        <Modal wide title="Novo acesso" onClose={() => setCreating(false)}>
           <AccessForm onSubmit={handleCreate} onCancel={() => setCreating(false)} />
         </Modal>
       )}

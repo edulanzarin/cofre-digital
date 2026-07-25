@@ -34,7 +34,7 @@ export async function PUT(req: Request, { params }: Params) {
     });
     if (self?.profileId === id) {
       return NextResponse.json(
-        { error: "Este é o seu perfil — você não pode remover o próprio acesso de administrador." },
+        { error: "Este é o seu perfil. Você não pode remover o próprio acesso de administrador." },
         { status: 400 },
       );
     }
@@ -58,7 +58,7 @@ export async function DELETE(_req: Request, { params }: Params) {
   const inUse = await prisma.user.count({ where: { profileId: id } });
   if (inUse > 0) {
     return NextResponse.json(
-      { error: `Este perfil está aplicado a ${inUse} usuário(s) — troque o perfil deles antes de excluir.` },
+      { error: `Este perfil está aplicado a ${inUse} usuário(s). Troque o perfil deles antes de excluir.` },
       { status: 400 },
     );
   }
