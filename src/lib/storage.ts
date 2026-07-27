@@ -44,17 +44,50 @@ function resolveInRoot(root: string, relPath: string): string {
   return full;
 }
 
+export type FileNameOpts = {
+  // Nome legível do arquivo (sem extensão), ex.: "EMPRESA X - 12345678000199".
+  // Sem isso, o nome no disco é o uuid do registro (nome técnico).
+  baseName?: string;
+  // Caminho atual do próprio registro: pode ser sobrescrito sem virar "(2)".
+  keepPath?: string | null;
+};
+
+// Decide o caminho relativo do arquivo dentro da raiz. Com baseName, usa o nome
+// legível e acha um livre para NUNCA sobrescrever o arquivo de outro registro
+// (se "NOME.pfx" já é de outro, cai em "NOME (2).pfx"). O próprio arquivo do
+// registro (keepPath) é reaproveitado. Sem baseName, usa o uuid.
+async function targetRelPath(
+  root: string,
+  category: StorageCategory,
+  id: string,
+  ext: string,
+  opts?: FileNameOpts,
+): Promise<string> {
+  const base = opts?.baseName?.replace(/[\\/]/g, "").trim();
+  if (!base) return `${category}/${id}.${ext}`;
+  let candidate = `${category}/${base}.${ext}`;
+  for (let i = 2; ; i++) {
+    if (candidate === opts?.keepPath) return candidate;
+    try {
+      await access(resolveInRoot(root, candidate));
+    } catch {
+      return candidate; // não existe → livre
+    }
+    candidate = `${category}/${base} (${i}).${ext}`;
+  }
+}
+
 // Grava o binário e devolve o caminho RELATIVO à raiz (o que vai pro banco).
-// `id` é sempre um uuid nosso, então o nome do arquivo não vem do usuário.
 export async function saveFile(
   category: StorageCategory,
   id: string,
   ext: string,
   bytes: Buffer,
+  opts?: FileNameOpts,
 ): Promise<string> {
   const root = await getStorageRoot();
   if (!root) throw new Error("Pasta de arquivos não configurada.");
-  const relPath = `${category}/${id}.${ext}`;
+  const relPath = await targetRelPath(root, category, id, ext, opts);
   const full = resolveInRoot(root, relPath);
   await mkdir(path.dirname(full), { recursive: true });
   await writeFile(full, bytes);
@@ -107,11 +140,12 @@ export async function fileFieldsFor(
   id: string,
   base64: string | null,
   ext: string,
+  opts?: FileNameOpts,
 ): Promise<{ base64: string | null; filePath: string | null }> {
   if (!base64) return { base64: null, filePath: null };
   const root = await getStorageRoot();
   if (!root) return { base64, filePath: null };
-  const filePath = await saveFile(category, id, ext, Buffer.from(base64, "base64"));
+  const filePath = await saveFile(category, id, ext, Buffer.from(base64, "base64"), opts);
   return { base64: null, filePath };
 }
 

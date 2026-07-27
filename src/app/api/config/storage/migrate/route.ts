@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { guardAdmin } from "@/lib/api-auth";
 import { getStorageRoot, saveFile, IMAGE_EXT } from "@/lib/storage";
+import { certFileBase } from "@/lib/certificate-api";
 
 // Move para a pasta os arquivos que ainda estão no banco (base64). Só admin, e
 // só quando a pasta já está definida. Roda sob demanda (botão) — nunca sozinho.
@@ -27,11 +28,20 @@ export async function POST() {
 
   const certs = await prisma.certificate.findMany({
     where: { fileData: { not: null }, filePath: null },
-    select: { id: true, fileData: true },
+    select: {
+      id: true,
+      fileData: true,
+      holder: true,
+      document: true,
+      company: { select: { razaoSocial: true } },
+    },
   });
   for (const c of certs) {
     if (!c.fileData) continue;
-    const filePath = await saveFile("certificados", c.id, "pfx", Buffer.from(c.fileData, "base64"));
+    const baseName = certFileBase(c.company?.razaoSocial ?? c.holder, c.document);
+    const filePath = await saveFile("certificados", c.id, "pfx", Buffer.from(c.fileData, "base64"), {
+      baseName,
+    });
     await prisma.certificate.update({
       where: { id: c.id },
       data: { filePath, fileData: null },

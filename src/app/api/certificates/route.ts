@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { randomUUID } from "node:crypto";
-import { CERT_INCLUDE, parseCertBody, toDTO } from "@/lib/certificate-api";
+import { CERT_INCLUDE, certFileBase, parseCertBody, toDTO } from "@/lib/certificate-api";
 import { guard } from "@/lib/api-auth";
 import { assignCompanyGroup } from "@/lib/company-group-assign";
 import { fileFieldsFor } from "@/lib/storage";
@@ -43,26 +43,6 @@ async function resolveCompany(data: {
   return company;
 }
 
-function companyFileName(razaoSocial: string, document: string): string {
-  const digits = document.replace(/\D/g, "");
-  // Sufixo do CNPJ: posições 8-11 (4 dígitos). 0001 = matriz, demais = filial.
-  const suffix =
-    digits.length === 14
-      ? digits.slice(8, 12) === "0001"
-        ? "_MATRIZ"
-        : `_FILIAL_${digits.slice(8, 12)}`
-      : "";
-
-  const base = razaoSocial
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // remove acentos
-    .replace(/[^\w\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "_");
-
-  return `${base}${suffix}.pfx`;
-}
-
 export async function POST(req: Request) {
   const auth = await guard("certificados", "edit");
   if (auth instanceof NextResponse) return auth;
@@ -86,10 +66,10 @@ export async function POST(req: Request) {
     );
   }
   const company = await resolveCompany(data);
-  // Renomeia o .pfx para o nome da empresa, independente do nome original.
-  if (company && data.fileName) {
-    data.fileName = companyFileName(company.razaoSocial, data.document);
-  }
+  // Nome legível "NOME - DOCUMENTO" (empresa e CNPJ, ou titular e CPF). Vale
+  // tanto para o download quanto para o arquivo físico no disco.
+  const fileBase = certFileBase(company?.razaoSocial ?? data.holder, data.document);
+  if (data.fileName) data.fileName = `${fileBase}.pfx`;
   // Grupo escolhido no formulário entra na empresa dona — feito antes de criar
   // o certificado para o include já trazer o nome do grupo na resposta.
   if (company) {
@@ -97,7 +77,9 @@ export async function POST(req: Request) {
   }
   // Com pasta configurada, o .pfx vai pro disco; senão, fica no banco (base64).
   const id = randomUUID();
-  const file = await fileFieldsFor("certificados", id, data.fileData, "pfx");
+  const file = await fileFieldsFor("certificados", id, data.fileData, "pfx", {
+    baseName: fileBase,
+  });
   const row = await prisma.certificate.create({
     data: {
       id,
