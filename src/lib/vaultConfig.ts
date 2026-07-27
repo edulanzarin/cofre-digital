@@ -93,8 +93,23 @@ export async function setVaultPin(pin: string) {
 }
 
 // Definir/alterar a pasta raiz dos arquivos — exige a senha (env do servidor).
-export async function setStorageRoot(path: string, password: string) {
-  await put("/api/config/storage", { path, password });
+// Move os arquivos existentes para a nova pasta; devolve quantos foram/falharam.
+export async function setStorageRoot(
+  path: string,
+  password: string,
+): Promise<{ moved: number; failed: number }> {
+  const res = await fetch("/api/config/storage", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ path, password }),
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as { error?: string } | null;
+    throw new Error(body?.error ?? "Não foi possível definir a pasta.");
+  }
+  const data = (await res.json()) as { moved?: number; failed?: number };
+  await refreshVaultConfig();
+  return { moved: data.moved ?? 0, failed: data.failed ?? 0 };
 }
 
 export type FolderListing = {

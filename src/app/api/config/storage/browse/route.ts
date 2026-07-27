@@ -2,17 +2,29 @@ import { readdir, access } from "node:fs/promises";
 import path from "node:path";
 import { NextResponse } from "next/server";
 import { guardAdmin } from "@/lib/api-auth";
+import { browseNetwork } from "@/lib/storage";
 
-// Navegador de pastas DO SERVIDOR (só admin). Lê o filesystem real via Node,
-// então se adapta ao SO onde o app roda: no container Linux mostra "/…", no
-// Windows lista os drives "C:\", "D:\". Serve para escolher a pasta raiz sem
-// digitar o caminho à mão — a trava de senha continua sendo no salvar.
+// Navegador de pastas para escolher a pasta raiz (só admin). Em produção (SMB),
+// navega as pastas DA REDE via smbclient; sem SMB, lê o filesystem do servidor
+// (no container Linux mostra "/…", no Windows os drives). A trava de senha
+// continua sendo no salvar.
 export async function GET(req: Request) {
   const auth = await guardAdmin();
   if (auth instanceof NextResponse) return auth;
 
   const sep = path.sep;
   const param = new URL(req.url).searchParams.get("path")?.trim() ?? "";
+
+  // Modo rede: navega o compartilhamento. null = não é SMB, cai pro filesystem.
+  try {
+    const net = await browseNetwork(param);
+    if (net) return NextResponse.json(net);
+  } catch {
+    return NextResponse.json(
+      { error: "Não foi possível abrir esta pasta da rede." },
+      { status: 400 },
+    );
+  }
 
   // Sem caminho: no Windows, lista os drives; no resto, começa na raiz "/".
   if (!param) {

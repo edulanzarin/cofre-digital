@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { guardAdmin } from "@/lib/api-auth";
-import { validateStorageDir } from "@/lib/storage";
+import { changeStorage, validateStoragePath } from "@/lib/storage";
 
 // Definir/alterar a pasta raiz dos arquivos. Duas travas: admin (a seção mora
 // na área de admin) e a senha, que vive só na env `STORAGE_ROOT_PASSWORD` — em
@@ -36,15 +35,12 @@ export async function PUT(req: Request) {
   if (!dir) {
     return NextResponse.json({ error: "Informe o caminho da pasta." }, { status: 400 });
   }
-  const check = await validateStorageDir(dir);
+  const check = await validateStoragePath(dir);
   if (!check.ok) {
     return NextResponse.json({ error: check.error }, { status: 400 });
   }
 
-  const config = await prisma.vaultConfig.upsert({
-    where: { id: 1 },
-    update: { storageRoot: dir },
-    create: { id: 1, storageRoot: dir },
-  });
-  return NextResponse.json({ storageRoot: config.storageRoot });
+  // Troca a pasta e move os arquivos existentes para lá.
+  const { moved, failed } = await changeStorage(dir);
+  return NextResponse.json({ moved, failed });
 }

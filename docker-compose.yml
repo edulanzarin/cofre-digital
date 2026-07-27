@@ -59,6 +59,8 @@ services:
       AUTH_SECRET: ${AUTH_SECRET:-troque-este-segredo-em-producao}
       # acesso na rede é por http:// (sem TLS); cookie Secure quebraria o login
       COOKIE_SECURE: "false"
+      # Senha para poder ALTERAR a pasta dos arquivos em Configurações.
+      STORAGE_ROOT_PASSWORD: ${STORAGE_ROOT_PASSWORD:-}
       # Armazenamento na REDE (SMB) via smbclient — o app grava o .pfx/PDF/imagem
       # direto no \\servidor\share. Com essas variáveis vazias, cai pro banco.
       SMB_HOST: ${SMB_HOST:-}

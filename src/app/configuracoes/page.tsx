@@ -8,16 +8,18 @@ import {
   KeyRound,
   Lock,
   FolderCog,
+  FolderSearch,
 } from "lucide-react";
 import Switch from "@/components/ui/Switch";
+import FolderPicker from "@/components/settings/FolderPicker";
 import { setSetting, useSettings } from "@/lib/settings";
 import { setTheme, useTheme } from "@/lib/theme";
 import { useMe } from "@/lib/useMe";
 import { toast, toastError } from "@/lib/toast";
 import {
   lockVault,
-  migrateStorageFiles,
   removeVaultPin,
+  setStorageRoot,
   setVaultPin,
   updateVaultPolicy,
   useVaultConfig,
@@ -161,7 +163,10 @@ export default function SettingsPage() {
             subtitle="Onde os arquivos ficam guardados (certificados, alvarás e imagens)."
             delay="150ms"
           >
-            <StorageManager storageRoot={vault.storageRoot} />
+            <StorageManager
+              storageRoot={vault.storageRoot}
+              unlockable={vault.storageUnlockable}
+            />
           </Section>
         )}
 
@@ -297,54 +302,138 @@ function PinManager({ hasPin }: { hasPin: boolean }) {
   );
 }
 
-// A pasta dos arquivos é fixa (definida pelo compose/seed: /data/arquivos, que é
-// a pasta local do servidor). Não se escolhe pasta pela interface — só se mostra
-// onde é e se oferece jogar pro disco o que ainda esteja guardado no banco.
-function StorageManager({ storageRoot }: { storageRoot: string | null }) {
-  const [migrating, setMigrating] = useState(false);
+// Pasta dos arquivos: há um PADRÃO (env), mas um admin pode navegar a rede e
+// trocar (com a senha do servidor). Ao trocar, os arquivos são MOVIDOS da pasta
+// antiga para a nova — daí o "Transferindo arquivos…" enquanto salva.
+function StorageManager({
+  storageRoot,
+  unlockable,
+}: {
+  storageRoot: string | null;
+  unlockable: boolean;
+}) {
+  const [pending, setPending] = useState<string | null>(null); // pasta escolhida
+  const [password, setPassword] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [picking, setPicking] = useState(false);
 
-  async function migrate() {
-    setMigrating(true);
+  const editing = pending !== null;
+
+  async function save() {
+    if (pending === null || !password) return;
+    setSaving(true);
     try {
-      const n = await migrateStorageFiles();
-      const total = n.certificados + n.alvaras + n.prints;
+      const { moved, failed } = await setStorageRoot(pending, password);
+      setPending(null);
+      setPassword("");
       toast.success(
-        total === 0
-          ? "Tudo certo. Os arquivos já estão salvos na pasta."
-          : `Arquivos movidos para a pasta: ${n.certificados} certificado(s), ${n.alvaras} alvará(s), ${n.prints} imagem(ns).`,
+        failed > 0
+          ? `Pasta alterada. ${moved} arquivo(s) movido(s), ${failed} falharam.`
+          : moved > 0
+            ? `Pasta alterada e ${moved} arquivo(s) transferido(s).`
+            : "Pasta alterada.",
       );
     } catch (err) {
-      toastError(err, "Não foi possível mover os arquivos.");
+      toastError(err, "Não foi possível alterar a pasta.");
     } finally {
-      setMigrating(false);
+      setSaving(false);
     }
   }
 
   return (
     <div className="py-3.5">
-      <div className="min-w-0">
-        <p className="text-sm font-medium">Pasta dos arquivos</p>
-        {storageRoot ? (
-          <p className="mt-0.5 truncate font-mono text-xs text-ink-2">{storageRoot}</p>
-        ) : (
-          <p className="mt-0.5 text-xs text-ink-3">
-            Os arquivos ficam guardados no próprio sistema.
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-sm font-medium">Pasta dos arquivos</p>
+          {storageRoot ? (
+            <p className="mt-0.5 truncate font-mono text-xs text-ink-2">{storageRoot}</p>
+          ) : (
+            <p className="mt-0.5 text-xs text-ink-3">
+              Os arquivos ficam guardados no próprio sistema.
+            </p>
+          )}
+          <p className="mt-1 text-xs text-ink-3">
+            Os arquivos são gravados direto nesse destino.
           </p>
+        </div>
+        {!editing && unlockable && (
+          <button
+            onClick={() => setPicking(true)}
+            className="vlt-btn vlt-btn-ghost !px-3 !py-1.5 text-xs"
+          >
+            <FolderSearch className="size-3.5" />
+            Alterar pasta
+          </button>
         )}
-        <p className="mt-1 text-xs text-ink-3">
-          Os arquivos são gravados direto nesse destino.
-        </p>
       </div>
 
-      {storageRoot && (
-        <button
-          onClick={migrate}
-          disabled={migrating}
-          className="vlt-btn vlt-btn-ghost mt-3 !px-3 !py-1.5 text-xs"
-          title="Grava na pasta os arquivos que ainda estejam guardados no banco"
-        >
-          {migrating ? "Movendo…" : "Mover os arquivos existentes para a pasta"}
-        </button>
+      {!unlockable && (
+        <p className="mt-2 text-xs text-ink-3">
+          A alteração da pasta não está liberada nesta instalação.
+        </p>
+      )}
+
+      {editing && (
+        <div className="mt-3 space-y-2">
+          <div>
+            <span className="mb-1 block text-xs text-ink-3">Nova pasta</span>
+            <p className="truncate rounded-lg border border-line bg-panel-2 px-3 py-2 font-mono text-xs">
+              {pending || "(raiz)"}
+            </p>
+          </div>
+          <label className="block">
+            <span className="mb-1 block text-xs text-ink-3">Senha de segurança</span>
+            <input
+              type="password"
+              value={password}
+              autoFocus
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && save()}
+              placeholder="Senha"
+              className="vlt-input font-mono"
+            />
+          </label>
+          <div className="flex gap-2">
+            <button
+              onClick={save}
+              disabled={!password || saving}
+              className="vlt-btn vlt-btn-primary !px-3 !py-1.5 text-xs"
+            >
+              {saving ? "Transferindo arquivos…" : "Salvar e transferir"}
+            </button>
+            <button
+              onClick={() => setPicking(true)}
+              disabled={saving}
+              className="vlt-btn vlt-btn-ghost !px-3 !py-1.5 text-xs"
+            >
+              Escolher outra
+            </button>
+            <button
+              onClick={() => {
+                setPending(null);
+                setPassword("");
+              }}
+              disabled={saving}
+              className="vlt-btn vlt-btn-ghost !px-3 !py-1.5 text-xs"
+            >
+              Cancelar
+            </button>
+          </div>
+          <p className="text-[0.7rem] text-ink-3">
+            Ao salvar, os arquivos existentes são movidos para a nova pasta.
+          </p>
+        </div>
+      )}
+
+      {picking && (
+        <FolderPicker
+          initialPath={pending || undefined}
+          onPick={(p) => {
+            setPending(p);
+            setPicking(false);
+          }}
+          onClose={() => setPicking(false)}
+        />
       )}
     </div>
   );

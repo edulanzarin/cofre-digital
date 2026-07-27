@@ -26,7 +26,8 @@ function toDTO(
     hasPin: config.lockPinHash !== null,
     // Destino real dos arquivos: a pasta de rede (SMB) ou a pasta local.
     storageRoot,
-    storageUnlockable: false,
+    // A pasta só pode ser alterada se a senha existir na env do servidor.
+    storageUnlockable: Boolean(process.env.STORAGE_ROOT_PASSWORD?.trim()),
   };
 }
 
