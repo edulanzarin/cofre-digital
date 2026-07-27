@@ -8,10 +8,8 @@ import {
   KeyRound,
   Lock,
   FolderCog,
-  FolderSearch,
 } from "lucide-react";
 import Switch from "@/components/ui/Switch";
-import FolderPicker from "@/components/settings/FolderPicker";
 import { setSetting, useSettings } from "@/lib/settings";
 import { setTheme, useTheme } from "@/lib/theme";
 import { useMe } from "@/lib/useMe";
@@ -20,7 +18,6 @@ import {
   lockVault,
   migrateStorageFiles,
   removeVaultPin,
-  setStorageRoot,
   setVaultPin,
   updateVaultPolicy,
   useVaultConfig,
@@ -164,10 +161,7 @@ export default function SettingsPage() {
             subtitle="Onde os arquivos ficam guardados (certificados, alvarás e imagens)."
             delay="150ms"
           >
-            <StorageManager
-              storageRoot={vault.storageRoot}
-              unlockable={vault.storageUnlockable}
-            />
+            <StorageManager storageRoot={vault.storageRoot} />
           </Section>
         )}
 
@@ -303,37 +297,11 @@ function PinManager({ hasPin }: { hasPin: boolean }) {
   );
 }
 
-// Definir/alterar a pasta raiz dos arquivos, destravado pela senha do .env.
-// A senha não fica salva em lugar nenhum do app — é conferida no servidor
-// contra a env e descartada.
-function StorageManager({
-  storageRoot,
-  unlockable,
-}: {
-  storageRoot: string | null;
-  unlockable: boolean;
-}) {
-  const [editing, setEditing] = useState(false);
-  const [path, setPath] = useState(storageRoot ?? "");
-  const [password, setPassword] = useState("");
-  const [saving, setSaving] = useState(false);
+// A pasta dos arquivos é fixa (definida pelo compose/seed: /data/arquivos, que é
+// a pasta local do servidor). Não se escolhe pasta pela interface — só se mostra
+// onde é e se oferece jogar pro disco o que ainda esteja guardado no banco.
+function StorageManager({ storageRoot }: { storageRoot: string | null }) {
   const [migrating, setMigrating] = useState(false);
-  const [picking, setPicking] = useState(false);
-
-  async function save() {
-    if (!path.trim() || !password) return;
-    setSaving(true);
-    try {
-      await setStorageRoot(path.trim(), password);
-      setPassword("");
-      setEditing(false);
-      toast.success("Pasta definida.");
-    } catch (err) {
-      toastError(err, "Não foi possível definir a pasta.");
-    } finally {
-      setSaving(false);
-    }
-  }
 
   async function migrate() {
     setMigrating(true);
@@ -342,7 +310,7 @@ function StorageManager({
       const total = n.certificados + n.alvaras + n.prints;
       toast.success(
         total === 0
-          ? "Tudo certo. Os arquivos já estão na pasta."
+          ? "Tudo certo. Os arquivos já estão salvos na pasta."
           : `Arquivos movidos para a pasta: ${n.certificados} certificado(s), ${n.alvaras} alvará(s), ${n.prints} imagem(ns).`,
       );
     } catch (err) {
@@ -354,117 +322,30 @@ function StorageManager({
 
   return (
     <div className="py-3.5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-sm font-medium">Pasta dos arquivos</p>
-          {storageRoot ? (
-            <p className="mt-0.5 truncate font-mono text-xs text-ink-2">{storageRoot}</p>
-          ) : (
-            <p className="mt-0.5 text-xs text-ink-3">
-              Ainda não definida. Os arquivos ficam guardados no próprio sistema.
-            </p>
-          )}
-        </div>
-        {!editing && unlockable && (
-          <button
-            onClick={() => {
-              setPath(storageRoot ?? "");
-              setPassword("");
-              setEditing(true);
-            }}
-            className="vlt-btn vlt-btn-ghost !px-3 !py-1.5 text-xs"
-          >
-            <FolderCog className="size-3.5" />
-            {storageRoot ? "Alterar" : "Definir pasta"}
-          </button>
+      <div className="min-w-0">
+        <p className="text-sm font-medium">Pasta dos arquivos</p>
+        {storageRoot ? (
+          <p className="mt-0.5 truncate font-mono text-xs text-ink-2">{storageRoot}</p>
+        ) : (
+          <p className="mt-0.5 text-xs text-ink-3">
+            Os arquivos ficam guardados no próprio sistema.
+          </p>
         )}
+        <p className="mt-1 text-xs text-ink-3">
+          Salvos na pasta do servidor. Para levar para a rede, copie essa pasta
+          manualmente.
+        </p>
       </div>
 
-      {!unlockable && (
-        <p className="mt-2 text-xs text-ink-3">
-          A alteração da pasta não está liberada nesta instalação.
-        </p>
-      )}
-
-      {!editing && storageRoot && (
+      {storageRoot && (
         <button
           onClick={migrate}
           disabled={migrating}
           className="vlt-btn vlt-btn-ghost mt-3 !px-3 !py-1.5 text-xs"
-          title="Move para a pasta os arquivos guardados no sistema"
+          title="Grava na pasta os arquivos que ainda estejam guardados no banco"
         >
           {migrating ? "Movendo…" : "Mover os arquivos existentes para a pasta"}
         </button>
-      )}
-
-      {editing && (
-        <div className="mt-3 space-y-2">
-          <label className="block">
-            <span className="mb-1 block text-xs text-ink-3">Pasta dos arquivos</span>
-            <div className="flex gap-2">
-              <input
-                autoFocus
-                value={path}
-                onChange={(e) => setPath(e.target.value)}
-                placeholder="Escolha a pasta"
-                className="vlt-input font-mono text-xs"
-              />
-              <button
-                type="button"
-                onClick={() => setPicking(true)}
-                className="vlt-btn vlt-btn-ghost shrink-0 !px-3 !py-1.5 text-xs"
-                title="Procurar a pasta"
-              >
-                <FolderSearch className="size-3.5" />
-                Procurar
-              </button>
-            </div>
-          </label>
-          <label className="block">
-            <span className="mb-1 block text-xs text-ink-3">Senha de segurança</span>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && save()}
-              placeholder="Senha"
-              className="vlt-input font-mono"
-            />
-          </label>
-          <div className="flex gap-2">
-            <button
-              onClick={save}
-              disabled={!path.trim() || !password || saving}
-              className="vlt-btn vlt-btn-primary !px-3 !py-1.5 text-xs"
-            >
-              {saving ? "Salvando…" : "Salvar"}
-            </button>
-            <button
-              onClick={() => {
-                setEditing(false);
-                setPassword("");
-              }}
-              className="vlt-btn vlt-btn-ghost !px-3 !py-1.5 text-xs"
-            >
-              Cancelar
-            </button>
-          </div>
-          <p className="text-[0.7rem] text-ink-3">
-            Use Procurar para escolher a pasta. Os arquivos que já existem
-            continuam disponíveis.
-          </p>
-        </div>
-      )}
-
-      {picking && (
-        <FolderPicker
-          initialPath={path.trim() || storageRoot || undefined}
-          onPick={(p) => {
-            setPath(p);
-            setPicking(false);
-          }}
-          onClose={() => setPicking(false)}
-        />
       )}
     </div>
   );
