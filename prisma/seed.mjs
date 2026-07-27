@@ -19,6 +19,18 @@ await client.query(
    ON CONFLICT (name) DO NOTHING`,
 );
 
+// Pasta de arquivos padrão: o app grava em disco (bind ./storage → /data/arquivos)
+// sem ninguém precisar definir em Configurações. Só preenche se ainda não houver
+// uma pasta escolhida — não sobrescreve uma raiz já configurada por um admin.
+const storageRoot = process.env.STORAGE_ROOT_PATH || "/data/arquivos";
+await client.query(
+  `INSERT INTO "VaultConfig" (id, "storageRoot")
+   VALUES (1, $1)
+   ON CONFLICT (id) DO UPDATE
+     SET "storageRoot" = COALESCE("VaultConfig"."storageRoot", EXCLUDED."storageRoot")`,
+  [storageRoot],
+);
+
 const {
   rows: [{ n }],
 } = await client.query('SELECT COUNT(*)::int AS n FROM "User"');
