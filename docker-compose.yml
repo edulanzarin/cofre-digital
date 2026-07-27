@@ -59,19 +59,17 @@ services:
       AUTH_SECRET: ${AUTH_SECRET:-troque-este-segredo-em-producao}
       # acesso na rede é por http:// (sem TLS); cookie Secure quebraria o login
       COOKIE_SECURE: "false"
-      # Senha para definir/alterar a pasta raiz dos arquivos (Configurações).
-      STORAGE_ROOT_PASSWORD: ${STORAGE_ROOT_PASSWORD:-}
+      # Armazenamento na REDE (SMB) via smbclient — o app grava o .pfx/PDF/imagem
+      # direto no \\servidor\share. Com essas variáveis vazias, cai pro banco.
+      SMB_HOST: ${SMB_HOST:-}
+      SMB_SHARE: ${SMB_SHARE:-}
+      SMB_USER: ${SMB_USER:-}
+      SMB_PASSWORD: ${SMB_PASSWORD:-}
+      SMB_DOMAIN: ${SMB_DOMAIN:-}
+      SMB_BASE_PATH: ${SMB_BASE_PATH:-}
     ports:
       # 0.0.0.0 → acessível na rede pelo IP do host: http://<ip-do-pc>:4004
       - "${APP_PORT:-4004}:3000"
-    volumes:
-      # Arquivos numa pasta LOCAL, ao lado do compose: ./storage (no Windows,
-      # C:\Dev\cofre-digital\storage). Dentro do container aparece em
-      # /data/arquivos, e o app já grava aí sozinho (o seed aponta
-      # storageRoot=/data/arquivos — não precisa definir nada em Configurações).
-      # Fica organizado por categoria: storage/certificados, storage/alvaras,
-      # storage/prints. Para levar pra rede, é só abrir a pasta e copiar.
-      - "./storage:/data/arquivos"
     networks:
       - cofre-digital-net
 

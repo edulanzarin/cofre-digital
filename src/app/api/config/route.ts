@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { guardAdmin, requireUser, unauthorized } from "@/lib/api-auth";
+import { getStorageRoot } from "@/lib/storage";
 
 const ALERT_OPTIONS = [15, 30, 45, 60, 90];
 const LOCK_MINUTES_OPTIONS = [5, 15, 30, 60];
@@ -13,22 +14,26 @@ async function readConfig() {
   });
 }
 
-function toDTO(config: Awaited<ReturnType<typeof readConfig>>) {
+function toDTO(
+  config: Awaited<ReturnType<typeof readConfig>>,
+  storageRoot: string | null,
+) {
   return {
     alertDays: config.alertDays,
     autoLock: config.autoLock,
     lockMinutes: config.lockMinutes,
     locked: config.locked,
     hasPin: config.lockPinHash !== null,
-    storageRoot: config.storageRoot,
-    // A pasta só pode ser alterada se a senha existir na env do servidor.
-    storageUnlockable: Boolean(process.env.STORAGE_ROOT_PASSWORD?.trim()),
+    // Destino real dos arquivos: a pasta de rede (SMB) ou a pasta local.
+    storageRoot,
+    storageUnlockable: false,
   };
 }
 
 export async function GET() {
   if (!(await requireUser())) return unauthorized();
-  return NextResponse.json(toDTO(await readConfig()));
+  const [config, storageRoot] = await Promise.all([readConfig(), getStorageRoot()]);
+  return NextResponse.json(toDTO(config, storageRoot));
 }
 
 // Política do cofre — só admin, vale para todos.
@@ -67,5 +72,5 @@ export async function PUT(req: Request) {
     update: data,
     create: { id: 1, ...data },
   });
-  return NextResponse.json(toDTO(config));
+  return NextResponse.json(toDTO(config, await getStorageRoot()));
 }
