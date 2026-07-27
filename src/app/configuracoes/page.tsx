@@ -332,8 +332,7 @@ function StorageManager({ storageRoot }: { storageRoot: string | null }) {
           </p>
         )}
         <p className="mt-1 text-xs text-ink-3">
-          Salvos na pasta do servidor. Para levar para a rede, copie essa pasta
-          manualmente.
+          Os arquivos são gravados direto nesse destino.
         </p>
       </div>
 
