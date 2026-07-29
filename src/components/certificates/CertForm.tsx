@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   FileKey2,
   UploadCloud,
@@ -34,17 +35,10 @@ function toDateInput(iso: string) {
   return iso ? iso.slice(0, 10) : "";
 }
 
-function base64ToBuffer(b64: string): ArrayBuffer {
-  const bin = atob(b64);
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return bytes.buffer;
-}
-
-// Cadastro novo por arquivo é guiado: 1) arquivo → 2) senha → leitura
-// automática → 3) conferir (campos só aparecem depois da leitura, para
-// ninguém digitar tudo à mão sem querer). Edição e cartão/token mostram
-// os campos direto; na edição o arquivo vira um bloco de "trocar/reler".
+// Cadastro novo por arquivo é guiado: 1) arquivo → senha (modalzinho) → leitura
+// automática → 2) conferir (campos só aparecem depois da leitura, para ninguém
+// digitar tudo à mão sem querer). Edição e cartão/token mostram os campos
+// direto; na edição, escolher outro arquivo reabre o modal de senha e relê.
 export default function CertForm({
   initial,
   fixedCompanyId,
@@ -98,6 +92,12 @@ export default function CertForm({
   // Editar só os dados não reenvia (nem faz regravar na rede) o .pfx que já
   // está guardado — era isso que fazia toda edição reescrever o arquivo.
   const fileChanged = useRef(false);
+  // Arquivo escolhido aguardando a senha no modalzinho de leitura.
+  const [pending, setPending] = useState<{
+    buffer: ArrayBuffer;
+    name: string;
+  } | null>(null);
+  const [pwError, setPwError] = useState<string | null>(null);
   const [parseState, setParseState] = useState<ParseState>({ kind: "idle" });
   // Só o cadastro novo por arquivo esconde os campos até a leitura.
   const guided = media === "file" && !initial;
@@ -105,7 +105,6 @@ export default function CertForm({
   const showFields = !guided || detailsOpen;
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
 
   // Empresas para o vínculo (opcional). Sem permissão de empresas, segue sem.
   useEffect(() => {
@@ -136,10 +135,7 @@ export default function CertForm({
 
   async function handleFile(file: File) {
     const buffer = await file.arrayBuffer();
-    fileBuffer.current = buffer;
-    fileChanged.current = true;
-    // Nomeia o arquivo com o nome da empresa se já houver uma selecionada,
-    // senão mantém o nome original do arquivo.
+    // Nome legível pela empresa selecionada; senão o nome do próprio arquivo.
     const resolvedName = fixedCompanyName
       ? fixedCompanyName
       : companyId && companies
@@ -148,28 +144,26 @@ export default function CertForm({
     const safeName = resolvedName
       ? `${resolvedName.replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "_")}.pfx`
       : file.name;
-    setFileName(safeName);
-    setFileData(bufferToBase64(buffer));
-    setParseState({ kind: "idle" });
-    if (form.password) {
-      // Senha já digitada: lê direto.
-      extract(buffer, form.password);
-    } else if (guided) {
-      passwordRef.current?.focus();
-    }
+    // Escolher o arquivo sempre abre o modal de senha e lê os dados na hora —
+    // assim a senha bate com o arquivo (ao trocar por um renovado, ela muda).
+    setPwError(null);
+    setPending({ buffer, name: safeName });
   }
 
-  function extract(buffer: ArrayBuffer, password: string) {
+  // Confirma a senha do modalzinho: lê o .pfx, preenche os campos e só então
+  // "adota" o arquivo (bytes + nome). Senha errada mantém o modal aberto.
+  function confirmPassword(password: string) {
+    if (!pending) return;
     if (!password) {
-      setParseState({
-        kind: "error",
-        message: "Digite a senha do certificado para ler os dados.",
-      });
+      setPwError("Digite a senha do certificado.");
       return;
     }
-    setParseState({ kind: "reading" });
     try {
-      const data = parsePfx(buffer, password);
+      const data = parsePfx(pending.buffer, password);
+      fileBuffer.current = pending.buffer;
+      fileChanged.current = true;
+      setFileData(bufferToBase64(pending.buffer));
+      setFileName(pending.name);
       setForm((f) => ({
         ...f,
         holder: data.holder || f.holder,
@@ -180,26 +174,17 @@ export default function CertForm({
         expiresAt: toDateInput(data.expiresAt),
         password,
       }));
-      setParseState({ kind: "ok" });
       setDetailsOpen(true);
+      setParseState({ kind: "ok" });
+      setPending(null);
+      setPwError(null);
     } catch (err) {
-      setParseState({
-        kind: "error",
-        message:
-          err instanceof PfxError
-            ? err.message
-            : "Falha inesperada ao ler o certificado.",
-      });
+      setPwError(
+        err instanceof PfxError
+          ? err.message
+          : "Falha inesperada ao ler o certificado.",
+      );
     }
-  }
-
-  function tryExtract() {
-    // Na edição, o arquivo guardado também pode ser relido (base64 → buffer).
-    if (!fileBuffer.current && fileData) {
-      fileBuffer.current = base64ToBuffer(fileData);
-    }
-    const buffer = fileBuffer.current;
-    if (buffer) extract(buffer, form.password);
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -225,7 +210,9 @@ export default function CertForm({
   const groupOptions = (groups ?? []).map((g) => ({ value: g.id, label: g.name }));
 
   const types = media === "file" ? FILE_TYPES : CARD_TYPES;
-  const hasFile = Boolean(fileBuffer.current || fileData);
+  // fileData acompanha o buffer (setados juntos ao ler o arquivo), então basta
+  // ele para saber se há arquivo — sem ler o ref durante o render.
+  const hasFile = Boolean(fileData);
   const isCnpjType = form.type.startsWith("e-CNPJ") || form.type === "NF-e";
 
   const dropzone = (
@@ -326,41 +313,6 @@ export default function CertForm({
             {dropzone}
           </div>
 
-          <div>
-            <StepLabel n={2} done={parseState.kind === "ok"}>
-              Digite a senha. Os dados são lidos do certificado
-            </StepLabel>
-            <input
-              ref={passwordRef}
-              type="password"
-              className="vlt-input font-mono"
-              placeholder="Senha do certificado"
-              value={form.password}
-              onChange={(e) => set("password", e.target.value)}
-              onBlur={() => {
-                if (hasFile && form.password && parseState.kind !== "ok") tryExtract();
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  tryExtract();
-                }
-              }}
-              required
-            />
-            <button
-              type="button"
-              className="vlt-btn vlt-btn-primary mt-2 w-full"
-              disabled={!hasFile || !form.password || parseState.kind === "reading"}
-              onClick={tryExtract}
-            >
-              <Sparkles className="size-4" />
-              {parseState.kind === "reading"
-                ? "Lendo o certificado…"
-                : "Ler dados do certificado"}
-            </button>
-          </div>
-
           {parseBanners}
 
           {!detailsOpen && (
@@ -381,7 +333,7 @@ export default function CertForm({
       {showFields && (
         <div className={`space-y-4 ${guided ? "border-t border-line pt-4" : ""}`}>
           {guided && (
-            <StepLabel n={3} done={false}>
+            <StepLabel n={2} done={false}>
               Confira os dados
             </StepLabel>
           )}
@@ -450,38 +402,25 @@ export default function CertForm({
             </Field>
           </div>
 
-          {/* Senha editável direto (edição e cartão/token) */}
-          {!guided && (
-            <Field label="Senha do certificado">
-              <input
-                type="password"
-                className="vlt-input font-mono"
-                value={form.password}
-                onChange={(e) => set("password", e.target.value)}
-                required
-              />
-            </Field>
-          )}
+          {/* Senha do certificado — vem lida do arquivo ou digitada à mão */}
+          <Field label="Senha do certificado">
+            <input
+              type="password"
+              className="vlt-input font-mono"
+              value={form.password}
+              onChange={(e) => set("password", e.target.value)}
+              required
+            />
+          </Field>
 
-          {/* Edição por arquivo: trocar o .pfx e reler os dados */}
+          {/* Edição por arquivo: escolher outro .pfx reabre o modal de senha e
+              relê os dados automaticamente. */}
           {!guided && media === "file" && (
             <div>
               <p className="mb-1.5 block text-xs font-medium text-ink-2">
                 Arquivo (.pfx)
               </p>
               {dropzone}
-              <button
-                type="button"
-                className="vlt-btn vlt-btn-ghost mt-2 w-full"
-                disabled={!hasFile || !form.password || parseState.kind === "reading"}
-                onClick={tryExtract}
-                title="Preenche os campos acima com os dados do arquivo"
-              >
-                <Sparkles className="size-4" />
-                {parseState.kind === "reading"
-                  ? "Lendo o certificado…"
-                  : "Ler dados do arquivo"}
-              </button>
               <div className="mt-2 space-y-2">{parseBanners}</div>
             </div>
           )}
@@ -556,7 +495,107 @@ export default function CertForm({
           {initial ? "Salvar alterações" : "Guardar no cofre"}
         </button>
       </div>
+
+      {pending && (
+        <PfxPasswordPrompt
+          fileName={pending.name}
+          error={pwError}
+          onConfirm={confirmPassword}
+          onCancel={() => {
+            setPending(null);
+            setPwError(null);
+          }}
+        />
+      )}
     </form>
+  );
+}
+
+// Modalzinho que pede a senha assim que um .pfx é escolhido e dispara a leitura
+// dos dados. Fica acima do formulário (portal) e o Esc fecha só ele.
+function PfxPasswordPrompt({
+  fileName,
+  error,
+  onConfirm,
+  onCancel,
+}: {
+  fileName: string;
+  error: string | null;
+  onConfirm: (password: string) => void;
+  onCancel: () => void;
+}) {
+  const [password, setPassword] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        // Captura para o Esc fechar só este modal, não o formulário inteiro.
+        e.stopImmediatePropagation();
+        onCancel();
+      }
+    }
+    document.addEventListener("keydown", onKey, true);
+    return () => document.removeEventListener("keydown", onKey, true);
+  }, [onCancel]);
+
+  return createPortal(
+    <div
+      className="anim-overlay fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+      onMouseDown={(e) => e.target === e.currentTarget && onCancel()}
+    >
+      <div className="vlt-card anim-pop w-full max-w-sm shadow-(--shadow-float)">
+        <div className="border-b border-line px-5 py-3.5">
+          <h3 className="text-sm font-semibold tracking-tight">
+            Senha do certificado
+          </h3>
+          <p className="mt-0.5 truncate font-mono text-[0.7rem] text-ink-3">
+            {fileName}
+          </p>
+        </div>
+        <div className="px-5 py-4">
+          <p className="mb-2 text-xs text-ink-2">
+            Digite a senha para ler os dados do certificado.
+          </p>
+          <input
+            ref={inputRef}
+            type="password"
+            className="vlt-input font-mono"
+            placeholder="Senha do certificado"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                onConfirm(password);
+              }
+            }}
+          />
+          {error && (
+            <p className="mt-2 flex items-center gap-1.5 rounded-lg bg-bad-soft px-3 py-2 text-xs text-bad">
+              <CircleAlert className="size-3.5 shrink-0" />
+              {error}
+            </p>
+          )}
+        </div>
+        <div className="flex justify-end gap-2 border-t border-line px-5 py-3">
+          <button type="button" onClick={onCancel} className="vlt-btn vlt-btn-ghost">
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={() => onConfirm(password)}
+            disabled={!password}
+            className="vlt-btn vlt-btn-primary"
+          >
+            <Sparkles className="size-4" />
+            Ler dados
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body,
   );
 }
 
