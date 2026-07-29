@@ -379,7 +379,7 @@ export default function CertModal({
                     {linkedAccesses.map((access) => (
                       <li key={access.id}>
                         <Link
-                          href={`/acessos/${access.id}`}
+                          href={`/acessos?acesso=${access.id}`}
                           onClick={onClose}
                           className="flex items-center gap-3 px-3.5 py-2.5 transition-colors hover:bg-panel"
                         >
