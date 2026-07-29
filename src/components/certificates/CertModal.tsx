@@ -114,6 +114,9 @@ export default function CertModal({
   const status = certStatus(cert, alertDays);
   const d = daysLeft(cert);
   const isCard = cert.media === "card";
+  // Acessos que entram com este certificado — ao excluir, eles perdem o vínculo
+  // (FK SetNull). Vale avisar antes de uma ação que não dá pra desfazer.
+  const linkedCount = linkedAccesses?.length ?? 0;
 
   async function fetchPassword(): Promise<string | null> {
     try {
@@ -426,7 +429,11 @@ export default function CertModal({
           <div className="flex items-center justify-between gap-2 border-t border-line px-6 py-3.5">
             {confirmDelete ? (
               <>
-                <p className="text-xs text-ink-2">Excluir do cofre? O histórico vai junto.</p>
+                <p className="text-xs text-ink-2">
+                  {linkedCount > 0
+                    ? `Usado em ${linkedCount} ${linkedCount === 1 ? "acesso" : "acessos"} — eles ficam sem certificado. Excluir mesmo assim? O histórico vai junto.`
+                    : "Excluir do cofre? O histórico vai junto."}
+                </p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => setConfirmDelete(false)}
