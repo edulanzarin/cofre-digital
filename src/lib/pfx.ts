@@ -59,14 +59,20 @@ export function parsePfx(buffer: ArrayBuffer, password: string): PfxData {
     throw new PfxError("O arquivo não contém nenhum certificado.");
   }
 
-  // O .pfx pode trazer a cadeia inteira (AC raiz, intermediária…).
-  // O certificado do titular é o que não assina nenhum outro da lista.
+  // O .pfx pode trazer a cadeia inteira (AC raiz, intermediária…) e, quando é um
+  // certificado renovado, às vezes o antigo (vencido) junto — mesmo titular e
+  // emissor. O titular é uma folha: não assina nenhum outro da lista. Se houver
+  // mais de uma folha (o renovado e o antigo), fica a de vencimento MAIS RECENTE
+  // — senão a leitura pegava o vencido e o certificado continuava "vencido" na
+  // lista mesmo depois de trocar pelo arquivo renovado.
   const dn = (name: { attributes: { shortName?: string; value?: unknown }[] }) =>
     name.attributes.map((a) => `${a.shortName}=${String(a.value)}`).join(",");
-  const leaf =
-    certs.find((c) =>
-      certs.every((other) => other === c || dn(other.issuer) !== dn(c.subject)),
-    ) ?? certs[0];
+  const leaves = certs.filter((c) =>
+    certs.every((other) => other === c || dn(other.issuer) !== dn(c.subject)),
+  );
+  const leaf = (leaves.length ? leaves : certs).reduce((best, c) =>
+    c.validity.notAfter > best.validity.notAfter ? c : best,
+  );
 
   const cn = String(leaf.subject.getField("CN")?.value ?? "");
   const [rawName, rawDoc] = cn.includes(":") ? cn.split(":") : [cn, ""];
