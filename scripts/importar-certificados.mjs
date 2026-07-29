@@ -37,6 +37,7 @@ function parseArgs(argv) {
     else if (k === "--base") a.base = next();
     else if (k === "--email") a.email = next();
     else if (k === "--password") a.password = next();
+    else if (k === "--cookie") a.cookie = next();
     else if (k === "--limit") a.limit = Number(next());
     else if (k === "--concurrency") a.concurrency = Math.max(1, Number(next()));
     else if (k === "--dry") a.dry = true;
@@ -49,10 +50,20 @@ async function envValue(key) {
   try {
     const raw = await readFile(`${PROJ}/.env`, "utf8");
     const m = raw.match(new RegExp(`^${key}=(.*)$`, "m"));
-    return m ? m[1].trim() : "";
+    // Tira aspas em volta do valor (o .env guarda a senha como "...").
+    return m ? m[1].trim().replace(/^["']|["']$/g, "") : "";
   } catch {
     return "";
   }
+}
+
+// Formata dígitos como CNPJ (14) ou CPF (11) — igual ao formatDocument do app,
+// para o documento entrar no cofre no mesmo formato de quem cadastra pela tela.
+function formatDocument(digits) {
+  const d = String(digits).replace(/\D/g, "");
+  if (d.length === 14) return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`;
+  if (d.length === 11) return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}`;
+  return d;
 }
 
 // ---------- leitura do .pfx (espelha o parsePfx do app) ----------
@@ -75,7 +86,7 @@ function parsePfx(buffer, password) {
   const issuer = String(leaf.issuer.getField("CN")?.value ?? leaf.issuer.getField("O")?.value ?? "");
   return {
     holder: rawName.trim(),
-    document: doc,
+    document: formatDocument(doc), // formatado, como o app salva
     type,
     issuer: issuer.trim(),
     issuedAt: leaf.validity.notBefore.toISOString(),
@@ -84,8 +95,12 @@ function parsePfx(buffer, password) {
 }
 
 // ---------- cliente HTTP do cofre ----------
-function makeClient(base) {
-  let cookie = "";
+function makeClient(base, initialCookie = "") {
+  // Aceita o cookie completo ("vault_session=...") ou só o valor.
+  let cookie =
+    initialCookie && !initialCookie.includes("=")
+      ? `vault_session=${initialCookie}`
+      : initialCookie;
   async function req(method, url, body) {
     const res = await fetch(base + url, {
       method,
@@ -114,6 +129,18 @@ function makeClient(base) {
     },
     req,
   };
+}
+
+// Varre a pasta recursivamente (os .pfx podem estar em subpastas E-cnpj/E-cpf).
+// Devolve { full, name } — full para ler, name (basename) para casar no mapa.
+async function walk(dir) {
+  const out = [];
+  for (const ent of await readdir(dir, { withFileTypes: true })) {
+    const full = path.join(dir, ent.name);
+    if (ent.isDirectory()) out.push(...(await walk(full)));
+    else if (/\.(pfx|p12)$/i.test(ent.name)) out.push({ full, name: ent.name });
+  }
+  return out;
 }
 
 // ---------- pool de concorrência simples ----------
@@ -146,7 +173,7 @@ const detalhe = JSON.parse(await readFile(`${args.map}/dados-por-arquivo.json`, 
 const porCnpj = {};
 for (const [arq, d] of Object.entries(detalhe)) if (d.cnpjCpf) porCnpj[d.cnpjCpf] = { arq, ...d };
 
-let files = (await readdir(args.pfx)).filter((f) => /\.(pfx|p12)$/i.test(f)).sort();
+let files = (await walk(args.pfx)).sort((a, b) => a.name.localeCompare(b.name));
 if (args.limit) files = files.slice(0, args.limit);
 
 console.log(`Pasta:   ${args.pfx}`);
@@ -155,20 +182,22 @@ console.log(`Cofre:   ${base}`);
 console.log(`Arquivos .pfx/.p12: ${files.length}${args.limit ? ` (limitado a ${args.limit})` : ""}`);
 console.log(args.dry ? "MODO DRY-RUN (não grava nada)\n" : "MODO REAL (vai gravar no cofre)\n");
 
-const client = makeClient(base);
+const client = makeClient(base, args.cookie || "");
 const groupIdByName = new Map();
 
 if (!args.dry) {
-  if (!email || !password) {
-    console.error("Faltou --email/--password (ou SEED_ADMIN_* no .env) para logar no cofre.");
-    process.exit(1);
+  if (!args.cookie) {
+    if (!email || !password) {
+      console.error("Faltou --email/--password (ou SEED_ADMIN_* no .env), ou --cookie, para autenticar.");
+      process.exit(1);
+    }
+    await client.login(email, password);
   }
-  await client.login(email, password);
   // Carrega grupos existentes e cria os que faltam (nomes vindos do sistema antigo).
   const { json: existentes } = await client.req("GET", "/api/company-groups");
   for (const g of existentes ?? []) groupIdByName.set(g.name, g.id);
   const nomesNecessarios = new Set(
-    files.map((f) => detalhe[f]?.grupo?.trim()).filter((n) => n && !groupIdByName.has(n)),
+    files.map((f) => detalhe[f.name]?.grupo?.trim()).filter((n) => n && !groupIdByName.has(n)),
   );
   for (const nome of nomesNecessarios) {
     const { status, json } = await client.req("POST", "/api/company-groups", { name: nome });
@@ -185,11 +214,11 @@ const stats = { criado: 0, duplicado: 0, semSenha: 0, senhaRuim: 0, validacao: 0
 const relatorio = [];
 let done = 0;
 
-await pool(files, args.dry ? 1 : args.concurrency, async (file) => {
-  const meta = detalhe[file];
+await pool(files, args.dry ? 1 : args.concurrency, async (f) => {
+  const meta = detalhe[f.name];
   const record = (status, detalheMsg) => {
     stats[status]++;
-    relatorio.push({ arquivo: file, status, detalhe: detalheMsg ?? "" });
+    relatorio.push({ arquivo: f.name, status, detalhe: detalheMsg ?? "" });
     done++;
     if (done % 25 === 0 || done === files.length) {
       process.stdout.write(`\r  ${done}/${files.length}  (criados ${stats.criado}, dup ${stats.duplicado}, falhas ${stats.semSenha + stats.senhaRuim + stats.validacao + stats.erro})   `);
@@ -203,7 +232,7 @@ await pool(files, args.dry ? 1 : args.concurrency, async (file) => {
   // 2) lê o .pfx com a senha
   let parsed;
   try {
-    const bytes = await readFile(path.join(args.pfx, file));
+    const bytes = await readFile(f.full);
     parsed = parsePfx(bytes, String(senha));
     parsed._base64 = bytes.toString("base64");
   } catch {
@@ -220,7 +249,7 @@ await pool(files, args.dry ? 1 : args.concurrency, async (file) => {
     issuedAt: parsed.issuedAt,
     expiresAt: parsed.expiresAt,
     password: String(senha),
-    fileName: file,
+    fileName: f.name,
     fileData: parsed._base64,
     groupId: (grupoNome && groupIdByName.get(grupoNome)) || undefined,
   };
