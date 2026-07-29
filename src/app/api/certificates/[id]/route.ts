@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { CERT_INCLUDE, certFileBase, parseCertBody, toDTO } from "@/lib/certificate-api";
+import {
+  CERT_INCLUDE,
+  certFileBase,
+  parseCertBody,
+  resolveCertCompany,
+  toDTO,
+} from "@/lib/certificate-api";
 import { guard } from "@/lib/api-auth";
 import { assignCompanyGroup } from "@/lib/company-group-assign";
 import { fileFieldsFor, loadBytes, removeFileAt } from "@/lib/storage";
@@ -58,17 +64,16 @@ export async function PUT(req: Request, { params }: Params) {
       { status: 409 },
     );
   }
-  let companyName: string | null = null;
-  if (data.companyId) {
-    const company = await prisma.company.findUnique({
-      where: { id: data.companyId },
-      select: { razaoSocial: true },
-    });
-    if (!company) data.companyId = null;
-    else companyName = company.razaoSocial;
+  // Mesma regra do cadastro: e-CNPJ tem que bater com a empresa vinculada, e
+  // trocar por um .pfx de outro CNPJ (ou sem empresa) religa pela regra do CNPJ.
+  const resolved = await resolveCertCompany(data);
+  if (!resolved.ok) {
+    return NextResponse.json({ error: resolved.error }, { status: 409 });
   }
+  const company = resolved.company;
+  data.companyId = company?.id ?? null;
   // Nome legível "NOME - DOCUMENTO", igual no download e no arquivo físico.
-  const fileBase = certFileBase(companyName ?? data.holder, data.document);
+  const fileBase = certFileBase(company?.razaoSocial ?? data.holder, data.document);
   if (data.fileName) data.fileName = `${fileBase}.pfx`;
   const before = await prisma.certificate.findUnique({
     where: { id },
@@ -78,8 +83,8 @@ export async function PUT(req: Request, { params }: Params) {
   const renewed = before.expiresAt.getTime() !== data.expiresAt.getTime();
   try {
     // Grupo escolhido no formulário entra na empresa dona (nunca desvincula).
-    if (data.companyId) {
-      await assignCompanyGroup(data.companyId, (raw as { groupId?: unknown })?.groupId, auth);
+    if (company) {
+      await assignCompanyGroup(company.id, (raw as { groupId?: unknown })?.groupId, auth);
     }
     // Arquivo: cartão nunca tem; com novos bytes, (re)grava; sem bytes num
     // certificado de arquivo, PRESERVA o que já existe (protege contra o disco

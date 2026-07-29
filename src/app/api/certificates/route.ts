@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { randomUUID } from "node:crypto";
-import { CERT_INCLUDE, certFileBase, parseCertBody, toDTO } from "@/lib/certificate-api";
+import {
+  CERT_INCLUDE,
+  certFileBase,
+  parseCertBody,
+  resolveCertCompany,
+  toDTO,
+} from "@/lib/certificate-api";
 import { guard } from "@/lib/api-auth";
 import { assignCompanyGroup } from "@/lib/company-group-assign";
 import { fileFieldsFor } from "@/lib/storage";
@@ -16,31 +22,6 @@ export async function GET(req: Request) {
     include: CERT_INCLUDE,
   });
   return NextResponse.json(rows.map((r) => toDTO(r)));
-}
-
-// e-CNPJ sem empresa escolhida entra no cofre da empresa dona do CNPJ
-// (criando a empresa na hora, se for a primeira vez).
-async function resolveCompany(data: {
-  companyId: string | null;
-  document: string;
-  holder: string;
-}): Promise<{ id: string; razaoSocial: string } | null> {
-  if (data.companyId) {
-    const company = await prisma.company.findUnique({
-      where: { id: data.companyId },
-      select: { id: true, razaoSocial: true },
-    });
-    return company ?? null;
-  }
-  const digits = data.document.replace(/\D/g, "");
-  if (digits.length !== 14) return null;
-  const company = await prisma.company.upsert({
-    where: { cnpj: digits },
-    update: {},
-    create: { cnpj: digits, razaoSocial: data.holder },
-    select: { id: true, razaoSocial: true },
-  });
-  return company;
 }
 
 export async function POST(req: Request) {
@@ -65,7 +46,11 @@ export async function POST(req: Request) {
       { status: 409 },
     );
   }
-  const company = await resolveCompany(data);
+  const resolved = await resolveCertCompany(data);
+  if (!resolved.ok) {
+    return NextResponse.json({ error: resolved.error }, { status: 409 });
+  }
+  const company = resolved.company;
   // Nome legível "NOME - DOCUMENTO" (empresa e CNPJ, ou titular e CPF). Vale
   // tanto para o download quanto para o arquivo físico no disco.
   const fileBase = certFileBase(company?.razaoSocial ?? data.holder, data.document);
