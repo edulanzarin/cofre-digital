@@ -1329,6 +1329,7 @@ export const CertificateScalarFieldEnum = {
   filePath: 'filePath',
   notes: 'notes',
   companyId: 'companyId',
+  groupId: 'groupId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

@@ -32,6 +32,10 @@ export type Certificate = {
   updatedAt?: string; // ISO — última alteração
   companyId?: string | null;
   company?: CertCompany | null; // empresa dona do cofre
+  // Grupo EFETIVO do certificado: o da empresa dona quando há uma, senão o
+  // escolhido direto no cert (e-CPF avulso). É o que filtro e coluna usam.
+  groupId?: string | null;
+  group?: { name: string } | null;
 };
 
 export type CertStatus = "valid" | "expiring" | "expired";

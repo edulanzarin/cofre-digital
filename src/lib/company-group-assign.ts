@@ -27,3 +27,20 @@ export async function assignCompanyGroup(
     data: { groupId: group.id },
   });
 }
+
+// Grupo escolhido no formulário para um certificado SEM empresa (e-CPF avulso):
+// o vínculo mora no próprio cert. Devolve o id do grupo válido, ou null quando
+// nada foi escolhido, sem permissão de empresas, ou o grupo não existe. Mesma
+// regra do assignCompanyGroup — grupo é ação de empresa, mesmo colado no cert.
+export async function resolveOwnGroupId(
+  rawGroupId: unknown,
+  user: AuthUser,
+): Promise<string | null> {
+  if (typeof rawGroupId !== "string" || rawGroupId === "") return null;
+  if (!allows(user, "empresas", "edit")) return null;
+  const group = await prisma.companyGroup.findUnique({
+    where: { id: rawGroupId },
+    select: { id: true },
+  });
+  return group?.id ?? null;
+}

@@ -74,9 +74,9 @@ export default function CertList({
                 )}
                 {showGroup && (
                   <td className="max-w-40 px-4 py-3 max-md:hidden">
-                    {cert.company?.group ? (
+                    {cert.group ? (
                       <span className="block truncate text-xs text-ink-2">
-                        {cert.company.group.name}
+                        {cert.group.name}
                       </span>
                     ) : (
                       <span className="text-xs text-ink-3">—</span>

@@ -8,7 +8,7 @@ import {
   toDTO,
 } from "@/lib/certificate-api";
 import { guard } from "@/lib/api-auth";
-import { assignCompanyGroup } from "@/lib/company-group-assign";
+import { assignCompanyGroup, resolveOwnGroupId } from "@/lib/company-group-assign";
 import { fileFieldsFor, loadBytes, removeFileAt } from "@/lib/storage";
 
 type Params = { params: Promise<{ id: string }> };
@@ -77,14 +77,26 @@ export async function PUT(req: Request, { params }: Params) {
   if (data.fileName) data.fileName = `${fileBase}.pfx`;
   const before = await prisma.certificate.findUnique({
     where: { id },
-    select: { expiresAt: true, fileData: true, filePath: true },
+    select: { expiresAt: true, fileData: true, filePath: true, groupId: true },
   });
   if (!before) return notFound();
   const renewed = before.expiresAt.getTime() !== data.expiresAt.getTime();
+  // Grupo do certificado: com empresa dona, o grupo é o dela e o direto zera;
+  // sem empresa, o grupo mora no cert. Seletor vazio/oculto não mexe no que já
+  // havia (nunca desvincula, igual à empresa).
+  const rawGroupId = (raw as { groupId?: unknown })?.groupId;
+  let groupId: string | null;
+  if (company) {
+    groupId = null;
+  } else if (typeof rawGroupId === "string" && rawGroupId !== "") {
+    groupId = (await resolveOwnGroupId(rawGroupId, auth)) ?? before.groupId;
+  } else {
+    groupId = before.groupId;
+  }
   try {
     // Grupo escolhido no formulário entra na empresa dona (nunca desvincula).
     if (company) {
-      await assignCompanyGroup(company.id, (raw as { groupId?: unknown })?.groupId, auth);
+      await assignCompanyGroup(company.id, rawGroupId, auth);
     }
     // Arquivo: cartão nunca tem; com novos bytes, (re)grava; sem bytes num
     // certificado de arquivo, PRESERVA o que já existe (protege contra o disco
@@ -102,6 +114,7 @@ export async function PUT(req: Request, { params }: Params) {
       where: { id },
       data: {
         ...data,
+        groupId,
         fileData: file.base64,
         filePath: file.filePath,
         events: {

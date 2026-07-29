@@ -9,7 +9,7 @@ import {
   toDTO,
 } from "@/lib/certificate-api";
 import { guard } from "@/lib/api-auth";
-import { assignCompanyGroup } from "@/lib/company-group-assign";
+import { assignCompanyGroup, resolveOwnGroupId } from "@/lib/company-group-assign";
 import { fileFieldsFor } from "@/lib/storage";
 
 export async function GET(req: Request) {
@@ -55,10 +55,15 @@ export async function POST(req: Request) {
   // tanto para o download quanto para o arquivo físico no disco.
   const fileBase = certFileBase(company?.razaoSocial ?? data.holder, data.document);
   if (data.fileName) data.fileName = `${fileBase}.pfx`;
-  // Grupo escolhido no formulário entra na empresa dona — feito antes de criar
-  // o certificado para o include já trazer o nome do grupo na resposta.
+  // Grupo escolhido no formulário: com empresa dona, entra na empresa (feito
+  // antes de criar o cert, para o include já trazer o nome do grupo). Sem
+  // empresa (e-CPF avulso), o grupo mora no próprio certificado.
+  const rawGroupId = (raw as { groupId?: unknown })?.groupId;
+  let groupId: string | null = null;
   if (company) {
-    await assignCompanyGroup(company.id, (raw as { groupId?: unknown })?.groupId, auth);
+    await assignCompanyGroup(company.id, rawGroupId, auth);
+  } else {
+    groupId = await resolveOwnGroupId(rawGroupId, auth);
   }
   // Com pasta configurada, o .pfx vai pro disco; senão, fica no banco (base64).
   const id = randomUUID();
@@ -72,6 +77,7 @@ export async function POST(req: Request) {
       fileData: file.base64,
       filePath: file.filePath,
       companyId: company?.id ?? null,
+      groupId,
       events: { create: { kind: "created", userName: auth.name } },
     },
     include: CERT_INCLUDE,

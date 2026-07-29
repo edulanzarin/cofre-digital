@@ -175,6 +175,7 @@ export type CompanyGroupWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"CompanyGroup"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CompanyGroup"> | Date | string
   companies?: Prisma.CompanyListRelationFilter
+  certificates?: Prisma.CertificateListRelationFilter
 }
 
 export type CompanyGroupOrderByWithRelationInput = {
@@ -183,6 +184,7 @@ export type CompanyGroupOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   companies?: Prisma.CompanyOrderByRelationAggregateInput
+  certificates?: Prisma.CertificateOrderByRelationAggregateInput
 }
 
 export type CompanyGroupWhereUniqueInput = Prisma.AtLeast<{
@@ -194,6 +196,7 @@ export type CompanyGroupWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"CompanyGroup"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CompanyGroup"> | Date | string
   companies?: Prisma.CompanyListRelationFilter
+  certificates?: Prisma.CertificateListRelationFilter
 }, "id" | "name">
 
 export type CompanyGroupOrderByWithAggregationInput = {
@@ -222,6 +225,7 @@ export type CompanyGroupCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   companies?: Prisma.CompanyCreateNestedManyWithoutGroupInput
+  certificates?: Prisma.CertificateCreateNestedManyWithoutGroupInput
 }
 
 export type CompanyGroupUncheckedCreateInput = {
@@ -230,6 +234,7 @@ export type CompanyGroupUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   companies?: Prisma.CompanyUncheckedCreateNestedManyWithoutGroupInput
+  certificates?: Prisma.CertificateUncheckedCreateNestedManyWithoutGroupInput
 }
 
 export type CompanyGroupUpdateInput = {
@@ -238,6 +243,7 @@ export type CompanyGroupUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companies?: Prisma.CompanyUpdateManyWithoutGroupNestedInput
+  certificates?: Prisma.CertificateUpdateManyWithoutGroupNestedInput
 }
 
 export type CompanyGroupUncheckedUpdateInput = {
@@ -246,6 +252,7 @@ export type CompanyGroupUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companies?: Prisma.CompanyUncheckedUpdateManyWithoutGroupNestedInput
+  certificates?: Prisma.CertificateUncheckedUpdateManyWithoutGroupNestedInput
 }
 
 export type CompanyGroupCreateManyInput = {
@@ -311,11 +318,28 @@ export type CompanyGroupUpdateOneWithoutCompaniesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyGroupUpdateToOneWithWhereWithoutCompaniesInput, Prisma.CompanyGroupUpdateWithoutCompaniesInput>, Prisma.CompanyGroupUncheckedUpdateWithoutCompaniesInput>
 }
 
+export type CompanyGroupCreateNestedOneWithoutCertificatesInput = {
+  create?: Prisma.XOR<Prisma.CompanyGroupCreateWithoutCertificatesInput, Prisma.CompanyGroupUncheckedCreateWithoutCertificatesInput>
+  connectOrCreate?: Prisma.CompanyGroupCreateOrConnectWithoutCertificatesInput
+  connect?: Prisma.CompanyGroupWhereUniqueInput
+}
+
+export type CompanyGroupUpdateOneWithoutCertificatesNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyGroupCreateWithoutCertificatesInput, Prisma.CompanyGroupUncheckedCreateWithoutCertificatesInput>
+  connectOrCreate?: Prisma.CompanyGroupCreateOrConnectWithoutCertificatesInput
+  upsert?: Prisma.CompanyGroupUpsertWithoutCertificatesInput
+  disconnect?: Prisma.CompanyGroupWhereInput | boolean
+  delete?: Prisma.CompanyGroupWhereInput | boolean
+  connect?: Prisma.CompanyGroupWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyGroupUpdateToOneWithWhereWithoutCertificatesInput, Prisma.CompanyGroupUpdateWithoutCertificatesInput>, Prisma.CompanyGroupUncheckedUpdateWithoutCertificatesInput>
+}
+
 export type CompanyGroupCreateWithoutCompaniesInput = {
   id?: string
   name: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  certificates?: Prisma.CertificateCreateNestedManyWithoutGroupInput
 }
 
 export type CompanyGroupUncheckedCreateWithoutCompaniesInput = {
@@ -323,6 +347,7 @@ export type CompanyGroupUncheckedCreateWithoutCompaniesInput = {
   name: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  certificates?: Prisma.CertificateUncheckedCreateNestedManyWithoutGroupInput
 }
 
 export type CompanyGroupCreateOrConnectWithoutCompaniesInput = {
@@ -346,6 +371,7 @@ export type CompanyGroupUpdateWithoutCompaniesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  certificates?: Prisma.CertificateUpdateManyWithoutGroupNestedInput
 }
 
 export type CompanyGroupUncheckedUpdateWithoutCompaniesInput = {
@@ -353,6 +379,55 @@ export type CompanyGroupUncheckedUpdateWithoutCompaniesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  certificates?: Prisma.CertificateUncheckedUpdateManyWithoutGroupNestedInput
+}
+
+export type CompanyGroupCreateWithoutCertificatesInput = {
+  id?: string
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  companies?: Prisma.CompanyCreateNestedManyWithoutGroupInput
+}
+
+export type CompanyGroupUncheckedCreateWithoutCertificatesInput = {
+  id?: string
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  companies?: Prisma.CompanyUncheckedCreateNestedManyWithoutGroupInput
+}
+
+export type CompanyGroupCreateOrConnectWithoutCertificatesInput = {
+  where: Prisma.CompanyGroupWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyGroupCreateWithoutCertificatesInput, Prisma.CompanyGroupUncheckedCreateWithoutCertificatesInput>
+}
+
+export type CompanyGroupUpsertWithoutCertificatesInput = {
+  update: Prisma.XOR<Prisma.CompanyGroupUpdateWithoutCertificatesInput, Prisma.CompanyGroupUncheckedUpdateWithoutCertificatesInput>
+  create: Prisma.XOR<Prisma.CompanyGroupCreateWithoutCertificatesInput, Prisma.CompanyGroupUncheckedCreateWithoutCertificatesInput>
+  where?: Prisma.CompanyGroupWhereInput
+}
+
+export type CompanyGroupUpdateToOneWithWhereWithoutCertificatesInput = {
+  where?: Prisma.CompanyGroupWhereInput
+  data: Prisma.XOR<Prisma.CompanyGroupUpdateWithoutCertificatesInput, Prisma.CompanyGroupUncheckedUpdateWithoutCertificatesInput>
+}
+
+export type CompanyGroupUpdateWithoutCertificatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  companies?: Prisma.CompanyUpdateManyWithoutGroupNestedInput
+}
+
+export type CompanyGroupUncheckedUpdateWithoutCertificatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  companies?: Prisma.CompanyUncheckedUpdateManyWithoutGroupNestedInput
 }
 
 
@@ -362,10 +437,12 @@ export type CompanyGroupUncheckedUpdateWithoutCompaniesInput = {
 
 export type CompanyGroupCountOutputType = {
   companies: number
+  certificates: number
 }
 
 export type CompanyGroupCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   companies?: boolean | CompanyGroupCountOutputTypeCountCompaniesArgs
+  certificates?: boolean | CompanyGroupCountOutputTypeCountCertificatesArgs
 }
 
 /**
@@ -385,6 +462,13 @@ export type CompanyGroupCountOutputTypeCountCompaniesArgs<ExtArgs extends runtim
   where?: Prisma.CompanyWhereInput
 }
 
+/**
+ * CompanyGroupCountOutputType without action
+ */
+export type CompanyGroupCountOutputTypeCountCertificatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CertificateWhereInput
+}
+
 
 export type CompanyGroupSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -392,6 +476,7 @@ export type CompanyGroupSelect<ExtArgs extends runtime.Types.Extensions.Internal
   createdAt?: boolean
   updatedAt?: boolean
   companies?: boolean | Prisma.CompanyGroup$companiesArgs<ExtArgs>
+  certificates?: boolean | Prisma.CompanyGroup$certificatesArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyGroupCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["companyGroup"]>
 
@@ -419,6 +504,7 @@ export type CompanyGroupSelectScalar = {
 export type CompanyGroupOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "createdAt" | "updatedAt", ExtArgs["result"]["companyGroup"]>
 export type CompanyGroupInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   companies?: boolean | Prisma.CompanyGroup$companiesArgs<ExtArgs>
+  certificates?: boolean | Prisma.CompanyGroup$certificatesArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyGroupCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CompanyGroupIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -428,6 +514,7 @@ export type $CompanyGroupPayload<ExtArgs extends runtime.Types.Extensions.Intern
   name: "CompanyGroup"
   objects: {
     companies: Prisma.$CompanyPayload<ExtArgs>[]
+    certificates: Prisma.$CertificatePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -829,6 +916,7 @@ readonly fields: CompanyGroupFieldRefs;
 export interface Prisma__CompanyGroupClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   companies<T extends Prisma.CompanyGroup$companiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyGroup$companiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  certificates<T extends Prisma.CompanyGroup$certificatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyGroup$certificatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CertificatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1276,6 +1364,30 @@ export type CompanyGroup$companiesArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.CompanyScalarFieldEnum | Prisma.CompanyScalarFieldEnum[]
+}
+
+/**
+ * CompanyGroup.certificates
+ */
+export type CompanyGroup$certificatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Certificate
+   */
+  select?: Prisma.CertificateSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Certificate
+   */
+  omit?: Prisma.CertificateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CertificateInclude<ExtArgs> | null
+  where?: Prisma.CertificateWhereInput
+  orderBy?: Prisma.CertificateOrderByWithRelationInput | Prisma.CertificateOrderByWithRelationInput[]
+  cursor?: Prisma.CertificateWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CertificateScalarFieldEnum | Prisma.CertificateScalarFieldEnum[]
 }
 
 /**

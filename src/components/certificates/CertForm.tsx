@@ -71,9 +71,10 @@ export default function CertForm({
   const [companyId, setCompanyId] = useState(
     fixedCompanyId ?? initial?.companyId ?? "",
   );
-  // Grupo a aplicar na empresa dona. Começa no grupo atual dela (edição) e
-  // ao salvar só atribui — vazio = não mexe no grupo da empresa.
-  const [groupId, setGroupId] = useState(initial?.company?.groupId ?? "");
+  // Grupo do certificado. Com empresa dona, aplica-se a ela; sem empresa (e-CPF
+  // avulso), fica no próprio cert. Começa no grupo efetivo atual e, ao salvar,
+  // só atribui — vazio = não mexe.
+  const [groupId, setGroupId] = useState(initial?.groupId ?? "");
 
   // Ao trocar a empresa, atualiza o fileName do .pfx já carregado.
   function handleCompanyChange(id: string) {
@@ -450,11 +451,12 @@ export default function CertForm({
             </Field>
           )}
 
-          {/* Grupo econômico — atribuído à empresa dona do cofre. Some quando
-              o certificado é cadastrado de dentro de uma empresa (lá o grupo
-              se define na própria empresa). Vazio = mantém o grupo atual. */}
+          {/* Grupo econômico — com empresa dona, é atribuído a ela; sem empresa
+              (e-CPF avulso), fica no próprio certificado. Some quando o cert é
+              cadastrado de dentro de uma empresa (lá o grupo se define na
+              empresa). Vazio = mantém o grupo atual. */}
           {!fixedCompanyId && (groups?.length || onCreateGroup) && (
-            <Field label="Grupo da empresa (opcional)">
+            <Field label="Grupo (opcional)">
               <Combobox
                 options={groupOptions}
                 value={groupId}

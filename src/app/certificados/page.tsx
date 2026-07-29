@@ -106,8 +106,8 @@ export default function CertificatesPage() {
         !group
           ? true
           : group === NO_GROUP
-            ? !c.company?.groupId
-            : c.company?.groupId === group,
+            ? !c.groupId
+            : c.groupId === group,
       )
       .filter((c) => filter === "all" || certStatus(c, alertDays) === filter)
       .filter((c) => docFilter === "all" || docGroup(c) === docFilter)
@@ -129,7 +129,7 @@ export default function CertificatesPage() {
     const counts = new Map<string, number>();
     let ungrouped = 0;
     for (const c of certs) {
-      const gid = c.company?.groupId;
+      const gid = c.groupId;
       if (gid) counts.set(gid, (counts.get(gid) ?? 0) + 1);
       else ungrouped++;
     }

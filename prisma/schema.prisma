@@ -52,11 +52,12 @@ model User {
 // Grupo econômico: empresas do mesmo dono/rede, agrupadas à mão.
 // Filtrar pelo grupo traz o cofre de todas as empresas dele de uma vez.
 model CompanyGroup {
-  id        String    @id @default(uuid())
-  name      String    @unique
-  companies Company[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id           String        @id @default(uuid())
+  name         String        @unique
+  companies    Company[]
+  certificates Certificate[] // e-CPF (e certificados sem empresa) agrupam direto
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 // Empresa (cliente) — dona de um cofre próprio: certificados, acessos,
@@ -92,10 +93,16 @@ model Certificate {
   notes     String?
   companyId String?
   company   Company?           @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  // Grupo direto do certificado — vale quando ele NÃO tem empresa (e-CPF avulso).
+  // Com empresa, o grupo é o dela; este fica nulo. Efetivo = empresa ?? este.
+  groupId   String?
+  group     CompanyGroup?      @relation(fields: [groupId], references: [id], onDelete: SetNull)
   events    CertificateEvent[]
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
   accesses  Access[]
+
+  @@index([groupId])
 }
 
 // Linha do tempo do certificado: cadastro, alterações e observações
