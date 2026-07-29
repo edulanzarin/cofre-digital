@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import {
   CERT_INCLUDE,
   certFileBase,
+  describeCertCreation,
   parseCertBody,
   resolveCertCompany,
   toDTO,
@@ -28,13 +29,11 @@ export async function POST(req: Request) {
   const auth = await guard("certificados", "edit");
   if (auth instanceof NextResponse) return auth;
   const raw = await req.json().catch(() => null);
-  const data = parseCertBody(raw);
-  if (!data) {
-    return NextResponse.json(
-      { error: "Dados do certificado inválidos." },
-      { status: 400 },
-    );
+  const parsed = parseCertBody(raw);
+  if (!parsed.ok) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
+  const data = parsed.data;
   // Mesmo documento, tipo e vencimento = mesmo certificado físico.
   const duplicate = await prisma.certificate.findFirst({
     where: { document: data.document, type: data.type, expiresAt: data.expiresAt },
@@ -78,7 +77,16 @@ export async function POST(req: Request) {
       filePath: file.filePath,
       companyId: company?.id ?? null,
       groupId,
-      events: { create: { kind: "created", userName: auth.name } },
+      events: {
+        create: {
+          kind: "created",
+          userName: auth.name,
+          message: describeCertCreation(
+            data.media,
+            Boolean(file.base64 || file.filePath),
+          ),
+        },
+      },
     },
     include: CERT_INCLUDE,
   });

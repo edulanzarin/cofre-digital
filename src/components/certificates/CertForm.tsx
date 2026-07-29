@@ -8,11 +8,17 @@ import {
   Sparkles,
   CircleAlert,
   CircleCheck,
+  TriangleAlert,
   CreditCard,
   Building2,
   Network,
 } from "lucide-react";
 import type { Certificate, CertMedia, CertType } from "@/lib/certificates";
+import {
+  documentKind,
+  isValidDocument,
+  typeMatchesDocument,
+} from "@/lib/certificates";
 import type { Company } from "@/lib/companies";
 import type { CompanyGroup } from "@/lib/companyGroups";
 import { bufferToBase64, parsePfx, PfxError } from "@/lib/pfx";
@@ -101,6 +107,9 @@ export default function CertForm({
   } | null>(null);
   const [pwError, setPwError] = useState<string | null>(null);
   const [parseState, setParseState] = useState<ParseState>({ kind: "idle" });
+  // Editando e o .pfx escolhido é de OUTRO documento: aviso de que se está
+  // substituindo o certificado por um diferente (e não só renovando o mesmo).
+  const [replaceWarning, setReplaceWarning] = useState<string | null>(null);
   // Só o cadastro novo por arquivo esconde os campos até a leitura.
   const guided = media === "file" && !initial;
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -176,6 +185,19 @@ export default function CertForm({
         expiresAt: toDateInput(data.expiresAt),
         password,
       }));
+      // Editando: se o documento do arquivo é diferente do certificado atual,
+      // não é renovação — é troca por outro certificado. Avisa em vez de deixar
+      // a identidade mudar em silêncio (a proteção do servidor ainda barra um
+      // e-CNPJ preso numa empresa incompatível).
+      if (initial && data.document) {
+        const wasDigits = initial.document.replace(/\D/g, "");
+        const nowDigits = data.document.replace(/\D/g, "");
+        setReplaceWarning(
+          wasDigits && nowDigits && wasDigits !== nowDigits
+            ? `Este arquivo é de outro documento (${data.document}). Você está SUBSTITUINDO o certificado por um diferente, não renovando o mesmo. Confira antes de salvar.`
+            : null,
+        );
+      }
       setDetailsOpen(true);
       setParseState({ kind: "ok" });
       setPending(null);
@@ -216,6 +238,13 @@ export default function CertForm({
   // ele para saber se há arquivo — sem ler o ref durante o render.
   const hasFile = Boolean(fileData);
   const isCnpjType = form.type.startsWith("e-CNPJ") || form.type === "NF-e";
+  // Dicas em tempo real: só acusam quando o documento já tem tamanho de CPF/CNPJ
+  // (não fica vermelho enquanto a pessoa digita), e a de tipo só quando o
+  // documento em si é válido — assim cada aviso aponta uma coisa só.
+  const docComplete = documentKind(form.document) !== null;
+  const docInvalid = docComplete && !isValidDocument(form.document);
+  const typeDocMismatch =
+    docComplete && !docInvalid && !typeMatchesDocument(form.type, form.document);
 
   const dropzone = (
     <div
@@ -278,6 +307,12 @@ export default function CertForm({
         <p className="flex items-center gap-1.5 rounded-lg bg-bad-soft px-3 py-2 text-xs text-bad">
           <CircleAlert className="size-3.5 shrink-0" />
           {parseState.message}
+        </p>
+      )}
+      {replaceWarning && (
+        <p className="flex items-start gap-1.5 rounded-lg bg-warn-soft px-3 py-2 text-xs text-warn">
+          <TriangleAlert className="mt-0.5 size-3.5 shrink-0" />
+          <span>{replaceWarning}</span>
         </p>
       )}
     </>
@@ -353,12 +388,17 @@ export default function CertForm({
           <div className="grid grid-cols-2 gap-3">
             <Field label="CNPJ / CPF">
               <input
-                className="vlt-input"
+                className={`vlt-input ${docInvalid ? "!border-bad" : ""}`}
                 value={form.document}
                 onChange={(e) => set("document", e.target.value)}
                 placeholder="00.000.000/0000-00"
                 required
               />
+              {docInvalid && (
+                <p className="mt-1 text-[0.7rem] text-bad">
+                  Esse CNPJ/CPF não parece válido. Confira os números.
+                </p>
+              )}
             </Field>
             <Field label="Tipo">
               <select
@@ -370,6 +410,13 @@ export default function CertForm({
                   <option key={t}>{t}</option>
                 ))}
               </select>
+              {typeDocMismatch && (
+                <p className="mt-1 text-[0.7rem] text-warn">
+                  {isCnpjType
+                    ? "Este tipo é de CNPJ, mas o documento é um CPF."
+                    : "Este tipo é de CPF, mas o documento é um CNPJ."}
+                </p>
+              )}
             </Field>
           </div>
 

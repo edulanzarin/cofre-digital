@@ -100,3 +100,59 @@ export function formatDocument(digits: string): string {
   return digits;
 }
 
+// Espécie do documento pelo tamanho: 14 dígitos = CNPJ, 11 = CPF, senão null
+// (tamanho incompleto/estranho). Ignora pontuação.
+export function documentKind(document: string): "cnpj" | "cpf" | null {
+  const d = document.replace(/\D/g, "");
+  if (d.length === 14) return "cnpj";
+  if (d.length === 11) return "cpf";
+  return null;
+}
+
+// Dígitos verificadores do CPF. Barra sequências repetidas ("111.111.111-11")
+// e qualquer número digitado errado — a rede de segurança contra criar empresa
+// (ou vincular certificado) num documento que não existe.
+export function isValidCpf(document: string): boolean {
+  const c = document.replace(/\D/g, "");
+  if (c.length !== 11 || /^(\d)\1{10}$/.test(c)) return false;
+  const digit = (len: number) => {
+    let sum = 0;
+    for (let i = 0; i < len; i++) sum += Number(c[i]) * (len + 1 - i);
+    const r = (sum * 10) % 11;
+    return r === 10 ? 0 : r;
+  };
+  return digit(9) === Number(c[9]) && digit(10) === Number(c[10]);
+}
+
+// Dígitos verificadores do CNPJ (numérico). Mesma ideia do CPF.
+export function isValidCnpj(document: string): boolean {
+  const c = document.replace(/\D/g, "");
+  if (c.length !== 14 || /^(\d)\1{13}$/.test(c)) return false;
+  const weights1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+  const weights2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+  const check = (weights: number[]) => {
+    let sum = 0;
+    for (let i = 0; i < weights.length; i++) sum += Number(c[i]) * weights[i];
+    const r = sum % 11;
+    return r < 2 ? 0 : 11 - r;
+  };
+  return check(weights1) === Number(c[12]) && check(weights2) === Number(c[13]);
+}
+
+// Documento válido: tamanho de CPF/CNPJ E dígitos verificadores conferem.
+export function isValidDocument(document: string): boolean {
+  const kind = documentKind(document);
+  if (kind === "cpf") return isValidCpf(document);
+  if (kind === "cnpj") return isValidCnpj(document);
+  return false;
+}
+
+// O tipo do certificado combina com a espécie do documento?
+// e-CNPJ e NF-e são de CNPJ (14 dígitos); e-CPF é de CPF (11).
+export function typeMatchesDocument(type: CertType, document: string): boolean {
+  const kind = documentKind(document);
+  if (!kind) return false;
+  const wantsCnpj = type.startsWith("e-CNPJ") || type === "NF-e";
+  return wantsCnpj ? kind === "cnpj" : kind === "cpf";
+}
+

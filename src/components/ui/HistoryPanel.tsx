@@ -216,7 +216,7 @@ export default function HistoryPanel({
                       <p className="pt-1 text-[0.8rem] font-medium">{meta.label}</p>
                     )}
                     {event.kind !== "note" && event.message && (
-                      <p className="mt-0.5 text-[0.72rem] text-ink-2">
+                      <p className="mt-0.5 text-[0.72rem] leading-relaxed whitespace-pre-line text-ink-2">
                         {event.message}
                       </p>
                     )}

@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import {
   CERT_INCLUDE,
+  type CertSnapshot,
   certFileBase,
+  describeCertChanges,
   parseCertBody,
   resolveCertCompany,
   toDTO,
@@ -40,13 +42,11 @@ export async function PUT(req: Request, { params }: Params) {
   if (auth instanceof NextResponse) return auth;
   const { id } = await params;
   const raw = await req.json().catch(() => null);
-  const data = parseCertBody(raw);
-  if (!data) {
-    return NextResponse.json(
-      { error: "Dados do certificado inválidos." },
-      { status: 400 },
-    );
+  const parsed = parseCertBody(raw);
+  if (!parsed.ok) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
+  const data = parsed.data;
   const duplicate = await prisma.certificate.findFirst({
     where: {
       document: data.document,
@@ -75,12 +75,46 @@ export async function PUT(req: Request, { params }: Params) {
   // Nome legível "NOME - DOCUMENTO", igual no download e no arquivo físico.
   const fileBase = certFileBase(company?.razaoSocial ?? data.holder, data.document);
   if (data.fileName) data.fileName = `${fileBase}.pfx`;
+  // Foto do certificado ANTES da edição — base do histórico "o que mudou". Traz
+  // também o nome da empresa dona e do grupo efetivo para o diff sair legível.
   const before = await prisma.certificate.findUnique({
     where: { id },
-    select: { expiresAt: true, fileData: true, filePath: true, groupId: true },
+    select: {
+      holder: true,
+      document: true,
+      type: true,
+      media: true,
+      issuer: true,
+      issuedAt: true,
+      expiresAt: true,
+      password: true,
+      notes: true,
+      fileData: true,
+      filePath: true,
+      groupId: true,
+      company: {
+        select: { razaoSocial: true, group: { select: { name: true } } },
+      },
+      group: { select: { name: true } },
+    },
   });
   if (!before) return notFound();
-  const renewed = before.expiresAt.getTime() !== data.expiresAt.getTime();
+  const beforeSnap: CertSnapshot = {
+    holder: before.holder,
+    document: before.document,
+    type: before.type,
+    media: before.media,
+    issuer: before.issuer,
+    issuedAt: before.issuedAt,
+    expiresAt: before.expiresAt,
+    password: before.password,
+    notes: before.notes,
+    companyName: before.company?.razaoSocial ?? null,
+    groupName: before.company
+      ? (before.company.group?.name ?? null)
+      : (before.group?.name ?? null),
+    hasFile: Boolean(before.fileData || before.filePath),
+  };
   // Grupo do certificado: com empresa dona, o grupo é o dela e o direto zera;
   // sem empresa, o grupo mora no cert. Seletor vazio/oculto não mexe no que já
   // havia (nunca desvincula, igual à empresa).
@@ -101,6 +135,7 @@ export async function PUT(req: Request, { params }: Params) {
     // Arquivo: cartão nunca tem; com novos bytes, (re)grava; sem bytes num
     // certificado de arquivo, PRESERVA o que já existe (protege contra o disco
     // falhar na hora da edição e apagar a referência sem querer).
+    const fileReplaced = data.media === "FILE" && Boolean(data.fileData);
     const file =
       data.media === "CARD"
         ? { base64: null, filePath: null }
@@ -110,6 +145,8 @@ export async function PUT(req: Request, { params }: Params) {
               keepPath: before.filePath,
             })
           : { base64: before.fileData, filePath: before.filePath };
+    // Atualiza primeiro (sem evento) para o diff comparar contra o estado real
+    // já gravado — inclusive o grupo que a empresa acabou de receber.
     const row = await prisma.certificate.update({
       where: { id },
       data: {
@@ -117,16 +154,32 @@ export async function PUT(req: Request, { params }: Params) {
         groupId,
         fileData: file.base64,
         filePath: file.filePath,
-        events: {
-          create: {
-            kind: "updated",
-            userName: auth.name,
-            message: renewed ? "Novo vencimento registrado." : null,
-          },
-        },
       },
       include: CERT_INCLUDE,
     });
+    const afterSnap: CertSnapshot = {
+      holder: row.holder,
+      document: row.document,
+      type: row.type,
+      media: row.media,
+      issuer: row.issuer,
+      issuedAt: row.issuedAt,
+      expiresAt: row.expiresAt,
+      password: row.password,
+      notes: row.notes,
+      companyName: row.company?.razaoSocial ?? null,
+      groupName: row.company
+        ? (row.company.group?.name ?? null)
+        : (row.group?.name ?? null),
+      hasFile: Boolean(row.fileData || row.filePath),
+    };
+    // Só registra evento quando algo REALMENTE mudou — nada de "atualizado" vazio.
+    const changes = describeCertChanges(beforeSnap, afterSnap, { fileReplaced });
+    if (changes) {
+      await prisma.certificateEvent.create({
+        data: { certificateId: id, kind: "updated", message: changes, userName: auth.name },
+      });
+    }
     // Arquivo que saiu do disco (virou cartão) é removido de lá.
     if (before.filePath && before.filePath !== file.filePath) {
       await removeFileAt(before.filePath);
