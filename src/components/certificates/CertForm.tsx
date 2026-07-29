@@ -17,6 +17,7 @@ import type { Company } from "@/lib/companies";
 import type { CompanyGroup } from "@/lib/companyGroups";
 import { bufferToBase64, parsePfx, PfxError } from "@/lib/pfx";
 import Combobox from "@/components/ui/Combobox";
+import PasswordInput from "@/components/ui/PasswordInput";
 
 // O certificado carrega, além dos seus campos, o grupo a aplicar na empresa
 // dona do cofre — resolve tudo numa tela só quando o cert cria a empresa.
@@ -404,9 +405,8 @@ export default function CertForm({
 
           {/* Senha do certificado — vem lida do arquivo ou digitada à mão */}
           <Field label="Senha do certificado">
-            <input
-              type="password"
-              className="vlt-input font-mono"
+            <PasswordInput
+              className="font-mono"
               value={form.password}
               onChange={(e) => set("password", e.target.value)}
               required
@@ -558,10 +558,9 @@ function PfxPasswordPrompt({
           <p className="mb-2 text-xs text-ink-2">
             Digite a senha para ler os dados do certificado.
           </p>
-          <input
+          <PasswordInput
             ref={inputRef}
-            type="password"
-            className="vlt-input font-mono"
+            className="font-mono"
             placeholder="Senha do certificado"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
