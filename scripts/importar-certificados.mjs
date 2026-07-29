@@ -173,6 +173,11 @@ const detalhe = JSON.parse(await readFile(`${args.map}/dados-por-arquivo.json`, 
 const porCnpj = {};
 for (const [arq, d] of Object.entries(detalhe)) if (d.cnpjCpf) porCnpj[d.cnpjCpf] = { arq, ...d };
 
+// Casa pelo NOME do arquivo; se não bater, cai pro CNPJ tirado do nome
+// ("NOME - CNPJ.pfx") — pega arquivo renomeado cujo documento ainda está no mapa.
+const cnpjFromName = (name) => name.split(" - ").pop().replace(/\.(pfx|p12)$/i, "").replace(/\D/g, "");
+const metaFor = (name) => detalhe[name] || porCnpj[cnpjFromName(name)] || null;
+
 let files = (await walk(args.pfx)).sort((a, b) => a.name.localeCompare(b.name));
 if (args.limit) files = files.slice(0, args.limit);
 
@@ -197,7 +202,7 @@ if (!args.dry) {
   const { json: existentes } = await client.req("GET", "/api/company-groups");
   for (const g of existentes ?? []) groupIdByName.set(g.name, g.id);
   const nomesNecessarios = new Set(
-    files.map((f) => detalhe[f.name]?.grupo?.trim()).filter((n) => n && !groupIdByName.has(n)),
+    files.map((f) => metaFor(f.name)?.grupo?.trim()).filter((n) => n && !groupIdByName.has(n)),
   );
   for (const nome of nomesNecessarios) {
     const { status, json } = await client.req("POST", "/api/company-groups", { name: nome });
@@ -215,7 +220,7 @@ const relatorio = [];
 let done = 0;
 
 await pool(files, args.dry ? 1 : args.concurrency, async (f) => {
-  const meta = detalhe[f.name];
+  const meta = metaFor(f.name);
   const record = (status, detalheMsg) => {
     stats[status]++;
     relatorio.push({ arquivo: f.name, status, detalhe: detalheMsg ?? "" });
