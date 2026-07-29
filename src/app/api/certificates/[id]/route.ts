@@ -70,12 +70,13 @@ export async function PUT(req: Request, { params }: Params) {
   // Nome legível "NOME - DOCUMENTO", igual no download e no arquivo físico.
   const fileBase = certFileBase(companyName ?? data.holder, data.document);
   if (data.fileName) data.fileName = `${fileBase}.pfx`;
+  const before = await prisma.certificate.findUnique({
+    where: { id },
+    select: { expiresAt: true, fileData: true, filePath: true },
+  });
+  if (!before) return notFound();
+  const renewed = before.expiresAt.getTime() !== data.expiresAt.getTime();
   try {
-    const before = await prisma.certificate.findUniqueOrThrow({
-      where: { id },
-      select: { expiresAt: true, fileData: true, filePath: true },
-    });
-    const renewed = before.expiresAt.getTime() !== data.expiresAt.getTime();
     // Grupo escolhido no formulário entra na empresa dona (nunca desvincula).
     if (data.companyId) {
       await assignCompanyGroup(data.companyId, (raw as { groupId?: unknown })?.groupId, auth);
@@ -113,8 +114,19 @@ export async function PUT(req: Request, { params }: Params) {
       await removeFileAt(before.filePath);
     }
     return NextResponse.json(toDTO(row, true));
-  } catch {
-    return notFound();
+  } catch (err) {
+    // Não engolir a causa real (ex.: falha ao gravar na rede): registra no
+    // servidor e devolve a mensagem, senão a edição só mostra "não encontrado".
+    console.error(`Falha ao salvar certificado ${id}:`, err);
+    return NextResponse.json(
+      {
+        error:
+          err instanceof Error
+            ? `Não foi possível salvar: ${err.message}`
+            : "Falha ao salvar as alterações.",
+      },
+      { status: 500 },
+    );
   }
 }
 
