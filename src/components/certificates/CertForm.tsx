@@ -94,6 +94,10 @@ export default function CertForm({
   const [fileName, setFileName] = useState(initial?.fileName ?? "");
   const [fileData, setFileData] = useState(initial?.fileData ?? "");
   const fileBuffer = useRef<ArrayBuffer | null>(null);
+  // Só quando o usuário escolhe um arquivo NOVO os bytes voltam pro servidor.
+  // Editar só os dados não reenvia (nem faz regravar na rede) o .pfx que já
+  // está guardado — era isso que fazia toda edição reescrever o arquivo.
+  const fileChanged = useRef(false);
   const [parseState, setParseState] = useState<ParseState>({ kind: "idle" });
   // Só o cadastro novo por arquivo esconde os campos até a leitura.
   const guided = media === "file" && !initial;
@@ -133,6 +137,7 @@ export default function CertForm({
   async function handleFile(file: File) {
     const buffer = await file.arrayBuffer();
     fileBuffer.current = buffer;
+    fileChanged.current = true;
     // Nomeia o arquivo com o nome da empresa se já houver uma selecionada,
     // senão mantém o nome original do arquivo.
     const resolvedName = fixedCompanyName
@@ -209,7 +214,8 @@ export default function CertForm({
       expiresAt: new Date(form.expiresAt + "T12:00:00").toISOString(),
       password: form.password,
       fileName: media === "file" ? fileName || undefined : undefined,
-      fileData: media === "file" ? fileData || undefined : undefined,
+      fileData:
+        media === "file" && fileChanged.current ? fileData || undefined : undefined,
       notes: form.notes.trim() || undefined,
       companyId: companyId || undefined,
       groupId: groupId || undefined,
