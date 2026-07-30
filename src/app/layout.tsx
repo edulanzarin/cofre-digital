@@ -5,6 +5,7 @@ import AppShell from "@/components/AppShell";
 export const metadata: Metadata = {
   title: "Cofre Digital · Navecon",
   description: "Cofre de certificados digitais e acessos da Navecon",
+  icons: { icon: "/images/logo.png" },
 };
 
 // Aplica o tema salvo antes do primeiro paint para evitar flash.
