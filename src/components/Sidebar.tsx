@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
-  Vault,
   LayoutGrid,
   Building2,
   ShieldCheck,
@@ -97,9 +97,14 @@ export default function Sidebar() {
     <aside className="fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-line bg-sidebar max-lg:w-16">
       {/* Marca */}
       <div className="flex items-center gap-2.5 px-4 pt-5 pb-3 max-lg:justify-center max-lg:px-0">
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand shadow-(--brand-glow)">
-          <Vault className="size-5" strokeWidth={1.8} />
-        </div>
+        <Image
+          src="/images/logo.png"
+          alt="Cofre Digital"
+          width={36}
+          height={36}
+          priority
+          className="size-9 shrink-0 rounded-xl object-contain"
+        />
         <div className="max-lg:hidden">
           <p className="text-sm leading-tight font-semibold tracking-tight">
             Cofre Digital

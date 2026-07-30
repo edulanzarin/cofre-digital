@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Vault, LogIn } from "lucide-react";
+import Image from "next/image";
+import { LogIn } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -35,9 +36,14 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-8 px-4">
       <div className="anim-fade-up flex flex-col items-center gap-3">
-        <div className="flex size-14 items-center justify-center rounded-2xl bg-brand-soft text-brand shadow-(--brand-glow)">
-          <Vault className="size-7" strokeWidth={1.7} />
-        </div>
+        <Image
+          src="/images/logo.png"
+          alt="Cofre Digital"
+          width={56}
+          height={56}
+          priority
+          className="size-14 rounded-2xl object-contain"
+        />
         <div className="text-center">
           <h1 className="text-xl font-semibold tracking-tight">Cofre Digital</h1>
           <p className="mt-0.5 text-sm text-ink-3">
