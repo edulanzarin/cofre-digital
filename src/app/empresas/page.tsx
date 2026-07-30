@@ -1,43 +1,21 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
-import {
-  Plus,
-  Search,
-  Building2,
-  Inbox,
-  ShieldCheck,
-  Globe,
-  FileBadge,
-  ChevronRight,
-  Network,
-} from "lucide-react";
-import type { Company } from "@/lib/companies";
+import { useRouter } from "next/navigation";
+import { Plus, Search, Inbox, Network } from "lucide-react";
 import type { CompanyInput } from "@/lib/useCompanies";
 import { NO_GROUP } from "@/lib/companyGroups";
 import { useCompanies } from "@/lib/useCompanies";
 import { useCompanyGroups } from "@/lib/useCompanyGroups";
 import { useVaultConfig } from "@/lib/vaultConfig";
-import {
-  certStatus,
-  formatDocument,
-  STATUS_META,
-  type CertStatus,
-} from "@/lib/certificates";
 import { useMe } from "@/lib/useMe";
 import { useUrlState } from "@/lib/useUrlState";
 import { toast, toastError } from "@/lib/toast";
-import { SkeletonCards } from "@/components/ui/Skeleton";
+import { SkeletonTable } from "@/components/ui/Skeleton";
 import Modal from "@/components/ui/Modal";
 import Combobox from "@/components/ui/Combobox";
 import CompanyForm from "@/components/companies/CompanyForm";
-
-// Situação da empresa = situação do certificado que vence primeiro.
-function companyStatus(company: Company, alertDays: number): CertStatus | null {
-  if (!company.nextExpiresAt) return null;
-  return certStatus({ expiresAt: company.nextExpiresAt }, alertDays);
-}
+import CompanyList from "@/components/companies/CompanyList";
 
 export default function CompaniesPage() {
   const { companies, ready, add, refresh: refreshCompanies } = useCompanies();
@@ -51,6 +29,7 @@ export default function CompaniesPage() {
   const { alertDays } = useVaultConfig();
   const { can } = useMe();
   const canEdit = can("empresas", "edit");
+  const router = useRouter();
   // Busca e grupo na URL: link compartilhável e reload sem perder o contexto.
   const [query, setQuery] = useUrlState("q", "");
   const [group, setGroup] = useUrlState("grupo", "");
@@ -173,7 +152,7 @@ export default function CompaniesPage() {
 
       {/* Lista */}
       {!ready ? (
-        <SkeletonCards rows={5} className="h-16" />
+        <SkeletonTable rows={6} cols={groups.length > 0 ? 6 : 5} />
       ) : filtered.length === 0 ? (
         <div
           className="vlt-card anim-fade-up flex flex-col items-center gap-3 px-6 py-16 text-center"
@@ -189,68 +168,14 @@ export default function CompaniesPage() {
           </p>
         </div>
       ) : (
-        <ul
-          className="vlt-card anim-fade-up divide-y divide-line"
-          style={{ animationDelay: "120ms" }}
-        >
-          {filtered.map((company) => {
-            const status = companyStatus(company, alertDays);
-            return (
-              <li key={company.id}>
-                <Link
-                  href={`/empresas/${company.id}`}
-                  className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-panel-2/60"
-                >
-                  <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand">
-                    <Building2 className="size-4" strokeWidth={1.8} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">
-                      {company.razaoSocial}
-                    </p>
-                    <p className="mt-0.5 flex items-center gap-2 text-[0.7rem] text-ink-3">
-                      <span className="font-mono">
-                        {formatDocument(company.cnpj)}
-                      </span>
-                      {company.group && (
-                        <>
-                          <span aria-hidden>·</span>
-                          <span className="truncate">{company.group.name}</span>
-                        </>
-                      )}
-                    </p>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-4 text-[0.72rem] text-ink-3 max-sm:hidden">
-                    <span className="flex items-center gap-1.5" title="Certificados">
-                      <ShieldCheck className="size-3.5" />
-                      {company.certCount}
-                    </span>
-                    <span className="flex items-center gap-1.5" title="Acessos">
-                      <Globe className="size-3.5" />
-                      {company.accessCount}
-                    </span>
-                    <span className="flex items-center gap-1.5" title="Alvarás">
-                      <FileBadge className="size-3.5" />
-                      {company.alvaraCount}
-                    </span>
-                  </div>
-                  {status && (
-                    <span
-                      className="vlt-badge shrink-0"
-                      style={{
-                        background: STATUS_META[status].soft,
-                        color: STATUS_META[status].color,
-                      }}
-                    >
-                      {STATUS_META[status].label}
-                    </span>
-                  )}
-                  <ChevronRight className="size-4 shrink-0 text-ink-3" />
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        <div className="anim-fade-up" style={{ animationDelay: "120ms" }}>
+          <CompanyList
+            companies={filtered}
+            alertDays={alertDays}
+            onSelect={(id) => router.push(`/empresas/${id}`)}
+            showGroup={groups.length > 0}
+          />
+        </div>
       )}
 
       {/* Modal de cadastro */}
