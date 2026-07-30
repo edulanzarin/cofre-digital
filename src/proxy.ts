@@ -40,5 +40,8 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/auth).*)"],
+  // Exclui assets públicos e estáticos da autenticação. `images` é o
+  // public/images (logo) — sem isso, a logo na tela de LOGIN (não autenticada)
+  // era redirecionada pro /login e virava imagem quebrada.
+  matcher: ["/((?!_next/static|_next/image|images|favicon.ico|api/auth).*)"],
 };
