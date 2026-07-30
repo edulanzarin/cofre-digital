@@ -25,10 +25,10 @@ export default function AccessList({
   showCompany?: boolean;
 }) {
   return (
-    <div className="vlt-card overflow-x-auto">
+    <div className="vlt-card max-h-full overflow-auto">
       <table className="w-full min-w-[44rem] text-left text-sm">
         <thead>
-          <tr className="border-b border-line text-[0.68rem] tracking-wide text-ink-3 uppercase">
+          <tr className="sticky top-0 z-10 border-b border-line bg-panel text-[0.68rem] tracking-wide text-ink-3 uppercase">
             <th className="px-5 py-3 font-medium">Nome</th>
             <th className="px-4 py-3 font-medium">Site</th>
             <th className="px-4 py-3 font-medium">Tipo</th>

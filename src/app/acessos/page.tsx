@@ -9,6 +9,7 @@ import { useUrlState } from "@/lib/useUrlState";
 import { toast, toastError } from "@/lib/toast";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import Modal from "@/components/ui/Modal";
+import ListShell from "@/components/ui/ListShell";
 import AccessForm from "@/components/accesses/AccessForm";
 import AccessList from "@/components/accesses/AccessList";
 import AccessModal from "@/components/accesses/AccessModal";
@@ -105,73 +106,65 @@ export default function AccessesPage() {
   }
 
   return (
-    <div>
-      {/* Cabeçalho */}
-      <header className="anim-fade-up mb-6 flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight">Acessos</h1>
-        {editor && (
-          <button onClick={() => setModal("new")} className="vlt-btn vlt-btn-primary">
-            <Plus className="size-4" />
-            Novo acesso
-          </button>
-        )}
-      </header>
-
-      {/* Busca + filtro */}
-      <div
-        className="anim-fade-up mb-5 flex flex-wrap items-center gap-3"
-        style={{ animationDelay: "60ms" }}
+    <>
+      <ListShell
+        title="Acessos"
+        action={
+          editor && (
+            <button onClick={() => setModal("new")} className="vlt-btn vlt-btn-primary">
+              <Plus className="size-4" />
+              Novo acesso
+            </button>
+          )
+        }
+        toolbar={
+          <>
+            <div className="relative min-w-56 flex-1">
+              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" />
+              <input
+                className="vlt-input pl-9"
+                placeholder="Buscar por nome, site, login, empresa…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+            <div className="relative">
+              <KeyRound className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" />
+              <select
+                className="vlt-input w-52 pl-9"
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}
+              >
+                <option value="all">Todos os tipos de login</option>
+                {LOGIN_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
+        }
       >
-        <div className="relative min-w-56 flex-1">
-          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" />
-          <input
-            className="vlt-input pl-9"
-            placeholder="Buscar por nome, site, login, empresa…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </div>
-        <div className="relative">
-          <KeyRound className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" />
-          <select
-            className="vlt-input w-52 pl-9"
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value as TypeFilter)}
-          >
-            <option value="all">Todos os tipos de login</option>
-            {LOGIN_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {/* Lista */}
-      {!ready ? (
-        <SkeletonTable rows={6} cols={showCompany ? 6 : 5} />
-      ) : filtered.length === 0 ? (
-        <div
-          className="vlt-card anim-fade-up flex flex-col items-center gap-3 px-6 py-16 text-center"
-          style={{ animationDelay: "120ms" }}
-        >
-          <Inbox className="size-8 text-ink-3" strokeWidth={1.5} />
-          <p className="text-sm text-ink-2">
-            {accesses.length === 0
-              ? "Nenhum acesso guardado ainda."
-              : "Nada encontrado com esses filtros."}
-          </p>
-        </div>
-      ) : (
-        <div className="anim-fade-up" style={{ animationDelay: "120ms" }}>
+        {!ready ? (
+          <SkeletonTable rows={6} cols={showCompany ? 6 : 5} />
+        ) : filtered.length === 0 ? (
+          <div className="vlt-card flex flex-col items-center gap-3 px-6 py-16 text-center">
+            <Inbox className="size-8 text-ink-3" strokeWidth={1.5} />
+            <p className="text-sm text-ink-2">
+              {accesses.length === 0
+                ? "Nenhum acesso guardado ainda."
+                : "Nada encontrado com esses filtros."}
+            </p>
+          </div>
+        ) : (
           <AccessList
             accesses={filtered}
             onSelect={(id) => setSelectedId(id)}
             showCompany={showCompany}
           />
-        </div>
-      )}
+        )}
+      </ListShell>
 
       {/* Modal de detalhes */}
       {selected && modal === "closed" && (
@@ -200,6 +193,6 @@ export default function AccessesPage() {
           />
         </Modal>
       )}
-    </div>
+    </>
   );
 }

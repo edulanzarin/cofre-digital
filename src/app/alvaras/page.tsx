@@ -15,6 +15,7 @@ import { useUrlState } from "@/lib/useUrlState";
 import { toast, toastError } from "@/lib/toast";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import Modal from "@/components/ui/Modal";
+import ListShell from "@/components/ui/ListShell";
 import AlvaraForm from "@/components/alvaras/AlvaraForm";
 import AlvaraModal from "@/components/alvaras/AlvaraModal";
 import AlvaraList from "@/components/alvaras/AlvaraList";
@@ -122,69 +123,61 @@ export default function AlvarasPage() {
   }
 
   return (
-    <div>
-      {/* Cabeçalho */}
-      <header className="anim-fade-up mb-6 flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight">Alvarás</h1>
-        {canEdit && (
-          <button onClick={() => setModal("new")} className="vlt-btn vlt-btn-primary">
-            <Plus className="size-4" />
-            Novo alvará
-          </button>
-        )}
-      </header>
-
-      {/* Busca + filtro */}
-      <div
-        className="anim-fade-up mb-5 flex flex-wrap items-center gap-3"
-        style={{ animationDelay: "60ms" }}
-      >
-        <div className="relative min-w-56 flex-1">
-          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" />
-          <input
-            className="vlt-input pl-9"
-            placeholder="Buscar por tipo, número, empresa, órgão emissor…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </div>
-        <div className="vlt-segment">
-          {FILTERS.map(({ key, label }) => (
-            <button
-              key={key}
-              data-active={filter === key}
-              onClick={() => setFilter(key)}
-            >
-              {label}
+    <>
+      <ListShell
+        title="Alvarás"
+        action={
+          canEdit && (
+            <button onClick={() => setModal("new")} className="vlt-btn vlt-btn-primary">
+              <Plus className="size-4" />
+              Novo alvará
             </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Lista */}
-      {!ready ? (
-        <SkeletonTable rows={6} cols={6} />
-      ) : filtered.length === 0 ? (
-        <div
-          className="vlt-card anim-fade-up flex flex-col items-center gap-3 px-6 py-16 text-center"
-          style={{ animationDelay: "120ms" }}
-        >
-          <Inbox className="size-8 text-ink-3" strokeWidth={1.5} />
-          <p className="text-sm text-ink-2">
-            {alvaras.length === 0
-              ? "Nenhum alvará no cofre. Guarde o primeiro."
-              : "Nada encontrado com esses filtros."}
-          </p>
-        </div>
-      ) : (
-        <div className="anim-fade-up" style={{ animationDelay: "120ms" }}>
+          )
+        }
+        toolbar={
+          <>
+            <div className="relative min-w-56 flex-1">
+              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" />
+              <input
+                className="vlt-input pl-9"
+                placeholder="Buscar por tipo, número, empresa, órgão emissor…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+            <div className="vlt-segment">
+              {FILTERS.map(({ key, label }) => (
+                <button
+                  key={key}
+                  data-active={filter === key}
+                  onClick={() => setFilter(key)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </>
+        }
+      >
+        {!ready ? (
+          <SkeletonTable rows={6} cols={6} />
+        ) : filtered.length === 0 ? (
+          <div className="vlt-card flex flex-col items-center gap-3 px-6 py-16 text-center">
+            <Inbox className="size-8 text-ink-3" strokeWidth={1.5} />
+            <p className="text-sm text-ink-2">
+              {alvaras.length === 0
+                ? "Nenhum alvará no cofre. Guarde o primeiro."
+                : "Nada encontrado com esses filtros."}
+            </p>
+          </div>
+        ) : (
           <AlvaraList
             alvaras={filtered}
             alertDays={alertDays}
             onSelect={(id) => setSelectedId(id)}
           />
-        </div>
-      )}
+        )}
+      </ListShell>
 
       {/* Modal de detalhes */}
       {selected && modal === "closed" && (
@@ -211,6 +204,6 @@ export default function AlvarasPage() {
           />
         </Modal>
       )}
-    </div>
+    </>
   );
 }

@@ -26,10 +26,10 @@ export default function CertList({
   showGroup?: boolean;
 }) {
   return (
-    <div className="vlt-card overflow-x-auto">
+    <div className="vlt-card max-h-full overflow-auto">
       <table className="w-full min-w-[44rem] text-left text-sm">
         <thead>
-          <tr className="border-b border-line text-[0.68rem] tracking-wide text-ink-3 uppercase">
+          <tr className="sticky top-0 z-10 border-b border-line bg-panel text-[0.68rem] tracking-wide text-ink-3 uppercase">
             <th className="px-5 py-3 font-medium">Titular</th>
             <th className="px-4 py-3 font-medium">CNPJ / CPF</th>
             {showCompany && <th className="px-4 py-3 font-medium">Empresa</th>}

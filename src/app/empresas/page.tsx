@@ -14,6 +14,7 @@ import { toast, toastError } from "@/lib/toast";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import Modal from "@/components/ui/Modal";
 import Combobox from "@/components/ui/Combobox";
+import ListShell from "@/components/ui/ListShell";
 import CompanyForm from "@/components/companies/CompanyForm";
 import CompanyList from "@/components/companies/CompanyList";
 
@@ -109,74 +110,67 @@ export default function CompaniesPage() {
   }
 
   return (
-    <div>
-      {/* Cabeçalho */}
-      <header className="anim-fade-up mb-6 flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight">Empresas</h1>
-        {canEdit && (
-          <button onClick={() => setCreating(true)} className="vlt-btn vlt-btn-primary">
-            <Plus className="size-4" />
-            Nova empresa
-          </button>
-        )}
-      </header>
-
-      {/* Busca + grupo. O grupo nasce e é gerenciado de dentro do cadastro da
-          empresa e deste próprio filtro — não há mais tela separada. */}
-      <div
-        className="anim-fade-up mb-5 flex flex-wrap items-center gap-3"
-        style={{ animationDelay: "60ms" }}
+    <>
+      <ListShell
+        title="Empresas"
+        action={
+          canEdit && (
+            <button onClick={() => setCreating(true)} className="vlt-btn vlt-btn-primary">
+              <Plus className="size-4" />
+              Nova empresa
+            </button>
+          )
+        }
+        toolbar={
+          <>
+            <div className="relative min-w-56 flex-1 sm:max-w-md">
+              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" />
+              <input
+                className="vlt-input pl-9"
+                placeholder="Buscar por razão social ou CNPJ…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+            {/* O grupo nasce e é gerenciado de dentro do cadastro da empresa e
+                deste próprio filtro — não há mais tela separada. */}
+            {groups.length > 0 && (
+              <Combobox
+                className="w-56"
+                options={groupOptions}
+                value={group}
+                onChange={setGroup}
+                searchPlaceholder="Buscar grupo…"
+                onRename={canEdit ? handleRenameGroup : undefined}
+                onDelete={canEdit ? handleDeleteGroup : undefined}
+                icon={<Network className="size-4 shrink-0 text-ink-3" />}
+              />
+            )}
+          </>
+        }
       >
-        <div className="relative min-w-56 flex-1 sm:max-w-md">
-          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" />
-          <input
-            className="vlt-input pl-9"
-            placeholder="Buscar por razão social ou CNPJ…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </div>
-        {groups.length > 0 && (
-          <Combobox
-            className="w-56"
-            options={groupOptions}
-            value={group}
-            onChange={setGroup}
-            searchPlaceholder="Buscar grupo…"
-            onRename={canEdit ? handleRenameGroup : undefined}
-            onDelete={canEdit ? handleDeleteGroup : undefined}
-            icon={<Network className="size-4 shrink-0 text-ink-3" />}
-          />
-        )}
-      </div>
-
-      {/* Lista */}
-      {!ready ? (
-        <SkeletonTable rows={6} cols={groups.length > 0 ? 6 : 5} />
-      ) : filtered.length === 0 ? (
-        <div
-          className="vlt-card anim-fade-up flex flex-col items-center gap-3 px-6 py-16 text-center"
-          style={{ animationDelay: "120ms" }}
-        >
-          <Inbox className="size-8 text-ink-3" strokeWidth={1.5} />
-          <p className="text-sm text-ink-2">
-            {companies.length === 0
-              ? "Nenhuma empresa cadastrada ainda."
-              : group && !query.trim()
-                ? "Nenhuma empresa neste grupo ainda."
-                : "Nada encontrado com esses filtros."}
-          </p>
-        </div>
-      ) : (
-        <div className="anim-fade-up" style={{ animationDelay: "120ms" }}>
+        {!ready ? (
+          <SkeletonTable rows={6} cols={groups.length > 0 ? 6 : 5} />
+        ) : filtered.length === 0 ? (
+          <div className="vlt-card flex flex-col items-center gap-3 px-6 py-16 text-center">
+            <Inbox className="size-8 text-ink-3" strokeWidth={1.5} />
+            <p className="text-sm text-ink-2">
+              {companies.length === 0
+                ? "Nenhuma empresa cadastrada ainda."
+                : group && !query.trim()
+                  ? "Nenhuma empresa neste grupo ainda."
+                  : "Nada encontrado com esses filtros."}
+            </p>
+          </div>
+        ) : (
           <CompanyList
             companies={filtered}
             alertDays={alertDays}
             onSelect={(id) => router.push(`/empresas/${id}`)}
             showGroup={groups.length > 0}
           />
-        </div>
-      )}
+        )}
+      </ListShell>
 
       {/* Modal de cadastro */}
       {canEdit && creating && (
@@ -189,6 +183,6 @@ export default function CompaniesPage() {
           />
         </Modal>
       )}
-    </div>
+    </>
   );
 }

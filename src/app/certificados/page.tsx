@@ -19,6 +19,7 @@ import { toast, toastError } from "@/lib/toast";
 import { SkeletonTable } from "@/components/ui/Skeleton";
 import Modal from "@/components/ui/Modal";
 import Combobox from "@/components/ui/Combobox";
+import ListShell from "@/components/ui/ListShell";
 import CertForm, { type CertSubmit } from "@/components/certificates/CertForm";
 import CertModal from "@/components/certificates/CertModal";
 import CertList from "@/components/certificates/CertList";
@@ -219,93 +220,85 @@ export default function CertificatesPage() {
   }
 
   return (
-    <div>
-      {/* Cabeçalho */}
-      <header className="anim-fade-up mb-6 flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight">Certificados</h1>
-        {canEdit && (
-          <button onClick={() => setModal("new")} className="vlt-btn vlt-btn-primary">
-            <Plus className="size-4" />
-            Novo certificado
-          </button>
-        )}
-      </header>
-
-      {/* Busca + filtro */}
-      <div
-        className="anim-fade-up mb-5 flex flex-wrap items-center gap-3"
-        style={{ animationDelay: "60ms" }}
+    <>
+      <ListShell
+        title="Certificados"
+        action={
+          canEdit && (
+            <button onClick={() => setModal("new")} className="vlt-btn vlt-btn-primary">
+              <Plus className="size-4" />
+              Novo certificado
+            </button>
+          )
+        }
+        toolbar={
+          <>
+            <div className="relative min-w-56 flex-1">
+              <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" />
+              <input
+                className="vlt-input pl-9"
+                placeholder="Buscar por titular, documento, empresa, emissor…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+            {groups.length > 0 && (
+              <Combobox
+                className="w-56"
+                options={groupOptions}
+                value={group}
+                onChange={setGroup}
+                searchPlaceholder="Buscar grupo…"
+                onRename={canEditGroups ? handleRenameGroup : undefined}
+                onDelete={canEditGroups ? handleDeleteGroup : undefined}
+                icon={<Network className="size-4 shrink-0 text-ink-3" />}
+              />
+            )}
+            <div className="vlt-segment">
+              {DOC_FILTERS.map(({ key, label }) => (
+                <button
+                  key={key}
+                  data-active={docFilter === key}
+                  onClick={() => setDocFilter(key)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <div className="vlt-segment">
+              {FILTERS.map(({ key, label }) => (
+                <button
+                  key={key}
+                  data-active={filter === key}
+                  onClick={() => setFilter(key)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </>
+        }
       >
-        <div className="relative min-w-56 flex-1">
-          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" />
-          <input
-            className="vlt-input pl-9"
-            placeholder="Buscar por titular, documento, empresa, emissor…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </div>
-        {groups.length > 0 && (
-          <Combobox
-            className="w-56"
-            options={groupOptions}
-            value={group}
-            onChange={setGroup}
-            searchPlaceholder="Buscar grupo…"
-            onRename={canEditGroups ? handleRenameGroup : undefined}
-            onDelete={canEditGroups ? handleDeleteGroup : undefined}
-            icon={<Network className="size-4 shrink-0 text-ink-3" />}
-          />
-        )}
-        <div className="vlt-segment">
-          {DOC_FILTERS.map(({ key, label }) => (
-            <button
-              key={key}
-              data-active={docFilter === key}
-              onClick={() => setDocFilter(key)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-        <div className="vlt-segment">
-          {FILTERS.map(({ key, label }) => (
-            <button
-              key={key}
-              data-active={filter === key}
-              onClick={() => setFilter(key)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Lista */}
-      {!ready ? (
-        <SkeletonTable rows={6} cols={7} />
-      ) : filtered.length === 0 ? (
-        <div
-          className="vlt-card anim-fade-up flex flex-col items-center gap-3 px-6 py-16 text-center"
-          style={{ animationDelay: "120ms" }}
-        >
-          <Inbox className="size-8 text-ink-3" strokeWidth={1.5} />
-          <p className="text-sm text-ink-2">
-            {certs.length === 0
-              ? "O cofre está vazio. Guarde o primeiro certificado."
-              : "Nada encontrado com esses filtros."}
-          </p>
-        </div>
-      ) : (
-        <div className="anim-fade-up" style={{ animationDelay: "120ms" }}>
+        {!ready ? (
+          <SkeletonTable rows={6} cols={7} />
+        ) : filtered.length === 0 ? (
+          <div className="vlt-card flex flex-col items-center gap-3 px-6 py-16 text-center">
+            <Inbox className="size-8 text-ink-3" strokeWidth={1.5} />
+            <p className="text-sm text-ink-2">
+              {certs.length === 0
+                ? "O cofre está vazio. Guarde o primeiro certificado."
+                : "Nada encontrado com esses filtros."}
+            </p>
+          </div>
+        ) : (
           <CertList
             certs={filtered}
             alertDays={alertDays}
             onSelect={(id) => setSelectedId(id)}
             showGroup={groups.length > 0}
           />
-        </div>
-      )}
+        )}
+      </ListShell>
 
       {/* Modal de detalhes */}
       {selected && modal === "closed" && (
@@ -334,6 +327,6 @@ export default function CertificatesPage() {
           />
         </Modal>
       )}
-    </div>
+    </>
   );
 }
