@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   Search,
   KeyRound,
+  Building2,
   Crown,
 } from "lucide-react";
 import { SECTOR_LABELS, SECTORS, type SectorKey, type TeamUser } from "@/lib/sectors";
@@ -102,17 +103,20 @@ function UsersTab({
   const [editing, setEditing] = useState<TeamUser | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [sector, setSector] = useState<"all" | SectorKey>("all");
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return (users ?? []).filter(
-      (u) =>
-        !q ||
-        u.name.toLowerCase().includes(q) ||
-        u.email.toLowerCase().includes(q) ||
-        (u.profileName?.toLowerCase().includes(q) ?? false),
-    );
-  }, [users, query]);
+    return (users ?? [])
+      .filter((u) => sector === "all" || u.sector === sector)
+      .filter(
+        (u) =>
+          !q ||
+          u.name.toLowerCase().includes(q) ||
+          u.email.toLowerCase().includes(q) ||
+          (u.profileName?.toLowerCase().includes(q) ?? false),
+      );
+  }, [users, query, sector]);
 
   useEffect(() => {
     let active = true;
@@ -156,6 +160,21 @@ function UsersTab({
             onChange={(e) => setQuery(e.target.value)}
           />
         </div>
+        <div className="relative">
+          <Building2 className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" />
+          <select
+            className="vlt-input w-52 pl-9"
+            value={sector}
+            onChange={(e) => setSector(e.target.value as "all" | SectorKey)}
+          >
+            <option value="all">Todos os setores</option>
+            {SECTORS.map((s) => (
+              <option key={s} value={s}>
+                {SECTOR_LABELS[s]}
+              </option>
+            ))}
+          </select>
+        </div>
         <button onClick={() => setModal("new")} className="vlt-btn vlt-btn-primary">
           <Plus className="size-4" />
           Novo usuário
@@ -170,7 +189,7 @@ function UsersTab({
           <p className="text-sm text-ink-2">
             {users.length === 0
               ? "Nenhum usuário cadastrado."
-              : "Ninguém encontrado com essa busca."}
+              : "Ninguém encontrado com esses filtros."}
           </p>
         </div>
       ) : (
