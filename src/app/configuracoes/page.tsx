@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BellRing,
   ShieldCheck,
+  ShieldAlert,
   Paintbrush,
   KeyRound,
   Lock,
   FolderCog,
   FolderSearch,
+  Trash2,
 } from "lucide-react";
 import Switch from "@/components/ui/Switch";
 import FolderPicker from "@/components/settings/FolderPicker";
@@ -194,7 +196,138 @@ export default function SettingsPage() {
             </div>
           </div>
         </Section>
+
+        {/* Zona de perigo — ações sem volta, só admin */}
+        {editor && (
+          <Section
+            icon={<ShieldAlert className="size-4" />}
+            title="Zona de perigo"
+            subtitle="Ações irreversíveis. Pense duas vezes."
+            delay="270ms"
+            tone="danger"
+          >
+            <DangerZone />
+          </Section>
+        )}
       </div>
+    </div>
+  );
+}
+
+// Esvazia o cofre de certificados de uma vez. Ação sem volta: mostra quantos
+// serão apagados e só conclui quando o admin digita EXCLUIR.
+function DangerZone() {
+  const [count, setCount] = useState<number | null>(null);
+  const [confirming, setConfirming] = useState(false);
+  const [typed, setTyped] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  // Quantos certificados há no cofre — só para mostrar o número na confirmação.
+  useEffect(() => {
+    let active = true;
+    fetch("/api/certificates")
+      .then((r) => (r.ok ? (r.json() as Promise<unknown[]>) : []))
+      .then((rows) => {
+        if (active) setCount(rows.length);
+      })
+      .catch(() => {
+        // sem rede: deixa o número desconhecido
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  function cancel() {
+    setConfirming(false);
+    setTyped("");
+  }
+
+  const confirmed = typed.trim().toUpperCase() === "EXCLUIR";
+
+  async function clearAll() {
+    if (!confirmed || busy) return;
+    setBusy(true);
+    try {
+      const res = await fetch("/api/certificates", { method: "DELETE" });
+      if (!res.ok) {
+        const body = (await res.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(body?.error ?? "Falha ao excluir os certificados.");
+      }
+      const { count: removed } = (await res.json()) as { count: number };
+      toast.success(
+        removed === 0
+          ? "Não havia certificados para excluir."
+          : `${removed} ${removed === 1 ? "certificado excluído" : "certificados excluídos"}.`,
+      );
+      cancel();
+      setCount(0); // acabou de apagar tudo
+    } catch (err) {
+      toastError(err, "Falha ao excluir os certificados.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const empty = count === 0;
+
+  return (
+    <div className="py-3.5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-sm font-medium">Excluir todos os certificados</p>
+          <p className="mt-0.5 text-xs text-ink-3">
+            {count === null
+              ? "Apaga todos os certificados do cofre."
+              : empty
+                ? "O cofre não tem certificados."
+                : `Apaga os ${count} certificados do cofre, com o histórico e os arquivos. Os acessos que entram por certificado ficam sem vínculo.`}
+          </p>
+        </div>
+        {!confirming && (
+          <button
+            onClick={() => setConfirming(true)}
+            disabled={empty}
+            className="vlt-btn vlt-btn-danger !px-3 !py-1.5 text-xs disabled:opacity-40"
+          >
+            <Trash2 className="size-3.5" />
+            Excluir todos
+          </button>
+        )}
+      </div>
+
+      {confirming && (
+        <div className="mt-3 space-y-2 rounded-xl border border-bad/40 bg-bad-soft px-3.5 py-3">
+          <p className="text-xs text-ink-2">
+            Isso não pode ser desfeito. Para confirmar, digite{" "}
+            <span className="font-mono font-semibold text-bad">EXCLUIR</span>.
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              autoFocus
+              value={typed}
+              onChange={(e) => setTyped(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && clearAll()}
+              placeholder="EXCLUIR"
+              className="vlt-input !w-40 font-mono tracking-widest"
+            />
+            <button
+              onClick={clearAll}
+              disabled={busy || !confirmed}
+              className="vlt-btn vlt-btn-danger !px-3 !py-1.5 text-xs disabled:opacity-40"
+            >
+              {busy ? "Excluindo…" : count ? `Excluir ${count}` : "Excluir"}
+            </button>
+            <button
+              onClick={cancel}
+              disabled={busy}
+              className="vlt-btn vlt-btn-ghost !px-3 !py-1.5 text-xs"
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -444,18 +577,24 @@ function Section({
   title,
   subtitle,
   delay,
+  tone = "brand",
   children,
 }: {
   icon: React.ReactNode;
   title: string;
   subtitle: string;
   delay: string;
+  tone?: "brand" | "danger";
   children: React.ReactNode;
 }) {
   return (
     <section className="vlt-card anim-fade-up" style={{ animationDelay: delay }}>
       <div className="flex items-center gap-3 border-b border-line px-6 py-4">
-        <span className="flex size-8 items-center justify-center rounded-lg bg-brand-soft text-brand">
+        <span
+          className={`flex size-8 items-center justify-center rounded-lg ${
+            tone === "danger" ? "bg-bad-soft text-bad" : "bg-brand-soft text-brand"
+          }`}
+        >
           {icon}
         </span>
         <div>

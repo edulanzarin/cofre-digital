@@ -9,9 +9,9 @@ import {
   resolveCertCompany,
   toDTO,
 } from "@/lib/certificate-api";
-import { guard } from "@/lib/api-auth";
+import { guard, guardAdmin } from "@/lib/api-auth";
 import { assignCompanyGroup, resolveOwnGroupId } from "@/lib/company-group-assign";
-import { fileFieldsFor } from "@/lib/storage";
+import { fileFieldsFor, removeFileAt } from "@/lib/storage";
 
 export async function GET(req: Request) {
   const auth = await guard("certificados", "view");
@@ -91,4 +91,23 @@ export async function POST(req: Request) {
     include: CERT_INCLUDE,
   });
   return NextResponse.json(toDTO(row, true), { status: 201 });
+}
+
+// Esvazia o cofre de certificados de uma vez — ação de zona de perigo, só
+// admin. Apaga os registros (o histórico vai junto por cascata; os acessos que
+// entravam por certificado ficam sem vínculo) e remove os .pfx do destino.
+export async function DELETE() {
+  const auth = await guardAdmin();
+  if (auth instanceof NextResponse) return auth;
+  // Caminhos dos arquivos ANTES de apagar as linhas — depois some a referência.
+  const files = await prisma.certificate.findMany({
+    where: { filePath: { not: null } },
+    select: { filePath: true },
+  });
+  const { count } = await prisma.certificate.deleteMany({});
+  // Remove os arquivos do destino (melhor esforço; os registros já se foram).
+  for (const f of files) {
+    if (f.filePath) await removeFileAt(f.filePath);
+  }
+  return NextResponse.json({ count });
 }
