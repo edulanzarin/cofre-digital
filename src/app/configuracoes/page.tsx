@@ -215,11 +215,12 @@ export default function SettingsPage() {
 }
 
 // Esvazia o cofre de certificados de uma vez. Ação sem volta: mostra quantos
-// serão apagados e só conclui quando o admin digita EXCLUIR.
+// serão apagados e só conclui com a senha de segurança (a mesma de alterar a
+// pasta), validada no servidor contra a env STORAGE_ROOT_PASSWORD.
 function DangerZone() {
   const [count, setCount] = useState<number | null>(null);
   const [confirming, setConfirming] = useState(false);
-  const [typed, setTyped] = useState("");
+  const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
   // Quantos certificados há no cofre — só para mostrar o número na confirmação.
@@ -240,16 +241,18 @@ function DangerZone() {
 
   function cancel() {
     setConfirming(false);
-    setTyped("");
+    setPassword("");
   }
 
-  const confirmed = typed.trim().toUpperCase() === "EXCLUIR";
-
   async function clearAll() {
-    if (!confirmed || busy) return;
+    if (!password || busy) return;
     setBusy(true);
     try {
-      const res = await fetch("/api/certificates", { method: "DELETE" });
+      const res = await fetch("/api/certificates", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
       if (!res.ok) {
         const body = (await res.json().catch(() => null)) as { error?: string } | null;
         throw new Error(body?.error ?? "Falha ao excluir os certificados.");
@@ -299,21 +302,23 @@ function DangerZone() {
       {confirming && (
         <div className="mt-3 space-y-2 rounded-xl border border-bad/40 bg-bad-soft px-3.5 py-3">
           <p className="text-xs text-ink-2">
-            Isso não pode ser desfeito. Para confirmar, digite{" "}
-            <span className="font-mono font-semibold text-bad">EXCLUIR</span>.
+            Isso não pode ser desfeito. Digite a{" "}
+            <span className="font-medium text-bad">senha de segurança</span> (a
+            mesma de alterar a pasta) para confirmar.
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <input
+              type="password"
               autoFocus
-              value={typed}
-              onChange={(e) => setTyped(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && clearAll()}
-              placeholder="EXCLUIR"
-              className="vlt-input !w-40 font-mono tracking-widest"
+              placeholder="Senha de segurança"
+              className="vlt-input !w-56 font-mono"
             />
             <button
               onClick={clearAll}
-              disabled={busy || !confirmed}
+              disabled={busy || !password}
               className="vlt-btn vlt-btn-danger !px-3 !py-1.5 text-xs disabled:opacity-40"
             >
               {busy ? "Excluindo…" : count ? `Excluir ${count}` : "Excluir"}

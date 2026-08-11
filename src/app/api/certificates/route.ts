@@ -96,9 +96,30 @@ export async function POST(req: Request) {
 // Esvazia o cofre de certificados de uma vez — ação de zona de perigo, só
 // admin. Apaga os registros (o histórico vai junto por cascata; os acessos que
 // entravam por certificado ficam sem vínculo) e remove os .pfx do destino.
-export async function DELETE() {
+// Duas travas, iguais às de "Alterar pasta": admin + a senha de segurança, que
+// vive só na env `STORAGE_ROOT_PASSWORD` (nem o banco nem o navegador a sabem).
+export async function DELETE(req: Request) {
   const auth = await guardAdmin();
   if (auth instanceof NextResponse) return auth;
+
+  const envPass = process.env.STORAGE_ROOT_PASSWORD?.trim();
+  if (!envPass) {
+    return NextResponse.json(
+      {
+        error:
+          "Defina STORAGE_ROOT_PASSWORD no .env do servidor para poder excluir.",
+      },
+      { status: 403 },
+    );
+  }
+  const body = (await req.json().catch(() => null)) as { password?: string } | null;
+  if (!body || typeof body.password !== "string") {
+    return NextResponse.json({ error: "Corpo inválido." }, { status: 400 });
+  }
+  if (body.password !== envPass) {
+    return NextResponse.json({ error: "Senha incorreta." }, { status: 403 });
+  }
+
   // Caminhos dos arquivos ANTES de apagar as linhas — depois some a referência.
   const files = await prisma.certificate.findMany({
     where: { filePath: { not: null } },
