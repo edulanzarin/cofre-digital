@@ -1,32 +1,10 @@
 import type { Access as AccessRow } from "@/generated/prisma/client";
-import { prisma } from "./prisma";
 import {
   LOGIN_TYPES,
   type Access,
   type LinkedCertificate,
   type LoginType,
 } from "./accesses";
-
-// Compara links ignorando protocolo, www, barra final e maiúsculas.
-export function normalizeUrl(url: string): string {
-  try {
-    const u = new URL(url.trim());
-    const host = u.host.toLowerCase().replace(/^www\./, "");
-    const path = u.pathname.replace(/\/+$/, "");
-    return `${host}${path}${u.search}`;
-  } catch {
-    return url.trim().toLowerCase().replace(/\/+$/, "");
-  }
-}
-
-// Dois acessos não podem apontar pro mesmo site.
-export async function findDuplicateUrl(url: string, excludeId?: string) {
-  const target = normalizeUrl(url);
-  const rows = await prisma.access.findMany({
-    select: { id: true, name: true, url: true },
-  });
-  return rows.find((r) => r.id !== excludeId && normalizeUrl(r.url) === target);
-}
 
 // Sempre buscar acessos com este include: o front mostra o certificado
 // vinculado e a empresa dona.

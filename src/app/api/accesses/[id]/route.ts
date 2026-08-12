@@ -1,11 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import {
-  ACCESS_INCLUDE,
-  findDuplicateUrl,
-  parseAccessBody,
-  toAccessDTO,
-} from "@/lib/access-api";
+import { ACCESS_INCLUDE, parseAccessBody, toAccessDTO } from "@/lib/access-api";
 import { guard } from "@/lib/api-auth";
 import { allows } from "@/lib/permissions";
 
@@ -55,13 +50,6 @@ export async function PUT(req: Request, { params }: Params) {
       select: { id: true },
     });
     if (!company) data.companyId = null;
-  }
-  const duplicate = await findDuplicateUrl(data.url, id);
-  if (duplicate) {
-    return NextResponse.json(
-      { error: `Já existe um acesso com este link (${duplicate.name}).` },
-      { status: 409 },
-    );
   }
   try {
     const row = await prisma.access.update({
