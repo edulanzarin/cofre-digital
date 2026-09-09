@@ -38,6 +38,11 @@ export type CompanyGroup = Prisma.CompanyGroupModel
  */
 export type Company = Prisma.CompanyModel
 /**
+ * Model CompanyEvent
+ * 
+ */
+export type CompanyEvent = Prisma.CompanyEventModel
+/**
  * Model Certificate
  * 
  */

@@ -14,20 +14,24 @@ import {
   BookOpen,
   Inbox,
   FileBadge,
+  MessageSquareText,
 } from "lucide-react";
 import type { Company } from "@/lib/companies";
 import type { CompanyInput } from "@/lib/useCompanies";
 import { useCompanyGroups } from "@/lib/useCompanyGroups";
-import { formatDocument, type Certificate } from "@/lib/certificates";
+import { formatDate, formatDocument, type Certificate } from "@/lib/certificates";
+import { formatMoney } from "@/lib/money";
 import type { Access } from "@/lib/accesses";
 import type { Alvara } from "@/lib/alvaras";
 import { useCertificates } from "@/lib/useCertificates";
 import { useAccesses } from "@/lib/useAccesses";
 import { useAlvaras } from "@/lib/useAlvaras";
+import { useCompanyEvents } from "@/lib/useCompanyEvents";
 import { useVaultConfig } from "@/lib/vaultConfig";
 import { useMe } from "@/lib/useMe";
 import { toast, toastError } from "@/lib/toast";
 import Modal from "@/components/ui/Modal";
+import type { HistoryEvent } from "@/components/ui/HistoryPanel";
 import CertList from "@/components/certificates/CertList";
 import CertForm from "@/components/certificates/CertForm";
 import CertModal from "@/components/certificates/CertModal";
@@ -36,8 +40,10 @@ import AlvaraList from "@/components/alvaras/AlvaraList";
 import AlvaraForm from "@/components/alvaras/AlvaraForm";
 import AlvaraModal from "@/components/alvaras/AlvaraModal";
 import CompanyForm from "@/components/companies/CompanyForm";
+import CompanyNotes from "@/components/companies/CompanyNotes";
+import PinnedNotes from "@/components/companies/PinnedNotes";
 
-type Tab = "certificados" | "acessos" | "alvaras";
+type Tab = "certificados" | "acessos" | "alvaras" | "anotacoes";
 
 // O cofre da empresa: tudo que é dela num lugar só. Novos módulos
 // (alvarás etc.) entram como novas abas.
@@ -48,6 +54,7 @@ export default function CompanyVaultPage() {
   const { alertDays } = useVaultConfig();
 
   const { groups, add: addGroup } = useCompanyGroups();
+  const { events, pinned, addNote, togglePin } = useCompanyEvents(id);
   const [company, setCompany] = useState<Company | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [tab, setTab] = useState<Tab>("certificados");
@@ -78,6 +85,14 @@ export default function CompanyVaultPage() {
     }
     setCompany((await res.json()) as Company);
     setEditingCompany(false);
+  }
+
+  async function handleTogglePin(event: HistoryEvent) {
+    try {
+      await togglePin(event);
+    } catch (err) {
+      toastError(err, "Falha ao fixar a anotação.");
+    }
   }
 
   async function handleDelete() {
@@ -192,6 +207,29 @@ export default function CompanyVaultPage() {
         )}
       </header>
 
+      {/* Dados de cadastro: o que a equipe consulta antes de mexer no cofre.
+          Honorário e alteração contratual entram aqui porque decidem entrada
+          e saída de cliente — não são detalhe de um documento só. */}
+      <section
+        className="vlt-card anim-fade-up mb-5 flex flex-wrap gap-x-12 gap-y-4 px-5 py-4"
+        style={{ animationDelay: "40ms" }}
+      >
+        <CadastroField
+          label="Honorário mensal"
+          value={formatMoney(company.honorarios)}
+          filled={company.honorarios !== null}
+        />
+        <CadastroField
+          label="Alteração contratual"
+          value={formatMoney(company.alteracaoContratual)}
+          filled={company.alteracaoContratual !== null}
+        />
+        <CadastroField label="Cadastrada em" value={formatDate(company.createdAt)} filled />
+      </section>
+
+      {/* Recados fixados — fora das abas, à vista em qualquer uma. */}
+      <PinnedNotes notes={pinned} onUnpin={handleTogglePin} />
+
       {/* Abas do cofre */}
       <div className="anim-fade-up mb-5 flex flex-wrap items-center gap-3" style={{ animationDelay: "60ms" }}>
         <div className="vlt-segment">
@@ -213,6 +251,10 @@ export default function CompanyVaultPage() {
               Alvarás
             </button>
           )}
+          <button data-active={tab === "anotacoes"} onClick={() => setTab("anotacoes")}>
+            <MessageSquareText className="size-3.5" />
+            Anotações
+          </button>
         </div>
       </div>
 
@@ -224,6 +266,13 @@ export default function CompanyVaultPage() {
       )}
       {tab === "alvaras" && can("alvaras") && (
         <CompanyAlvaras companyId={company.id} alertDays={alertDays} />
+      )}
+      {tab === "anotacoes" && (
+        <CompanyNotes
+          events={events}
+          onAddNote={addNote}
+          onTogglePin={handleTogglePin}
+        />
       )}
 
       {/* Modal de edição da empresa */}
@@ -242,6 +291,29 @@ export default function CompanyVaultPage() {
           />
         </Modal>
       )}
+    </div>
+  );
+}
+
+// Valor do cadastro: rótulo pequeno em cima, valor embaixo. Vazio mostra
+// travessão em cinza — "ainda não informado" é diferente de zero.
+function CadastroField({
+  label,
+  value,
+  filled,
+}: {
+  label: string;
+  value: string;
+  filled: boolean;
+}) {
+  return (
+    <div>
+      <p className="text-[0.65rem] tracking-wide text-ink-3 uppercase">{label}</p>
+      <p
+        className={`mt-1 font-mono text-sm ${filled ? "font-medium" : "text-ink-3"}`}
+      >
+        {value}
+      </p>
     </div>
   );
 }

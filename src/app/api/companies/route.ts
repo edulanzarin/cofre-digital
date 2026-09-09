@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { guard } from "@/lib/api-auth";
-import { COMPANY_INCLUDE, parseCompanyBody, toCompanyDTO } from "@/lib/company-api";
+import {
+  COMPANY_INCLUDE,
+  describeCompanyCreation,
+  parseCompanyBody,
+  toCompanyDTO,
+} from "@/lib/company-api";
 
 export async function GET() {
   const auth = await guard("empresas", "view");
@@ -16,13 +21,11 @@ export async function GET() {
 export async function POST(req: Request) {
   const auth = await guard("empresas", "edit");
   if (auth instanceof NextResponse) return auth;
-  const data = parseCompanyBody(await req.json().catch(() => null));
-  if (!data) {
-    return NextResponse.json(
-      { error: "Informe a razão social e um CNPJ válido (14 dígitos)." },
-      { status: 400 },
-    );
+  const parsed = parseCompanyBody(await req.json().catch(() => null));
+  if (!parsed.ok) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
+  const data = parsed.data;
   const duplicate = await prisma.company.findUnique({
     where: { cnpj: data.cnpj },
     select: { razaoSocial: true },
@@ -36,6 +39,14 @@ export async function POST(req: Request) {
   const row = await prisma.company.create({
     data,
     include: COMPANY_INCLUDE,
+  });
+  await prisma.companyEvent.create({
+    data: {
+      companyId: row.id,
+      kind: "created",
+      message: describeCompanyCreation(data),
+      userName: auth.name,
+    },
   });
   return NextResponse.json(toCompanyDTO(row), { status: 201 });
 }

@@ -150,7 +150,7 @@ export default function CompaniesPage() {
         }
       >
         {!ready ? (
-          <SkeletonTable rows={6} cols={groups.length > 0 ? 6 : 5} />
+          <SkeletonTable rows={6} cols={groups.length > 0 ? 7 : 6} />
         ) : filtered.length === 0 ? (
           <div className="vlt-card flex flex-col items-center gap-3 px-6 py-16 text-center">
             <Inbox className="size-8 text-ink-3" strokeWidth={1.5} />

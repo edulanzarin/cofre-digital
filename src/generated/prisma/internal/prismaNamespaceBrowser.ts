@@ -55,6 +55,7 @@ export const ModelName = {
   User: 'User',
   CompanyGroup: 'CompanyGroup',
   Company: 'Company',
+  CompanyEvent: 'CompanyEvent',
   Certificate: 'Certificate',
   CertificateEvent: 'CertificateEvent',
   Alvara: 'Alvara',
@@ -120,11 +121,26 @@ export const CompanyScalarFieldEnum = {
   cnpj: 'cnpj',
   razaoSocial: 'razaoSocial',
   groupId: 'groupId',
+  honorarios: 'honorarios',
+  alteracaoContratual: 'alteracaoContratual',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type CompanyScalarFieldEnum = (typeof CompanyScalarFieldEnum)[keyof typeof CompanyScalarFieldEnum]
+
+
+export const CompanyEventScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  kind: 'kind',
+  message: 'message',
+  pinned: 'pinned',
+  userName: 'userName',
+  createdAt: 'createdAt'
+} as const
+
+export type CompanyEventScalarFieldEnum = (typeof CompanyEventScalarFieldEnum)[keyof typeof CompanyEventScalarFieldEnum]
 
 
 export const CertificateScalarFieldEnum = {

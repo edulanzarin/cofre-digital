@@ -63,18 +63,41 @@ model CompanyGroup {
 // Empresa (cliente) — dona de um cofre próprio: certificados, acessos,
 // alvarás e outros documentos.
 model Company {
-  id           String        @id @default(uuid())
-  cnpj         String        @unique // só dígitos
-  razaoSocial  String
-  groupId      String?
-  group        CompanyGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  certificates Certificate[]
-  accesses     Access[]
-  alvaras      Alvara[]
+  id                  String         @id @default(uuid())
+  cnpj                String         @unique // só dígitos
+  razaoSocial         String
+  groupId             String?
+  group               CompanyGroup?  @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  // Valores do contrato, em centavos: inteiro não acumula erro de ponto
+  // flutuante e não depende de conversão de Decimal na borda da API.
+  // Nulo = não informado (diferente de zero, que é isento de verdade).
+  honorarios          Int? // honorário mensal
+  alteracaoContratual Int? // valor cobrado por alteração contratual
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  certificates        Certificate[]
+  accesses            Access[]
+  alvaras             Alvara[]
+  events              CompanyEvent[]
 
   @@index([groupId])
+}
+
+// Linha do tempo da empresa: cadastro, alterações do cadastro e recados da
+// equipe ("alvará solicitado dia 3 para o cliente"). Recado com `pinned`
+// sobe para o topo do cofre e fica à vista em qualquer aba — é o "fixar"
+// que o societário pedia para não perder o combinado no meio do histórico.
+model CompanyEvent {
+  id        String   @id @default(uuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  kind      String // created | updated | note
+  message   String?
+  pinned    Boolean  @default(false)
+  userName  String
+  createdAt DateTime @default(now())
+
+  @@index([companyId, createdAt])
 }
 
 model Certificate {

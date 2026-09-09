@@ -12,6 +12,8 @@ export type CompanyInput = {
   cnpj: string;
   razaoSocial: string;
   groupId?: string | null;
+  honorarios?: number | null; // centavos
+  alteracaoContratual?: number | null; // centavos
 };
 
 export function useCompanies() {

@@ -388,6 +388,7 @@ export const ModelName = {
   User: 'User',
   CompanyGroup: 'CompanyGroup',
   Company: 'Company',
+  CompanyEvent: 'CompanyEvent',
   Certificate: 'Certificate',
   CertificateEvent: 'CertificateEvent',
   Alvara: 'Alvara',
@@ -410,7 +411,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "permissionProfile" | "user" | "companyGroup" | "company" | "certificate" | "certificateEvent" | "alvara" | "alvaraEvent" | "access" | "tutorialImage" | "vaultConfig"
+    modelProps: "permissionProfile" | "user" | "companyGroup" | "company" | "companyEvent" | "certificate" | "certificateEvent" | "alvara" | "alvaraEvent" | "access" | "tutorialImage" | "vaultConfig"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -707,6 +708,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CompanyCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CompanyCountAggregateOutputType> | number
+        }
+      }
+    }
+    CompanyEvent: {
+      payload: Prisma.$CompanyEventPayload<ExtArgs>
+      fields: Prisma.CompanyEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CompanyEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CompanyEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyEventPayload>
+        }
+        findFirst: {
+          args: Prisma.CompanyEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CompanyEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyEventPayload>
+        }
+        findMany: {
+          args: Prisma.CompanyEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyEventPayload>[]
+        }
+        create: {
+          args: Prisma.CompanyEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyEventPayload>
+        }
+        createMany: {
+          args: Prisma.CompanyEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CompanyEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyEventPayload>[]
+        }
+        delete: {
+          args: Prisma.CompanyEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyEventPayload>
+        }
+        update: {
+          args: Prisma.CompanyEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.CompanyEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CompanyEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CompanyEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.CompanyEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CompanyEventPayload>
+        }
+        aggregate: {
+          args: Prisma.CompanyEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCompanyEvent>
+        }
+        groupBy: {
+          args: Prisma.CompanyEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompanyEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CompanyEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CompanyEventCountAggregateOutputType> | number
         }
       }
     }
@@ -1307,11 +1382,26 @@ export const CompanyScalarFieldEnum = {
   cnpj: 'cnpj',
   razaoSocial: 'razaoSocial',
   groupId: 'groupId',
+  honorarios: 'honorarios',
+  alteracaoContratual: 'alteracaoContratual',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type CompanyScalarFieldEnum = (typeof CompanyScalarFieldEnum)[keyof typeof CompanyScalarFieldEnum]
+
+
+export const CompanyEventScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  kind: 'kind',
+  message: 'message',
+  pinned: 'pinned',
+  userName: 'userName',
+  createdAt: 'createdAt'
+} as const
+
+export type CompanyEventScalarFieldEnum = (typeof CompanyEventScalarFieldEnum)[keyof typeof CompanyEventScalarFieldEnum]
 
 
 export const CertificateScalarFieldEnum = {
@@ -1532,20 +1622,6 @@ export type ListEnumSectorFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
 
 
 /**
- * Reference to a field of type 'CertMedia'
- */
-export type EnumCertMediaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CertMedia'>
-    
-
-
-/**
- * Reference to a field of type 'CertMedia[]'
- */
-export type ListEnumCertMediaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CertMedia[]'>
-    
-
-
-/**
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -1556,6 +1632,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CertMedia'
+ */
+export type EnumCertMediaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CertMedia'>
+    
+
+
+/**
+ * Reference to a field of type 'CertMedia[]'
+ */
+export type ListEnumCertMediaFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CertMedia[]'>
     
 
 
@@ -1686,6 +1776,7 @@ export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   companyGroup?: Prisma.CompanyGroupOmit
   company?: Prisma.CompanyOmit
+  companyEvent?: Prisma.CompanyEventOmit
   certificate?: Prisma.CertificateOmit
   certificateEvent?: Prisma.CertificateEventOmit
   alvara?: Prisma.AlvaraOmit

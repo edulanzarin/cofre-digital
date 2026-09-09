@@ -7,6 +7,7 @@ import type { CompanyGroup } from "@/lib/companyGroups";
 import type { CompanyInput } from "@/lib/useCompanies";
 import { formatDocument } from "@/lib/certificates";
 import Combobox from "@/components/ui/Combobox";
+import CurrencyInput from "@/components/ui/CurrencyInput";
 
 export default function CompanyForm({
   initial,
@@ -25,6 +26,13 @@ export default function CompanyForm({
   const [razaoSocial, setRazaoSocial] = useState(initial?.razaoSocial ?? "");
   const [cnpj, setCnpj] = useState(initial ? formatDocument(initial.cnpj) : "");
   const [groupId, setGroupId] = useState(initial?.groupId ?? "");
+  // Centavos, ou null enquanto ninguém informou.
+  const [honorarios, setHonorarios] = useState<number | null>(
+    initial?.honorarios ?? null,
+  );
+  const [alteracaoContratual, setAlteracaoContratual] = useState<number | null>(
+    initial?.alteracaoContratual ?? null,
+  );
   const [error, setError] = useState("");
 
   const digits = cnpj.replace(/\D/g, "");
@@ -49,6 +57,8 @@ export default function CompanyForm({
         razaoSocial: razaoSocial.trim(),
         cnpj: digits,
         groupId: groupId || null,
+        honorarios,
+        alteracaoContratual,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Falha ao salvar.");
@@ -82,6 +92,27 @@ export default function CompanyForm({
           required
         />
       </label>
+
+      {/* Valores do contrato — o societário usa nas entradas e saídas de
+          cliente, então moram no cadastro e não numa anotação solta. */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="block">
+          <span className="mb-1.5 block text-xs font-medium text-ink-2">
+            Honorário mensal
+          </span>
+          <CurrencyInput value={honorarios} onChange={setHonorarios} />
+        </label>
+
+        <label className="block">
+          <span className="mb-1.5 block text-xs font-medium text-ink-2">
+            Alteração contratual
+          </span>
+          <CurrencyInput
+            value={alteracaoContratual}
+            onChange={setAlteracaoContratual}
+          />
+        </label>
+      </div>
 
       {/* Grupo econômico — opcional. O grupo nasce aqui mesmo: digite um nome
           que não existe e ele é criado na hora, sem passar por outra tela. */}

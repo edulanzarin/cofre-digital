@@ -9,6 +9,7 @@ import {
   type CertStatus,
 } from "@/lib/certificates";
 import type { Company } from "@/lib/companies";
+import { formatMoney } from "@/lib/money";
 
 // Situação da empresa = a do certificado que vence primeiro (null se não há cert).
 function companyStatus(company: Company, alertDays: number): CertStatus | null {
@@ -32,7 +33,7 @@ export default function CompanyList({
 }) {
   return (
     <div className="vlt-card max-h-full overflow-auto">
-      <table className="w-full min-w-[46rem] text-left text-sm">
+      <table className="w-full min-w-[52rem] text-left text-sm">
         <thead>
           <tr className="sticky top-0 z-10 border-b border-line bg-panel text-[0.68rem] tracking-wide text-ink-3 uppercase">
             <th className="px-5 py-3 font-medium">Razão social</th>
@@ -41,6 +42,9 @@ export default function CompanyList({
               <th className="px-4 py-3 font-medium max-md:hidden">Grupo</th>
             )}
             <th className="px-4 py-3 font-medium max-sm:hidden">Cofre</th>
+            <th className="px-4 py-3 text-right font-medium max-lg:hidden">
+              Honorário
+            </th>
             <th className="px-4 py-3 font-medium max-lg:hidden">Próx. vencimento</th>
             <th className="px-5 py-3 font-medium">Situação</th>
           </tr>
@@ -91,6 +95,15 @@ export default function CompanyList({
                       {company.alvaraCount}
                     </span>
                   </div>
+                </td>
+                {/* O societário compara honorário ao decidir entrada e saída de
+                    cliente, então ele vive na lista e não só na ficha. */}
+                <td className="px-4 py-3 text-right font-mono text-[0.72rem] whitespace-nowrap max-lg:hidden">
+                  {company.honorarios === null ? (
+                    <span className="text-ink-3">—</span>
+                  ) : (
+                    <span className="text-ink-2">{formatMoney(company.honorarios)}</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-xs whitespace-nowrap text-ink-2 max-lg:hidden">
                   {company.nextExpiresAt ? formatDate(company.nextExpiresAt) : "—"}
