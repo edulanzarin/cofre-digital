@@ -58,6 +58,9 @@ export const ALVARA_STATUS_META: Record<
 // Sugestões do campo "tipo" no cadastro — texto livre com datalist.
 export const ALVARA_SUGGESTIONS = [
   "Alvará de Funcionamento",
+  // Quem é dispensado guarda a dispensa no lugar do alvará — e ela costuma
+  // ser permanente, então entra sem vencimento como qualquer alvará sem data.
+  "Dispensa de Alvará",
   "Alvará Sanitário",
   "Alvará do Corpo de Bombeiros (AVCB)",
   "Licença Ambiental",
