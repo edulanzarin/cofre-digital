@@ -7,6 +7,7 @@ export type AlvaraCompany = { id: string; razaoSocial: string; cnpj: string };
 
 export type Alvara = {
   id: string;
+  kind: AlvaraKind;
   name: string; // ex.: Alvará de Funcionamento
   number?: string; // número/protocolo do documento
   issuer?: string; // órgão emissor (prefeitura, corpo de bombeiros…)
@@ -55,14 +56,49 @@ export const ALVARA_STATUS_META: Record<
   none: { label: "Sem vencimento", color: "var(--info)", soft: "var(--info-soft)" },
 };
 
-// Sugestões do campo "tipo" no cadastro — texto livre com datalist.
-export const ALVARA_SUGGESTIONS = [
-  "Alvará de Funcionamento",
-  // Quem é dispensado guarda a dispensa no lugar do alvará — e ela costuma
-  // ser permanente, então entra sem vencimento como qualquer alvará sem data.
-  "Dispensa de Alvará",
-  "Alvará Sanitário",
-  "Alvará do Corpo de Bombeiros (AVCB)",
-  "Licença Ambiental",
-  "Alvará de Publicidade",
-];
+// Categoria do documento. Quem é dispensado do alvará guarda no lugar dele a
+// dispensa do município ou a Declaração de Direitos de Liberdade Econômica
+// (atividade de baixo risco, emitida pela Junta). Antes a dispensa era só uma
+// sugestão no nome, e a equipe pediu um lugar para marcar o que o documento é.
+// As datas continuam opcionais nas três: há município que exige renovar a
+// dispensa, e a declaração em geral não vence.
+export type AlvaraKind = "alvara" | "dispensa" | "declaracao";
+
+export const ALVARA_KINDS: readonly AlvaraKind[] = ["alvara", "dispensa", "declaracao"];
+
+// `suggestions` alimenta o datalist do nome (texto livre); a primeira entra
+// sozinha quando a categoria muda e o nome ainda é uma sugestão.
+export const ALVARA_KIND_META: Record<
+  AlvaraKind,
+  { label: string; placeholder: string; suggestions: string[] }
+> = {
+  alvara: {
+    label: "Alvará",
+    placeholder: "Alvará de Funcionamento, Sanitário…",
+    suggestions: [
+      "Alvará de Funcionamento",
+      "Alvará Sanitário",
+      "Alvará do Corpo de Bombeiros (AVCB)",
+      "Licença Ambiental",
+      "Alvará de Publicidade",
+    ],
+  },
+  dispensa: {
+    label: "Dispensa",
+    placeholder: "Dispensa de Alvará, de Licença Sanitária…",
+    suggestions: [
+      "Dispensa de Alvará",
+      "Dispensa de Licença Sanitária",
+      "Dispensa de Licença Ambiental",
+    ],
+  },
+  declaracao: {
+    label: "Declaração",
+    placeholder: "Declaração de Direitos de Liberdade Econômica",
+    suggestions: ["Declaração de Direitos de Liberdade Econômica"],
+  },
+};
+
+export function isAlvaraKind(value: unknown): value is AlvaraKind {
+  return ALVARA_KINDS.includes(value as AlvaraKind);
+}

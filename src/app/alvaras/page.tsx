@@ -5,6 +5,7 @@ import { Plus, Search, Inbox } from "lucide-react";
 import {
   alvaraDaysLeft,
   alvaraStatus,
+  ALVARA_KIND_META,
   type Alvara,
   type AlvaraStatus,
 } from "@/lib/alvaras";
@@ -69,6 +70,7 @@ export default function AlvarasPage() {
         (a) =>
           !q ||
           a.name.toLowerCase().includes(q) ||
+          ALVARA_KIND_META[a.kind].label.toLowerCase().includes(q) ||
           (a.number?.toLowerCase().includes(q) ?? false) ||
           (a.issuer?.toLowerCase().includes(q) ?? false) ||
           (a.company?.razaoSocial.toLowerCase().includes(q) ?? false),
@@ -140,7 +142,7 @@ export default function AlvarasPage() {
               <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-3" />
               <input
                 className="vlt-input pl-9"
-                placeholder="Buscar por tipo, número, empresa, órgão emissor…"
+                placeholder="Buscar por documento, categoria, número, empresa…"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
@@ -160,7 +162,7 @@ export default function AlvarasPage() {
         }
       >
         {!ready ? (
-          <SkeletonTable rows={6} cols={6} />
+          <SkeletonTable rows={6} cols={7} />
         ) : filtered.length === 0 ? (
           <div className="vlt-card flex flex-col items-center gap-3 px-6 py-16 text-center">
             <Inbox className="size-8 text-ink-3" strokeWidth={1.5} />

@@ -145,8 +145,11 @@ model CertificateEvent {
 // Alvarás e licenças da empresa (funcionamento, sanitário, bombeiros…).
 // Os dados são digitados manualmente; o PDF do documento fica guardado.
 // Sem data de vencimento = alvará permanente.
+// A categoria separa o alvará de quem é dispensado dele: a dispensa emitida
+// pelo município e a Declaração de Direitos de Liberdade Econômica.
 model Alvara {
   id        String        @id @default(uuid())
+  kind      String        @default("alvara") // alvara | dispensa | declaracao
   name      String // ex.: Alvará de Funcionamento
   number    String? // número/protocolo do documento
   issuer    String? // órgão emissor (prefeitura, corpo de bombeiros…)

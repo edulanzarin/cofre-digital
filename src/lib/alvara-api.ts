@@ -2,7 +2,7 @@
 // mais a validação do corpo das requisições de alvará.
 
 import type { Alvara as AlvaraRow } from "@/generated/prisma/client";
-import type { Alvara } from "./alvaras";
+import { isAlvaraKind, type Alvara, type AlvaraKind } from "./alvaras";
 
 // Sempre buscar alvarás com este include: o front mostra a empresa dona.
 export const ALVARA_INCLUDE = {
@@ -17,6 +17,8 @@ type AlvaraRowFull = AlvaraRow & {
 export function toAlvaraDTO(row: AlvaraRowFull, withFile = false): Alvara {
   return {
     id: row.id,
+    // A coluna é texto no banco; valor desconhecido cai no padrão.
+    kind: isAlvaraKind(row.kind) ? row.kind : "alvara",
     name: row.name,
     number: row.number ?? undefined,
     issuer: row.issuer ?? undefined,
@@ -40,6 +42,7 @@ export function toAlvaraDTO(row: AlvaraRowFull, withFile = false): Alvara {
 }
 
 export type AlvaraCreateInput = {
+  kind: AlvaraKind;
   name: string;
   number: string | null;
   issuer: string | null;
@@ -64,11 +67,16 @@ export function parseAlvaraBody(body: unknown): AlvaraCreateInput | null {
   const b = body as Partial<Alvara>;
 
   if (typeof b.name !== "string" || b.name.trim() === "") return null;
+  // Ausente vale alvará (quem ainda manda o corpo antigo); presente, precisa
+  // ser uma categoria conhecida.
+  const kind = b.kind ?? "alvara";
+  if (!isAlvaraKind(kind)) return null;
   const issuedAt = parseOptionalDate(b.issuedAt);
   const expiresAt = parseOptionalDate(b.expiresAt);
   if (issuedAt === undefined || expiresAt === undefined) return null;
 
   return {
+    kind,
     name: b.name.trim(),
     number: b.number?.trim() ? b.number.trim() : null,
     issuer: b.issuer?.trim() ? b.issuer.trim() : null,

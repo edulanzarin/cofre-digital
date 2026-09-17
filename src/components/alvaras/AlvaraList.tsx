@@ -4,6 +4,7 @@ import { FileBadge, Paperclip } from "lucide-react";
 import {
   alvaraDaysLeft,
   alvaraStatus,
+  ALVARA_KIND_META,
   ALVARA_STATUS_META,
   type Alvara,
 } from "@/lib/alvaras";
@@ -11,7 +12,8 @@ import { formatDate } from "@/lib/certificates";
 import AlvaraBadge from "@/components/alvaras/AlvaraBadge";
 
 // Lista (tabela) de alvarás, no mesmo formato da de certificados.
-// Clique na linha abre o modal de detalhes.
+// Clique na linha abre o modal de detalhes. A categoria tem coluna própria
+// porque o nome é livre e nem sempre diz se é alvará, dispensa ou declaração.
 export default function AlvaraList({
   alvaras,
   alertDays,
@@ -28,7 +30,8 @@ export default function AlvaraList({
       <table className="w-full min-w-[44rem] text-left text-sm">
         <thead>
           <tr className="sticky top-0 z-10 border-b border-line bg-panel text-[0.68rem] tracking-wide text-ink-3 uppercase">
-            <th className="px-5 py-3 font-medium">Alvará</th>
+            <th className="px-5 py-3 font-medium">Documento</th>
+            <th className="px-4 py-3 font-medium">Categoria</th>
             {showCompany && <th className="px-4 py-3 font-medium">Empresa</th>}
             <th className="px-4 py-3 font-medium">Órgão emissor</th>
             <th className="px-4 py-3 font-medium">Vencimento</th>
@@ -66,6 +69,9 @@ export default function AlvaraList({
                       )}
                     </div>
                   </div>
+                </td>
+                <td className="px-4 py-3 text-xs whitespace-nowrap text-ink-2">
+                  {ALVARA_KIND_META[alvara.kind].label}
                 </td>
                 {showCompany && (
                   <td className="max-w-44 px-4 py-3">

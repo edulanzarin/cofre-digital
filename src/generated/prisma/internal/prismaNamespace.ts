@@ -1441,6 +1441,7 @@ export type CertificateEventScalarFieldEnum = (typeof CertificateEventScalarFiel
 
 export const AlvaraScalarFieldEnum = {
   id: 'id',
+  kind: 'kind',
   name: 'name',
   number: 'number',
   issuer: 'issuer',

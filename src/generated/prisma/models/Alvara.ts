@@ -26,6 +26,7 @@ export type AggregateAlvara = {
 
 export type AlvaraMinAggregateOutputType = {
   id: string | null
+  kind: string | null
   name: string | null
   number: string | null
   issuer: string | null
@@ -42,6 +43,7 @@ export type AlvaraMinAggregateOutputType = {
 
 export type AlvaraMaxAggregateOutputType = {
   id: string | null
+  kind: string | null
   name: string | null
   number: string | null
   issuer: string | null
@@ -58,6 +60,7 @@ export type AlvaraMaxAggregateOutputType = {
 
 export type AlvaraCountAggregateOutputType = {
   id: number
+  kind: number
   name: number
   number: number
   issuer: number
@@ -76,6 +79,7 @@ export type AlvaraCountAggregateOutputType = {
 
 export type AlvaraMinAggregateInputType = {
   id?: true
+  kind?: true
   name?: true
   number?: true
   issuer?: true
@@ -92,6 +96,7 @@ export type AlvaraMinAggregateInputType = {
 
 export type AlvaraMaxAggregateInputType = {
   id?: true
+  kind?: true
   name?: true
   number?: true
   issuer?: true
@@ -108,6 +113,7 @@ export type AlvaraMaxAggregateInputType = {
 
 export type AlvaraCountAggregateInputType = {
   id?: true
+  kind?: true
   name?: true
   number?: true
   issuer?: true
@@ -197,6 +203,7 @@ export type AlvaraGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 
 export type AlvaraGroupByOutputType = {
   id: string
+  kind: string
   name: string
   number: string | null
   issuer: string | null
@@ -234,6 +241,7 @@ export type AlvaraWhereInput = {
   OR?: Prisma.AlvaraWhereInput[]
   NOT?: Prisma.AlvaraWhereInput | Prisma.AlvaraWhereInput[]
   id?: Prisma.StringFilter<"Alvara"> | string
+  kind?: Prisma.StringFilter<"Alvara"> | string
   name?: Prisma.StringFilter<"Alvara"> | string
   number?: Prisma.StringNullableFilter<"Alvara"> | string | null
   issuer?: Prisma.StringNullableFilter<"Alvara"> | string | null
@@ -252,6 +260,7 @@ export type AlvaraWhereInput = {
 
 export type AlvaraOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
   name?: Prisma.SortOrder
   number?: Prisma.SortOrderInput | Prisma.SortOrder
   issuer?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -273,6 +282,7 @@ export type AlvaraWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.AlvaraWhereInput | Prisma.AlvaraWhereInput[]
   OR?: Prisma.AlvaraWhereInput[]
   NOT?: Prisma.AlvaraWhereInput | Prisma.AlvaraWhereInput[]
+  kind?: Prisma.StringFilter<"Alvara"> | string
   name?: Prisma.StringFilter<"Alvara"> | string
   number?: Prisma.StringNullableFilter<"Alvara"> | string | null
   issuer?: Prisma.StringNullableFilter<"Alvara"> | string | null
@@ -291,6 +301,7 @@ export type AlvaraWhereUniqueInput = Prisma.AtLeast<{
 
 export type AlvaraOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
   name?: Prisma.SortOrder
   number?: Prisma.SortOrderInput | Prisma.SortOrder
   issuer?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -313,6 +324,7 @@ export type AlvaraScalarWhereWithAggregatesInput = {
   OR?: Prisma.AlvaraScalarWhereWithAggregatesInput[]
   NOT?: Prisma.AlvaraScalarWhereWithAggregatesInput | Prisma.AlvaraScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Alvara"> | string
+  kind?: Prisma.StringWithAggregatesFilter<"Alvara"> | string
   name?: Prisma.StringWithAggregatesFilter<"Alvara"> | string
   number?: Prisma.StringNullableWithAggregatesFilter<"Alvara"> | string | null
   issuer?: Prisma.StringNullableWithAggregatesFilter<"Alvara"> | string | null
@@ -329,6 +341,7 @@ export type AlvaraScalarWhereWithAggregatesInput = {
 
 export type AlvaraCreateInput = {
   id?: string
+  kind?: string
   name: string
   number?: string | null
   issuer?: string | null
@@ -346,6 +359,7 @@ export type AlvaraCreateInput = {
 
 export type AlvaraUncheckedCreateInput = {
   id?: string
+  kind?: string
   name: string
   number?: string | null
   issuer?: string | null
@@ -363,6 +377,7 @@ export type AlvaraUncheckedCreateInput = {
 
 export type AlvaraUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   issuer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -380,6 +395,7 @@ export type AlvaraUpdateInput = {
 
 export type AlvaraUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   issuer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -397,6 +413,7 @@ export type AlvaraUncheckedUpdateInput = {
 
 export type AlvaraCreateManyInput = {
   id?: string
+  kind?: string
   name: string
   number?: string | null
   issuer?: string | null
@@ -413,6 +430,7 @@ export type AlvaraCreateManyInput = {
 
 export type AlvaraUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   issuer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -428,6 +446,7 @@ export type AlvaraUpdateManyMutationInput = {
 
 export type AlvaraUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   issuer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -454,6 +473,7 @@ export type AlvaraOrderByRelationAggregateInput = {
 
 export type AlvaraCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
   name?: Prisma.SortOrder
   number?: Prisma.SortOrder
   issuer?: Prisma.SortOrder
@@ -470,6 +490,7 @@ export type AlvaraCountOrderByAggregateInput = {
 
 export type AlvaraMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
   name?: Prisma.SortOrder
   number?: Prisma.SortOrder
   issuer?: Prisma.SortOrder
@@ -486,6 +507,7 @@ export type AlvaraMaxOrderByAggregateInput = {
 
 export type AlvaraMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  kind?: Prisma.SortOrder
   name?: Prisma.SortOrder
   number?: Prisma.SortOrder
   issuer?: Prisma.SortOrder
@@ -567,6 +589,7 @@ export type AlvaraUpdateOneRequiredWithoutEventsNestedInput = {
 
 export type AlvaraCreateWithoutCompanyInput = {
   id?: string
+  kind?: string
   name: string
   number?: string | null
   issuer?: string | null
@@ -583,6 +606,7 @@ export type AlvaraCreateWithoutCompanyInput = {
 
 export type AlvaraUncheckedCreateWithoutCompanyInput = {
   id?: string
+  kind?: string
   name: string
   number?: string | null
   issuer?: string | null
@@ -628,6 +652,7 @@ export type AlvaraScalarWhereInput = {
   OR?: Prisma.AlvaraScalarWhereInput[]
   NOT?: Prisma.AlvaraScalarWhereInput | Prisma.AlvaraScalarWhereInput[]
   id?: Prisma.StringFilter<"Alvara"> | string
+  kind?: Prisma.StringFilter<"Alvara"> | string
   name?: Prisma.StringFilter<"Alvara"> | string
   number?: Prisma.StringNullableFilter<"Alvara"> | string | null
   issuer?: Prisma.StringNullableFilter<"Alvara"> | string | null
@@ -644,6 +669,7 @@ export type AlvaraScalarWhereInput = {
 
 export type AlvaraCreateWithoutEventsInput = {
   id?: string
+  kind?: string
   name: string
   number?: string | null
   issuer?: string | null
@@ -660,6 +686,7 @@ export type AlvaraCreateWithoutEventsInput = {
 
 export type AlvaraUncheckedCreateWithoutEventsInput = {
   id?: string
+  kind?: string
   name: string
   number?: string | null
   issuer?: string | null
@@ -692,6 +719,7 @@ export type AlvaraUpdateToOneWithWhereWithoutEventsInput = {
 
 export type AlvaraUpdateWithoutEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   issuer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -708,6 +736,7 @@ export type AlvaraUpdateWithoutEventsInput = {
 
 export type AlvaraUncheckedUpdateWithoutEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   issuer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -724,6 +753,7 @@ export type AlvaraUncheckedUpdateWithoutEventsInput = {
 
 export type AlvaraCreateManyCompanyInput = {
   id?: string
+  kind?: string
   name: string
   number?: string | null
   issuer?: string | null
@@ -739,6 +769,7 @@ export type AlvaraCreateManyCompanyInput = {
 
 export type AlvaraUpdateWithoutCompanyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   issuer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -755,6 +786,7 @@ export type AlvaraUpdateWithoutCompanyInput = {
 
 export type AlvaraUncheckedUpdateWithoutCompanyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   issuer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -771,6 +803,7 @@ export type AlvaraUncheckedUpdateWithoutCompanyInput = {
 
 export type AlvaraUncheckedUpdateManyWithoutCompanyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   number?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   issuer?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -817,6 +850,7 @@ export type AlvaraCountOutputTypeCountEventsArgs<ExtArgs extends runtime.Types.E
 
 export type AlvaraSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  kind?: boolean
   name?: boolean
   number?: boolean
   issuer?: boolean
@@ -836,6 +870,7 @@ export type AlvaraSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 
 export type AlvaraSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  kind?: boolean
   name?: boolean
   number?: boolean
   issuer?: boolean
@@ -853,6 +888,7 @@ export type AlvaraSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
 
 export type AlvaraSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  kind?: boolean
   name?: boolean
   number?: boolean
   issuer?: boolean
@@ -870,6 +906,7 @@ export type AlvaraSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
 
 export type AlvaraSelectScalar = {
   id?: boolean
+  kind?: boolean
   name?: boolean
   number?: boolean
   issuer?: boolean
@@ -884,7 +921,7 @@ export type AlvaraSelectScalar = {
   updatedAt?: boolean
 }
 
-export type AlvaraOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "number" | "issuer" | "issuedAt" | "expiresAt" | "fileName" | "fileData" | "filePath" | "notes" | "companyId" | "createdAt" | "updatedAt", ExtArgs["result"]["alvara"]>
+export type AlvaraOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "kind" | "name" | "number" | "issuer" | "issuedAt" | "expiresAt" | "fileName" | "fileData" | "filePath" | "notes" | "companyId" | "createdAt" | "updatedAt", ExtArgs["result"]["alvara"]>
 export type AlvaraInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.Alvara$companyArgs<ExtArgs>
   events?: boolean | Prisma.Alvara$eventsArgs<ExtArgs>
@@ -905,6 +942,7 @@ export type $AlvaraPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    kind: string
     name: string
     number: string | null
     issuer: string | null
@@ -1343,6 +1381,7 @@ export interface Prisma__AlvaraClient<T, Null = never, ExtArgs extends runtime.T
  */
 export interface AlvaraFieldRefs {
   readonly id: Prisma.FieldRef<"Alvara", 'String'>
+  readonly kind: Prisma.FieldRef<"Alvara", 'String'>
   readonly name: Prisma.FieldRef<"Alvara", 'String'>
   readonly number: Prisma.FieldRef<"Alvara", 'String'>
   readonly issuer: Prisma.FieldRef<"Alvara", 'String'>

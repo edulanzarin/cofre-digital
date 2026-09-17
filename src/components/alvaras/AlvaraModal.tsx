@@ -18,6 +18,7 @@ import Link from "next/link";
 import {
   alvaraDaysLeft,
   alvaraStatus,
+  ALVARA_KIND_META,
   ALVARA_STATUS_META,
   type Alvara,
 } from "@/lib/alvaras";
@@ -105,6 +106,9 @@ export default function AlvaraModal({
             )}
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <AlvaraBadge alvara={alvara} />
+              <span className="vlt-badge bg-panel-2 text-ink-2">
+                {ALVARA_KIND_META[alvara.kind].label}
+              </span>
               {alvara.issuer && (
                 <span className="vlt-badge bg-panel-2 text-ink-2">
                   {alvara.issuer}
@@ -151,7 +155,7 @@ export default function AlvaraModal({
                 )}
                 <p className="text-xs" style={{ color: meta.color }}>
                   {status === "none"
-                    ? "Alvará permanente, sem vencimento."
+                    ? `${ALVARA_KIND_META[alvara.kind].label} permanente, sem vencimento.`
                     : status === "expired"
                       ? `Venceu em ${formatDate(alvara.expiresAt!)}, há ${Math.abs(d)} dias.`
                       : `Vence em ${formatDate(alvara.expiresAt!)}, faltam ${d} dias.`}

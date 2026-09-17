@@ -2,8 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Building2, FileText, UploadCloud, X } from "lucide-react";
-import type { Alvara } from "@/lib/alvaras";
-import { ALVARA_SUGGESTIONS } from "@/lib/alvaras";
+import {
+  ALVARA_KIND_META,
+  ALVARA_KINDS,
+  type Alvara,
+  type AlvaraKind,
+} from "@/lib/alvaras";
 import type { Company } from "@/lib/companies";
 import { bufferToBase64 } from "@/lib/pfx";
 
@@ -13,8 +17,14 @@ function toDateInput(iso?: string) {
   return iso ? iso.slice(0, 10) : "";
 }
 
-// Cadastro/edição de alvará: os dados são digitados manualmente e o PDF
-// do documento é anexado. Datas em branco = alvará sem vencimento.
+// Nome que ainda é uma sugestão de alguma categoria: ninguém digitou nada
+// próprio, então trocar de categoria pode trocar o nome junto.
+const ALL_SUGGESTIONS = new Set(
+  ALVARA_KINDS.flatMap((k) => ALVARA_KIND_META[k].suggestions),
+);
+
+// Cadastro/edição de alvará, dispensa ou declaração: os dados são digitados
+// manualmente e o PDF do documento é anexado. Datas em branco = sem vencimento.
 export default function AlvaraForm({
   initial,
   fixedCompanyId,
@@ -26,6 +36,7 @@ export default function AlvaraForm({
   onSubmit: (data: Omit<Alvara, "id">) => void;
   onCancel: () => void;
 }) {
+  const [kind, setKind] = useState<AlvaraKind>(initial?.kind ?? "alvara");
   const [form, setForm] = useState({
     name: initial?.name ?? "",
     number: initial?.number ?? "",
@@ -65,10 +76,20 @@ export default function AlvaraForm({
     setForm((f) => ({ ...f, [key]: value }));
   }
 
+  // Nome vazio ou ainda sugerido acompanha a categoria (a declaração só tem
+  // um nome possível); nome digitado à mão fica como está.
+  function changeKind(next: AlvaraKind) {
+    setKind(next);
+    const name = form.name.trim();
+    if (!name || ALL_SUGGESTIONS.has(name)) {
+      set("name", ALVARA_KIND_META[next].suggestions[0]);
+    }
+  }
+
   async function handleFile(file: File) {
     setFileError("");
     if (!file.name.toLowerCase().endsWith(".pdf")) {
-      setFileError("Envie o alvará em PDF.");
+      setFileError("Envie o documento em PDF.");
       return;
     }
     if (file.size > MAX_PDF_MB * 1024 * 1024) {
@@ -90,6 +111,7 @@ export default function AlvaraForm({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     onSubmit({
+      kind,
       name: form.name.trim(),
       number: form.number.trim() || undefined,
       issuer: form.issuer.trim() || undefined,
@@ -108,17 +130,35 @@ export default function AlvaraForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <Field label="Tipo do alvará">
+      {/* div e não <label>: dentro de um label, clicar no texto aciona o
+          primeiro botão e trocaria a categoria sem querer. */}
+      <div>
+        <p className="mb-1.5 block text-xs font-medium text-ink-2">Categoria</p>
+        <div className="vlt-segment">
+          {ALVARA_KINDS.map((k) => (
+            <button
+              key={k}
+              type="button"
+              data-active={kind === k}
+              onClick={() => changeKind(k)}
+            >
+              {ALVARA_KIND_META[k].label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <Field label="Nome do documento">
         <input
           className="vlt-input"
           list="alvara-suggestions"
           value={form.name}
           onChange={(e) => set("name", e.target.value)}
-          placeholder="Alvará de Funcionamento, Sanitário…"
+          placeholder={ALVARA_KIND_META[kind].placeholder}
           required
         />
         <datalist id="alvara-suggestions">
-          {ALVARA_SUGGESTIONS.map((s) => (
+          {ALVARA_KIND_META[kind].suggestions.map((s) => (
             <option key={s} value={s} />
           ))}
         </datalist>
@@ -162,13 +202,13 @@ export default function AlvaraForm({
         </Field>
       </div>
       <p className="-mt-2 text-[0.68rem] text-ink-3">
-        Sem data de vencimento, o alvará é permanente e não gera alertas.
+        Sem data de vencimento, o documento é permanente e não gera alertas.
       </p>
 
       {/* PDF do alvará */}
       <div>
         <p className="mb-1.5 block text-xs font-medium text-ink-2">
-          PDF do alvará {initial?.hasFile || fileData ? "" : "(opcional)"}
+          PDF do documento {initial?.hasFile || fileData ? "" : "(opcional)"}
         </p>
         {fileName ? (
           <div className="flex items-center gap-3 rounded-xl border border-line bg-panel-2 px-3.5 py-3">
